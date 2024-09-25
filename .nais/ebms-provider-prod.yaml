@@ -1,0 +1,68 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "ebms-provider"
+  namespace: "team-emottak"
+  labels:
+    "team": "team-emottak"
+spec:
+  azure:
+    application:
+      enabled: true
+  webproxy: true
+  image: {{image}}
+  liveness:
+    path: "/internal/health/liveness"
+    port: 8080
+    initialDelay: 30
+    timeout: 10
+    failureThreshold: 10
+  readiness:
+    path: "/internal/health/readiness"
+    port: 8080
+    initialDelay: 30
+    timeout: 10
+    failureThreshold: 10
+  prometheus:
+    enabled: true
+    path: /prometheus
+  replicas:
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 25
+    min: 2
+    max: 12
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "512Mi"
+  ingresses:
+    - "https://ebms-provider-fss.intern.nav.no"
+  vault:
+    enabled: true
+#  gcp:
+#    sqlInstances:
+#        - type: POSTGRES_15
+#          databases:
+#            - name: ebms-db
+  accessPolicy:
+    inbound:
+      rules:
+        - application: statuspoll
+          namespace: navdig
+    outbound:
+      rules:
+        - application: cpa-repo
+        - application: ebms-payload
+  env:
+    - name: VIRKSOMHETSSERTIFIKAT_PATH
+      value: /secret/virksomhetssertifikat/prod/Arbeids-og-velferdsetaten
+    - name: VIRKSOMHETSSERTIFIKAT_SIGNERING
+      value: key.p12.b64.2022
+    - name: VIRKSOMHETSSERTIFIKAT_DEKRYPTERING
+      value: key.decrypt.p12.b64.2022
+    - name: VIRKSOMHETSSERTIFIKAT_CREDENTIALS
+      value: credentials.2022
