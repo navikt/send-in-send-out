@@ -37,40 +37,6 @@ jobs:
           ORG_GRADLE_PROJECT_githubUser: x-access-token
           ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Docker build and push ebms-provider
-        uses: nais/docker-build-push@v0
-        id: docker-push-ebms-provider
-        with:
-          team: team-emottak # required
-          tag: ${{ github.sha }}
-          dockerfile: Dockerfile # optional, default Dockerfile
-          docker_context: ebms-provider # optional, default .
-          image_suffix: ebms-provider
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
-      - name: Docker build and push ebms-payload
-        uses: nais/docker-build-push@v0
-        id: docker-push-ebms-payload
-        with:
-          team: team-emottak # required
-          tag: ${{ github.sha }}
-          dockerfile: Dockerfile # optional, default Dockerfile
-          docker_context: ebms-payload # optional, default .
-          image_suffix: ebms-payload
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
-      - name: Docker build and push cpa-repo
-        uses: nais/docker-build-push@v0
-        id: docker-push-cpa-repo
-        with:
-          team: team-emottak # required
-          tag: ${{ github.sha }}
-          dockerfile: Dockerfile # optional, default Dockerfile
-          docker_context: cpa-repo # optional, default .
-          image_suffix: cpa-repo
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
       - name: Docker build and push smtp-listeners
         uses: nais/docker-build-push@v0
         id: docker-push-smtp-listeners
@@ -94,52 +60,9 @@ jobs:
            project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }} # required, but is defined as an organization variable
            identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }} # required, but is defined as an organization secret
     outputs:
-      providerimage: ${{ steps.docker-push-ebms-provider.outputs.image }}
-      payloadimage: ${{ steps.docker-push-ebms-payload.outputs.image }}
-      cpaimage: ${{ steps.docker-push-cpa-repo.outputs.image }}
       listenerimage: ${{ steps.docker-push-smtp-listeners.outputs.image }}
       routerimage: ${{ steps.docker-push-smtp-router.outputs.image }}
       sendinimage: ${{ steps.docker-push-ebms-send-in.outputs.image }}
-
-  deploy-processor:
-    name: "Deploy ebms provider to dev"
-    needs: "build"
-    runs-on: "ubuntu-20.04"
-    steps:
-      - uses: "actions/checkout@v4"
-      - name: "Deploy to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
-        env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
-          CLUSTER: "dev-fss"
-          RESOURCE: ".nais/ebms-provider-dev.yaml"
-          IMAGE: ${{ needs.build.outputs.providerimage }}
-  deploy-cpa-repo:
-    name: "Deploy cpa-repo to dev"
-    needs: "build"
-    runs-on: "ubuntu-20.04"
-    steps:
-      - uses: "actions/checkout@v4"
-      - name: "Deploy to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
-        env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
-          CLUSTER: "dev-fss"
-          RESOURCE: ".nais/cpa-repo-dev.yaml"
-          IMAGE: ${{ needs.build.outputs.cpaimage }}
-  deploy-ebms-payload:
-    name: "Deploy ebms-payload to dev"
-    needs: "build"
-    runs-on: "ubuntu-20.04"
-    steps:
-      - uses: "actions/checkout@v4"
-      - name: "Deploy to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
-        env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
-          CLUSTER: "dev-fss"
-          RESOURCE: ".nais/ebms-payload-dev.yaml"
-          IMAGE: ${{ needs.build.outputs.payloadimage }}
   deploy-smtp-listeners:
     name: "Deploy smtp-listeners to dev"
     needs: "build"
