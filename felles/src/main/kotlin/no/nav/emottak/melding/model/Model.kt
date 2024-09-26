@@ -1,9 +1,7 @@
 package no.nav.emottak.melding.model
 
 import kotlinx.serialization.Serializable
-import no.nav.emottak.util.createUniqueMimeMessageId
 import org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.Description
-import org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.ErrorList
 import org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.SeverityType
 
 
@@ -25,76 +23,6 @@ data class SendInResponse(
     val conversationId: String,
     val addressing: Addressing,
     val payload: ByteArray
-)
-
-@Serializable
-enum class Direction(val str:String) {
-    IN("in"), OUT("out")
-}
-@Serializable
-data class PayloadRequest(
-    val direction: Direction,
-    val messageId: String,
-    val conversationId: String,
-    val processing: PayloadProcessing,
-    val payload: Payload
-)
-
-@Serializable
-data class PayloadResponse(
-    val processedPayload: Payload? = null,
-    val error: Feil? = null,
-    val apprec: Boolean = false
-)
-
-@Serializable
-data class Feil(val code:ErrorCode,
-                val descriptionText:String,
-                val sevirity:String? = null) {
-
-    fun asEbxmlError(location: String? = null):org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.Error {
-            val error = org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.Error()
-            error.errorCode = this.code.value
-            val description = Description()
-            description.lang = "no" // Default verdi fra spec.
-            description.value = descriptionText
-            error.description = description
-
-            error.severity = this.sevirity.takeIf { sevirity!=null}?.let {
-                SeverityType.fromValue(it) } ?: SeverityType.ERROR
-            error.location = location // Content-ID hvis error er i Payload. Hvis ebxml så er det XPath
-            error.id = "ERROR_ID" // Element Id
-            //error.any             // Unused?
-            //error.otherAttributes // Unused?
-            //error.codeContext = "urn:oasis:names:tc:ebxml-msg:service:errors" // Skal være default ifølge spec. Trenger ikke overstyre / sette
-            return error
-        }
-
-}
-
-@Serializable
-data class ValidationRequest(
-    val messageId: String,
-    val conversationId: String,
-    val cpaId: String,
-    val addressing: Addressing
-)
-
-@Serializable
-data class ValidationResult(
-    val ebmsProcessing: EbmsProcessing? = null,
-    val payloadProcessing: PayloadProcessing? = null,
-    val error: List<Feil>? = null
-)
-{
-    fun valid(): Boolean = error == null
-}
-
-@Serializable
-data class PayloadProcessing(
-    val signingCertificate: SignatureDetails,
-    val encryptionCertificate: ByteArray,
-    val processConfig: ProcessConfig? = null,
 )
 
 @Serializable
@@ -148,16 +76,6 @@ data class PartyId(
     val value: String,
 )
 
-@Serializable
-data class Processing(
-    val signingCertificate: SignatureDetails,
-    val encryptionCertificate: ByteArray
-)
-
-@Serializable
-data class Payload(val bytes: ByteArray, val contentType: String, val contentId: String = "att-${createUniqueMimeMessageId()}",val signedOf :String? = null)
-
-typealias EbmsAttachment = Payload
 
 
  enum class ErrorCode(val value:String,val description:String) {
@@ -198,29 +116,4 @@ typealias EbmsAttachment = Payload
 
  }
 
-@JvmName("asErrorList")
-fun List<Feil>.asErrorList(): ErrorList {
-    if (this.isEmpty()) {
-        throw IllegalArgumentException("(4.2.3 Kan ikke opprette ErrorList uten errors")
-    }
 
-    return this.map {
-        it.code.createEbxmlError(it.descriptionText,  if (it.sevirity!=null)  SeverityType.fromValue(it.sevirity) else null)
-    }.asErrorList()
-}
-
-@JvmName("toErrorList")
-fun List<org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.Error>.asErrorList(): ErrorList {
-            if(this.isEmpty()) {
-                throw IllegalArgumentException("(4.2.3 Kan ikke opprette ErrorList uten errors")
-            }
-            val errorList = ErrorList()
-            errorList.error.addAll(this)
-            errorList.version = "2.0"
-            //errorList.any // Unused?
-            errorList.id // "May be used for error tracking"
-            errorList.highestSeverity = this.sortedBy {
-                it.severity == SeverityType.ERROR }.first().severity
-            errorList.isMustUnderstand = true; // Alltid
-            return errorList
-}

@@ -15,10 +15,7 @@ import no.nav.emottak.constants.LogIndex.TO_ROLE
 import no.nav.emottak.constants.LogIndex.X_MAILER
 import no.nav.emottak.constants.SMTPHeaders
 import no.nav.emottak.melding.model.Header
-import no.nav.emottak.melding.model.PayloadRequest
 import no.nav.emottak.melding.model.SendInRequest
-import no.nav.emottak.melding.model.SignatureDetailsRequest
-import no.nav.emottak.melding.model.ValidationRequest
 import org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.MessageHeader
 
 fun Header.marker(): LogstashMarker = Markers.appendEntries(
@@ -35,31 +32,11 @@ fun Header.marker(): LogstashMarker = Markers.appendEntries(
     )
 )
 
-fun PayloadRequest.marker(): LogstashMarker = Markers.appendEntries(
-    mapOf(
-        MESSAGE_ID to this.messageId,
-        CONVERSATION_ID to this.conversationId,
-    )
-)
 
 fun SendInRequest.marker(): LogstashMarker = Markers.appendEntries(
     mapOf(
         MESSAGE_ID to this.messageId,
         CONVERSATION_ID to this.conversationId,
-    )
-)
-
-fun ValidationRequest.marker(): LogstashMarker = Markers.appendEntries(
-    mapOf(
-        MESSAGE_ID to this.messageId,
-        CONVERSATION_ID to this.conversationId,
-        CPA_ID to this.cpaId,
-        SERVICE to this.addressing.service,
-        ACTION to this.addressing.action,
-        TO_ROLE to this.addressing.to.role,
-        FROM_ROLE to this.addressing.from.role,
-        TO_PARTY to "${this.addressing.to.partyId.firstOrNull()?.type ?: UKJENT_VERDI}:${this.addressing.to.partyId.firstOrNull()?.value ?: UKJENT_VERDI}",
-        FROM_PARTY to "${this.addressing.from.partyId.firstOrNull()?.type ?: UKJENT_VERDI}:${this.addressing.from.partyId.firstOrNull()?.value ?: UKJENT_VERDI}",
     )
 )
 
@@ -89,14 +66,5 @@ fun Headers.retrieveLoggableHeaderPairs(): Map<String, String> {
     )
 }
 
-fun SignatureDetailsRequest.marker(): LogstashMarker = Markers.appendEntries(
-    mapOf(
-        CPA_ID to this.cpaId,
-        SERVICE to this.service,
-        ACTION to this.action,
-        FROM_ROLE to this.role,
-        FROM_PARTY to "${this.partyType}:${this.partyId}"
-    )
-)
 
 const val UKJENT_VERDI = "Ukjent" // Egentlig null
