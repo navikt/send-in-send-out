@@ -79,9 +79,8 @@ jobs:
           "VAR": "smtpPassword=${{ secrets.SMTP_PASSWORD }}"
 
       - name: "Deploy to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           CLUSTER: "dev-fss"
           RESOURCE: ".nais/${{ env.NAIS_MANIFEST }}"
           IMAGE: ${{env.IMAGE_NAME}}
