@@ -1,4 +1,4 @@
-name: "Build and deploy smtp-listeners"
+name: "Build and deploy smtp-transport"
 on:
   push:
     branches:
@@ -6,12 +6,12 @@ on:
       - dev
       - dev/**
     paths:
-      - smtp-listeners/**
+      - smtp-transport/**
 
 env:
-  MODULE_NAME: "smtp-listeners"
-  IMAGE_NAME: "ghcr.io/${{ github.repository }}/smtp-listeners:${{ github.sha }}"
-  NAIS_MANIFEST: "smtp-listeners-dev.yaml"
+  MODULE_NAME: "smtp-transport"
+  IMAGE_NAME: "ghcr.io/${{ github.repository }}/smtp-transport:${{ github.sha }}"
+  NAIS_MANIFEST: "smtp-transport-dev.yaml"
 
 jobs:
   build:
