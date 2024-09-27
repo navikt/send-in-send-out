@@ -5,7 +5,6 @@ on:
     - main
     - dev/**
 env:
-  "IMAGE_LISTENERS": "ghcr.io/${{ github.repository }}/smtp-listeners:${{ github.sha }}"
   "IMAGE_SEND_IN": "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
 jobs:
   build:
@@ -43,8 +42,6 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: "Build and push smtp-listeners Docker image"
-      run: "docker build smtp-listeners --pull --tag ${IMAGE_LISTENERS} -f Dockerfile && docker push ${IMAGE_LISTENERS}"
     - name: "Build and push ebms-send-in Docker image"
       run: "docker build ebms-send-in --pull --tag ${IMAGE_SEND_IN} -f Dockerfile && docker push ${IMAGE_SEND_IN}"
   deploy-ebms-send-in:
