@@ -17,7 +17,7 @@ fun main() {
     embeddedServer(Netty, port = 8080, module = Application::myApplicationModule).start(wait = true)
 }
 
-internal val log = LoggerFactory.getLogger("no.nav.emottak.smtp")
+internal val log = LoggerFactory.getLogger("no.nav.emottak.cpa")
 
 fun Application.myApplicationModule() {
     install(ContentNegotiation) {
