@@ -44,5 +44,5 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         it.herIdentifikator = "TODO5" // Avsender HER ID?
         it.orgNummer = "TODO6" // Avsender?
         it.meldingsType = "xml"
-        it.partnerReferanse = sendInRequest.cpaId
+        it.partnerReferanse = if (sendInRequest.addressing.service != "PasientlisteForesporsel") sendInRequest.cpaId else "1"
     }
