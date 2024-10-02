@@ -39,8 +39,11 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         it.mottaksId = sendInRequest.messageId
         it.mottattDatotid = Instant.now().toXMLGregorianCalendar()
         it.ediLoggId = sendInRequest.messageId
-        it.avsenderFnrFraDigSignatur = "TODO3"
+        sendInRequest.signedOf?.let { signedOf ->
+            it.avsenderFnrFraDigSignatur = signedOf
+        }
         it.avsenderOrgNrFraDigSignatur = "TODO4"
+
         it.herIdentifikator = "TODO5" // Avsender HER ID?
         it.orgNummer = "TODO6" // Avsender?
         it.meldingsType = "xml"
