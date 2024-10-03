@@ -4,7 +4,7 @@ on:
     branches:
       - main
 env:
-  "IMAGE_LISTENERS": "ghcr.io/${{ github.repository }}/cpa-sync:${{ github.sha }}"
+  "IMAGE_CPA_SYNC": "ghcr.io/${{ github.repository }}/cpa-sync:${{ github.sha }}"
   "IMAGE_SEND_IN": "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
 jobs:
   build:
@@ -45,7 +45,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: "Build and push cpa-sync Docker image"
-      run: "docker build cpa-sync --pull --tag ${IMAGE_LISTENERS} -f Dockerfile && docker push ${IMAGE_LISTENERS}"
+      run: "docker build cpa-sync --pull --tag ${IMAGE_CPA_SYNC} -f Dockerfile && docker push ${IMAGE_CPA_SYNC}"
     - name: "Build and push ebms-send-in Docker image"
       run: "docker build ebms-send-in --pull --tag ${IMAGE_SEND_IN} -f Dockerfile && docker push ${IMAGE_SEND_IN}"
   deploy-cpa-sync:
@@ -60,7 +60,7 @@ jobs:
           APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           CLUSTER: "prod-fss"
           RESOURCE: ".nais/cpa-sync-prod.yaml"
-          IMAGE: ${{env.IMAGE_LISTENERS}}
+          IMAGE: ${{env.IMAGE_CPA_SYNC}}
   deploy-ebms-send-in:
     name: "Deploy ebms-send-in to prod"
     needs: "build"
