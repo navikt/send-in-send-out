@@ -52,12 +52,14 @@ jobs:
     name: "Deploy cpa-sync to prod"
     needs: "build"
     runs-on: "ubuntu-20.04"
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to PROD"
-        uses: "nais/deploy/actions/deploy@v1"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           CLUSTER: "prod-fss"
           RESOURCE: ".nais/cpa-sync-prod.yaml"
           IMAGE: ${{env.IMAGE_CPA_SYNC}}
