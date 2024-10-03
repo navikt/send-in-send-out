@@ -38,8 +38,6 @@ spec:
     - "https://smtp-transport.intern.dev.nav.no"
   envFrom:
     - secret: smtp-router-secrets
-  filesFrom:
-    - secret: cpa-sftp-keys
   env:
     - name: SMTP_POP3_FACTORY_PORT
       value: "110"
@@ -57,5 +55,4 @@ spec:
       value: "nyebms2@test-es.nav.no"
     - name: DRY_RUN
       value: "true"
-    - name: NFS_HOST
-      value: b27drvl011.preprod.local
+

@@ -36,8 +36,8 @@ spec:
       memory: "1024Mi"
   ingresses:
     - "https://smtp-transport.intern.nav.no"
-  filesFrom:
-    - secret: cpa-sftp-keys
+  envFrom:
+    - secret: smtp-router-secrets
   env:
     - name: SMTP_POP3_FACTORY_PORT
       value: "110"
@@ -55,5 +55,3 @@ spec:
       value: "nyebms2@test-es.nav.no-not-in-use"
     - name: DRY_RUN
       value: "true"
-    - name: NFS_HOST
-      value: a01drvl100.adeo.no

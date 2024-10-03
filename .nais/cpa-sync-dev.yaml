@@ -36,26 +36,8 @@ spec:
       memory: "512Mi"
   ingresses:
     - "https://cpa-sync.intern.dev.nav.no"
-  envFrom:
-    - secret: smtp-router-secrets
   filesFrom:
     - secret: cpa-sftp-keys
   env:
-    - name: SMTP_POP3_FACTORY_PORT
-      value: "110"
-    - name: SMTP_POP3_PORT
-      value: "110"
-    - name: SMTP_POP3_HOST
-      value: "d32mxvl002.oera-t.local"
-    - name: SMTP_STORE_PROTOCOL
-      value: "pop3"
-    - name: SMTP_INCOMING_USERNAME
-      value: "nyebmstest@test-es.nav.no"
-    - name: SMTP_BCC_USERNAME
-      value: "nyebmsbcc@test-es.nav.no"
-    - name: SMTP_OUTGOING_USERNAME_NY
-      value: "nyebms2@test-es.nav.no"
-    - name: DRY_RUN
-      value: "true"
     - name: NFS_HOST
       value: b27drvl011.preprod.local
