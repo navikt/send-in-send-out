@@ -4,6 +4,7 @@ import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.HttpClient
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
@@ -78,6 +79,9 @@ suspend fun getCpaRepoToken(): BearerTokens {
 
 fun getCpaRepoAuthenticatedClient(): HttpClient {
     return HttpClient(CIO) {
+        install(HttpTimeout) {
+            this.requestTimeoutMillis = 60000
+        }
         install(ContentNegotiation) {
             json()
         }

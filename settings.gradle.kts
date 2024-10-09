@@ -147,5 +147,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ebxml-processor"
+rootProject.name = "send-in-send-out"
 include("felles", "smtp-transport", "ebms-send-in", "cpa-sync")
