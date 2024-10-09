@@ -33,8 +33,9 @@ fun Route.cpaSync(): Route = get("/cpa-sync") {
             call.respond(HttpStatusCode.OK, "CPA sync complete")
         }.onFailure {
             when (it) {
-                is HttpRequestTimeoutException -> log.error("Request Timeout", it).also { TIMEOUT_EXCEPTION_COUNTER++ }
-                is ConnectTimeoutException -> log.error("Connection Timeout", it).also { TIMEOUT_EXCEPTION_COUNTER++ }
+                // flere feilhåndteringer pga. vi ikke er sikre på hvilken timeout er det.
+                is HttpRequestTimeoutException, is ConnectTimeoutException -> log.error("Timeout exception", it)
+                    .also { TIMEOUT_EXCEPTION_COUNTER++ }
                 else -> log.error(it.message, it)
             }
             call.respond(HttpStatusCode.InternalServerError, "Something went wrong")
