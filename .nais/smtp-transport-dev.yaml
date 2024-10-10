@@ -37,7 +37,7 @@ spec:
   ingresses:
     - "https://smtp-transport.intern.dev.nav.no"
   envFrom:
-    - secret: smtp-router-secrets
+    - secret: smtp-transport-secrets
   env:
     - name: SMTP_POP3_FACTORY_PORT
       value: "110"

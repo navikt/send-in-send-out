@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 
 class PasientlisteServiceTest {
 
-
     @Test
     fun `Should throw exception if SSN from certificate does not match SSN from message`() {
         val sendIndRequest = validSendInRequest.value
