@@ -11,14 +11,20 @@ import org.junit.jupiter.api.Test
 
 class PasientlisteServiceTest {
 
+
     @Test
-    fun `Skall kaste exception hvis fnr fra sertifikat matcher ikke fnr fra fagmelding`() {
+    fun `Should throw exception if SSN from certificate does not match SSN from message`() {
         val sendIndRequest = validSendInRequest.value
         try {
             PasientlisteService.pasientlisteForesporsel(sendIndRequest)
         } catch (exception: RuntimeException) {
             Assertions.assertEquals(exception.message, PasientlisteService.CONFLICT_SIGNING_SSN)
         }
+    }
+
+    @Test
+    fun `Should not throw exception when senderFnr (SSN) matches request's signedOf`() {
+        val sendIndRequest = validSendInRequest.value
         val fnrFraFagmeldingen = "17087000133"
         mockkObject(PasientlisteClient)
         every {
