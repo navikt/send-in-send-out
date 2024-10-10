@@ -1,5 +1,7 @@
 package no.nav.emottak.cpa
 
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -27,8 +29,15 @@ fun Route.cpaSync(): Route = get("/cpa-sync") {
         }
         result.onSuccess {
             log.info("CPA sync completed in $duration")
+            TIMEOUT_EXCEPTION_COUNTER = 0
             call.respond(HttpStatusCode.OK, "CPA sync complete")
         }.onFailure {
+            when (it) {
+                // flere feilhåndteringer pga. vi ikke er sikre på hvilken timeout er det.
+                is HttpRequestTimeoutException, is ConnectTimeoutException -> log.error("Timeout exception", it)
+                    .also { TIMEOUT_EXCEPTION_COUNTER++ }
+                else -> log.error(it.message, it)
+            }
             call.respond(HttpStatusCode.InternalServerError, "Something went wrong")
         }
     }
@@ -43,10 +52,10 @@ fun Route.testAzureAuthToCpaRepo(): Route = get("/testCpaRepoConnection") {
     )
 }
 
-var BUG_ENCOUNTERED_CPA_REPO_TIMEOUT = false
+var TIMEOUT_EXCEPTION_COUNTER = 0
 fun Routing.registerHealthEndpoints() {
     get("/internal/health/liveness") {
-        if (BUG_ENCOUNTERED_CPA_REPO_TIMEOUT) { // TODO : årsak ukjent, cpa-repo/timestamps endepunkt timer ut etter en stund
+        if (TIMEOUT_EXCEPTION_COUNTER > 5) { // TODO : årsak ukjent, cpa-repo/timestamps endepunkt timer ut etter en stund
             call.respond(HttpStatusCode.ServiceUnavailable, "Restart me X_X")
         } else {
             call.respondText("I'm alive! :)")
