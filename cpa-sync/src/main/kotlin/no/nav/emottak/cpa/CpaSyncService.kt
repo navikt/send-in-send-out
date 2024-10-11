@@ -3,6 +3,7 @@ package no.nav.emottak.cpa
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.SftpException
 import io.ktor.client.HttpClient
+import net.logstash.logback.marker.Markers
 import no.nav.emottak.cpa.nfs.NFSConnector
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -93,7 +94,7 @@ class CpaSyncService(private val cpaRepoClient: HttpClient, private val nfsConne
     private suspend fun upsertFreshCpa(nfsCpaMap: Map<String, NfsCpa>, dbCpaMap: Map<String, String>) {
         nfsCpaMap.forEach { entry ->
             if (shouldUpsertCpa(entry.value.timestamp, dbCpaMap[entry.key])) {
-                log.info("Upserting new/modified CPA: ${entry.key} - ${entry.value.timestamp}")
+                log.info(Markers.append("cpaId", entry.key), "Upserting new/modified CPA: ${entry.key} - ${entry.value.timestamp}")
                 val unzippedCpaContent = unzipCpaContent(entry.value.content)
                 cpaRepoClient.putCPAinCPARepo(unzippedCpaContent, entry.value.timestamp)
             } else {
@@ -114,7 +115,7 @@ class CpaSyncService(private val cpaRepoClient: HttpClient, private val nfsConne
     private suspend fun deleteStaleCpa(nfsCpaIds: Set<String>, dbCpaMap: Map<String, String>) {
         val staleCpa = dbCpaMap - nfsCpaIds
         staleCpa.forEach { entry ->
-            log.info("Deleting stale entry: ${entry.key} - ${entry.value}")
+            log.info(Markers.append("cpaId", entry.key), "Deleting stale entry: ${entry.key} - ${entry.value}")
             cpaRepoClient.deleteCPAinCPARepo(entry.key)
         }
     }
