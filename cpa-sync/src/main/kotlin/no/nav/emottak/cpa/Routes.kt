@@ -11,6 +11,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.emottak.cpa.nfs.NFSConnector
@@ -53,7 +54,7 @@ fun Route.testAzureAuthToCpaRepo(): Route = get("/testCpaRepoConnection") {
 }
 
 var TIMEOUT_EXCEPTION_COUNTER = 0
-fun Routing.registerHealthEndpoints() {
+fun Routing.registerHealthEndpoints(collectorRegistry: PrometheusMeterRegistry) {
     get("/internal/health/liveness") {
         if (TIMEOUT_EXCEPTION_COUNTER > 5) { // TODO : årsak ukjent, cpa-repo/timestamps endepunkt timer ut etter en stund
             call.respond(HttpStatusCode.ServiceUnavailable, "Restart me X_X")
@@ -63,5 +64,8 @@ fun Routing.registerHealthEndpoints() {
     }
     get("/internal/health/readiness") {
         call.respondText("I'm ready! :)")
+    }
+    get("/prometheus") {
+        call.respond(collectorRegistry.scrape())
     }
 }
