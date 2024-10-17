@@ -8,11 +8,13 @@ import no.kith.xmlstds.msghead._2006_05_24.Receiver
 import no.kith.xmlstds.msghead._2006_05_24.RefDoc
 import no.kith.xmlstds.msghead._2006_05_24.Sender
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnBrukersUtbetalteYtelser
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnBrukersUtbetalteYtelserResponse
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeBaksystemIkkeTilgjengelig
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeBrukerIkkeFunnet
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeFeil
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeIngenTilgangTilEnEllerFlereYtelser
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeUgyldigDato
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeUgyldigKombinasjonBrukerIdOgBrukertype
 import no.nav.emottak.cxf.ServiceBuilder
@@ -50,10 +52,11 @@ object UtbetalingClient {
             .first().also { if (it.size > 1) log.warn("Inntektsforesporsel content har size >1") }.first()
         try {
             val response: Any = when (melding) {
-                is FinnUtbetalingListe -> inntektsforesporselSoapEndpoint.finnUtbetalingListe(melding.request)
-                is FinnBrukersUtbetalteYtelser -> inntektsforesporselSoapEndpoint.finnBrukersUtbetalteYtelser(melding.request)
+                is FinnUtbetalingListe -> FinnUtbetalingListeResponse().apply { response = inntektsforesporselSoapEndpoint.finnUtbetalingListe(melding.request) }
+                is FinnBrukersUtbetalteYtelser -> FinnBrukersUtbetalteYtelserResponse().apply { response = inntektsforesporselSoapEndpoint.finnBrukersUtbetalteYtelser(melding.request) }
                 else -> throw IllegalStateException("Ukjent meldingstype. Classname: " + melding.javaClass.name)
             }
+
             return msgHeadResponse(msgHeadRequest, sendInRequest, marshal(response))
         } catch (utbetalError: Throwable) {
             log.info("Handling inntektsforesporsel error: " + utbetalError.message)
