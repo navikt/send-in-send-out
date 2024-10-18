@@ -1,5 +1,6 @@
 name: "PROD: Build and deploy cpa-sync til PROD"
 on:
+  workflow_call:
   workflow_dispatch:
     branches:
       - main
