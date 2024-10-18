@@ -1,18 +1,12 @@
-name: "Build and deploy ebms-send-in"
+name: "PROD: Build and deploy cpa-sync til PROD"
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
-      - dev
-      - dev/**
-    paths:
-      - ebms-send-in/**
-      - felles/**
-
 env:
-  MODULE_NAME: "ebms-send-in"
-  IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
-  NAIS_MANIFEST: "ebms-send-in-dev.yaml"
+  MODULE_NAME: "cpa-sync"
+  IMAGE_NAME: "ghcr.io/${{ github.repository }}/cpa-sync:${{ github.sha }}"
+  NAIS_MANIFEST: "cpa-sync-prod.yaml"
 
 jobs:
   build:
@@ -26,8 +20,8 @@ jobs:
       - uses: "actions/checkout@v4"
       - uses: "actions/setup-java@v3"
         with:
-          java-version: 21
-          distribution: temurin
+          "java-version": "21"
+          "distribution": "temurin"
 
       - name: "Cache gradle wrapper"
         uses: actions/cache@v3
@@ -61,17 +55,19 @@ jobs:
         run: |
           docker build --tag ${{ env.IMAGE_NAME }} -f Dockerfile ${{ env.MODULE_NAME }} --pull 
           docker push ${{ env.IMAGE_NAME }}
+
   deploy:
-    name: "Deploy to dev"
+    name: "Deploy ${{env.MODULE_NAME}} to Prod"
     needs: "build"
     runs-on: "ubuntu-20.04"
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: "actions/checkout@v4"
-
-      - name: "Deploy to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
+      - name: "Deploy to PROD"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
-          CLUSTER: "dev-fss"
+          CLUSTER: "prod-fss"
           RESOURCE: ".nais/${{ env.NAIS_MANIFEST }}"
           IMAGE: ${{env.IMAGE_NAME}}
