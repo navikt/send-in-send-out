@@ -57,8 +57,9 @@ jobs:
         run: |
           docker build --tag ${{ env.IMAGE_NAME }} -f Dockerfile ${{ env.MODULE_NAME }} --pull 
           docker push ${{ env.IMAGE_NAME }}
+
   deploy:
-    name: "Deploy to Prod"
+    name: "Deploy to ${{ env.MODULE_NAME }} Prod"
     needs: "build"
     runs-on: "ubuntu-20.04"
     permissions:
@@ -66,7 +67,6 @@ jobs:
       id-token: write
     steps:
       - uses: "actions/checkout@v4"
-
       - name: "Deploy to Prod"
         uses: "nais/deploy/actions/deploy@v2"
         env:

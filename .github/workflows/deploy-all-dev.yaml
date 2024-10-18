@@ -1,5 +1,4 @@
 name: "Deploy all services i send-in-send-out to DEV environment"
-
 on:
   workflow_dispatch:
 

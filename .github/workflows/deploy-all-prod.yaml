@@ -1,5 +1,4 @@
 name: "PROD: Deploy all services i send-in-send-out to PROD environment"
-
 on:
   workflow_dispatch:
 
