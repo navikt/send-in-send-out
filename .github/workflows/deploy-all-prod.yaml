@@ -5,7 +5,7 @@ on:
 
 jobs:
   deploy-cpa-sync:
-    uses: ./cpa-sync-deploy-prod.yaml
+    uses: ./.github/workflows/cpa-sync-deploy-prod.yaml
 
   deploy-ebms-send-in:
-    uses: ./ebms-send-in-deploy-prod.yaml
+    uses: ./.github/workflows/ebms-send-in-deploy-prod.yaml
