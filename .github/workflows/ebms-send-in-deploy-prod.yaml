@@ -59,7 +59,7 @@ jobs:
           docker push ${{ env.IMAGE_NAME }}
 
   deploy:
-    name: "Deploy to ${{ env.MODULE_NAME }} Prod"
+    name: "Deploy ${{ env.MODULE_NAME }} to Prod"
     needs: "build"
     runs-on: "ubuntu-20.04"
     permissions:
