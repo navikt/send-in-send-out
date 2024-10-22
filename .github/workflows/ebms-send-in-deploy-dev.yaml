@@ -1,6 +1,7 @@
 name: "Build and deploy ebms-send-in"
 on:
   workflow_call:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -63,16 +64,15 @@ jobs:
           docker build --tag ${{ env.IMAGE_NAME }} -f Dockerfile ${{ env.MODULE_NAME }} --pull 
           docker push ${{ env.IMAGE_NAME }}
   deploy:
-    name: "Deploy ${{ env.MODULE_NAME }} to dev"
+    name: "Deploy ebms-send-in to dev"
     needs: "build"
     runs-on: "ubuntu-20.04"
     steps:
       - uses: "actions/checkout@v4"
 
       - name: "Deploy to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           CLUSTER: "dev-fss"
           RESOURCE: ".nais/${{ env.NAIS_MANIFEST }}"
           IMAGE: ${{env.IMAGE_NAME}}

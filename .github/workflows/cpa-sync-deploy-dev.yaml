@@ -1,6 +1,7 @@
 name: "Build and deploy cpa-sync"
 on:
   workflow_call:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -64,7 +65,7 @@ jobs:
           docker push ${{ env.IMAGE_NAME }}
 
   deploy:
-    name: "Deploy ${{ env.MODULE_NAME }} to dev"
+    name: "Deploy cpa-sync to dev"
     needs: "build"
     runs-on: "ubuntu-20.04"
     permissions: 
