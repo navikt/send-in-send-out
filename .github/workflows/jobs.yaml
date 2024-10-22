@@ -1,4 +1,4 @@
-name: "Naisjob read mail"
+name: "Naisjob cpa sync"
 on:
   workflow_dispatch:
     branches:

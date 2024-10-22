@@ -148,4 +148,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "send-in-send-out"
-include("felles", "smtp-transport", "ebms-send-in", "cpa-sync")
+include("felles", "smtp-transport", "ebms-send-in", "cpa-sync", "ebms-http")
