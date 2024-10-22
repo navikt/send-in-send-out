@@ -6,6 +6,11 @@ import no.nav.emottak.melding.model.Party
 import no.nav.emottak.melding.model.PartyId
 import no.nav.emottak.melding.model.SendInRequest
 
+val validSendInPasientlisteRequest = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("hentpasientliste/hentpasientliste-payload.xml")
+    mockSendInRequest("PasientisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "123456789")
+}
+
 val validSendInHarBorgerFrikortRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/egenandelforesporsel.xml")
     mockSendInRequest("HarBorgerFrikort", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")

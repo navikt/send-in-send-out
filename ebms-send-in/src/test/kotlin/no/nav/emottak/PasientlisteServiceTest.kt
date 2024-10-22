@@ -13,7 +13,7 @@ class PasientlisteServiceTest {
 
     @Test
     fun `Should throw exception if SSN from certificate does not match SSN from message`() {
-        val sendIndRequest = validSendInHarBorgerFrikortRequest.value
+        val sendIndRequest = validSendInPasientlisteRequest.value
         try {
             PasientlisteService.pasientlisteForesporsel(sendIndRequest)
         } catch (exception: RuntimeException) {
@@ -23,7 +23,7 @@ class PasientlisteServiceTest {
 
     @Test
     fun `Should not throw exception when senderFnr (SSN) matches request's signedOf`() {
-        val sendIndRequest = validSendInInntektforesporselRequest.value
+        val sendIndRequest = validSendInPasientlisteRequest.value
         val fnrFraFagmeldingen = "17087000133"
         mockkObject(PasientlisteClient)
         every {
