@@ -1,12 +1,14 @@
 name: "Build and deploy ebms-send-in"
 on:
+  workflow_call:
   push:
     branches:
-      - main-disable
-      - dev-disable
-      - dev-disable/**
+      - main
+      - dev
+      - dev/**
     paths:
-      - ebms-send-in-disable/**
+      - ebms-send-in/**
+      - felles/**
 
 env:
   MODULE_NAME: "ebms-send-in"
@@ -61,7 +63,7 @@ jobs:
           docker build --tag ${{ env.IMAGE_NAME }} -f Dockerfile ${{ env.MODULE_NAME }} --pull 
           docker push ${{ env.IMAGE_NAME }}
   deploy:
-    name: "Deploy to dev"
+    name: "Deploy ${{ env.MODULE_NAME }} to dev"
     needs: "build"
     runs-on: "ubuntu-20.04"
     steps:

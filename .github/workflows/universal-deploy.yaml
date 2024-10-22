@@ -1,0 +1,190 @@
+name: "Universal deployer"
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Project to deploy"
+        required: true
+        type: choice
+        options:
+          - cpa-sync
+          - ebms-send-in
+          - all
+      deploy_to_dev:
+        description: "Deploy to dev?"
+        required: false
+        default: false
+        type: boolean
+      deploy_to_prod:
+        description: "Deploy to PROD?"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build_cpa_sync:
+    name: "Build cpa-sync"
+    if: ${{ github.event.inputs.project == 'cpa-sync' || github.event.inputs.project == 'all' }}
+    runs-on: "ubuntu-20.04"
+    permissions:
+      packages: write
+      repository-projects: write
+      contents: write
+    env:
+      MODULE_NAME: "cpa-sync"
+      IMAGE_NAME: "ghcr.io/${{ github.repository }}/cpa-sync:${{ github.sha }}"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - uses: "actions/setup-java@v3"
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: "Cache Gradle wrapper"
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache Gradle packages"
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+
+      - name: "Build and test ${{ env.MODULE_NAME }}"
+        run: ./gradlew :$MODULE_NAME:test :$MODULE_NAME:build
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Login to GitHub Packages Docker Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Build and push ${{ env.MODULE_NAME }} docker image"
+        run: |
+          docker build --tag ${{ env.IMAGE_NAME }} -f Dockerfile ${{ env.MODULE_NAME }} --pull
+          docker push ${{ env.IMAGE_NAME }}
+
+  deploy_cpa_sync:
+    name: "Deploy  ${{ env.MODULE_NAME }}"
+    if: ${{ github.event.inputs.project == 'cpa-sync' || github.event.inputs.project == 'all' }}
+    needs: build_cpa_sync
+    runs-on: "ubuntu-20.04"
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - name: "Deploy  ${{ env.MODULE_NAME }} to dev"
+        if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "dev-fss"
+          RESOURCE: ".nais/cpa-sync-dev.yaml"
+          IMAGE: ${{ env.IMAGE_NAME }}
+
+      - name: "Deploy  ${{ env.MODULE_NAME }} to Prod"
+        if: ${{ github.event.inputs.deploy_to_prod == 'true' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "prod-fss"
+          RESOURCE: ".nais/cpa-sync-prod.yaml"
+          IMAGE: ${{ env.IMAGE_NAME }}
+
+  build_ebms_send_in:
+    name: "Build ebms-send-in"
+    if: ${{ github.event.inputs.project == 'ebms-send-in' || github.event.inputs.project == 'all' }}
+    runs-on: "ubuntu-20.04"
+    permissions:
+      packages: write
+      repository-projects: write
+      contents: write
+    env:
+      MODULE_NAME: "ebms-send-in"
+      IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - uses: "actions/setup-java@v3"
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: "Cache Gradle wrapper"
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache Gradle packages"
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+
+      - name: "Build and test ${{ env.MODULE_NAME }}"
+        run: ./gradlew :$MODULE_NAME:test :$MODULE_NAME:build
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Login to GitHub Packages Docker Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Build and push ${{ env.MODULE_NAME }} docker image"
+        run: |
+          docker build --tag ${{ env.IMAGE_NAME }} -f Dockerfile ${{ env.MODULE_NAME }} --pull
+          docker push ${{ env.IMAGE_NAME }}
+
+  deploy_ebms_send_in:
+    name: "Deploy  ${{ env.MODULE_NAME }}"
+    if: ${{ github.event.inputs.project == 'ebms-send-in' || github.event.inputs.project == 'all' }}
+    needs: build_ebms_send_in
+    runs-on: "ubuntu-20.04"
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - name: "Deploy  ${{ env.MODULE_NAME }} to dev"
+        if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "dev-fss"
+          RESOURCE: ".nais/ebms-send-in-dev.yaml"
+          IMAGE: ${{ env.IMAGE_NAME }}
+
+      - name: "Deploy  ${{ env.MODULE_NAME }} to Prod"
+        if: ${{ github.event.inputs.deploy_to_prod == 'true' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "prod-fss"
+          RESOURCE: ".nais/ebms-send-in-prod.yaml"
+          IMAGE: ${{ env.IMAGE_NAME }}
