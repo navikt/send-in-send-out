@@ -129,6 +129,14 @@ dependencyResolutionManagement {
             }
         }
         maven {
+            name = "Emottak ebms model"
+            url = uri("https://maven.pkg.github.com/navikt/ebxml-processor")
+            credentials {
+                username = "token"
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+        maven {
             name = "Nav token-support"
             url = uri("https://maven.pkg.github.com/navikt/token-support")
             credentials {
