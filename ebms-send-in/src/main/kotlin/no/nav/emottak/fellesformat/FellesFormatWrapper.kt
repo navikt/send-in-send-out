@@ -1,24 +1,13 @@
 package no.nav.emottak.fellesformat
 
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
-import no.nav.emottak.constants.LogIndex.DOCUMENT_EGENANDELFRIKORT_FNUMMER
-import no.nav.emottak.constants.LogIndex.DOCUMENT_HARBORGERFRIKORT_SERVICE
-import no.nav.emottak.constants.LogIndex.DOCUMENT_INNTEKTFORESPORSEL_FNUMMER
-import no.nav.emottak.constants.LogIndex.DOCUMENT_INNTEKTFORESPORSEL_SERVICE
-import no.nav.emottak.constants.LogIndex.DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER
-import no.nav.emottak.constants.LogIndex.DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE
-import no.nav.emottak.ebms.log
 import no.nav.emottak.melding.model.Addressing
 import no.nav.emottak.melding.model.Party
 import no.nav.emottak.melding.model.PartyId
 import no.nav.emottak.melding.model.SendInRequest
-import no.nav.emottak.util.birthDay
-import no.nav.emottak.util.createDocument
-import no.nav.emottak.util.getEnvVar
 import no.nav.emottak.util.toXMLGregorianCalendar
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import no.trygdeetaten.xml.eiff._1.ObjectFactory
-import java.io.ByteArrayInputStream
 import java.time.Instant
 
 private val fellesFormatFactory = ObjectFactory()
@@ -37,31 +26,6 @@ fun wrapMessageInEIFellesFormat(sendInRequest: SendInRequest): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().also {
         it.mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(sendInRequest)
         it.msgHead = unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
-    }.also {
-        val document = createDocument(ByteArrayInputStream(FellesFormatXmlMarshaller.marshal(it).toByteArray()))
-        if (it.mottakenhetBlokk.ebService == DOCUMENT_HARBORGERFRIKORT_SERVICE) {
-            val fnr = document.getElementsByTagName(DOCUMENT_EGENANDELFRIKORT_FNUMMER).item(0).getTextContent()
-            log.info("refParam: " + birthDay(fnr))
-            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
-                log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
-            }
-        }
-
-        if (it.mottakenhetBlokk.ebService == DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE) {
-            val fnr = document.getElementsByTagName(DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER).item(0).getTextContent()
-            log.info("refParam: " + birthDay(fnr))
-            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
-                log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
-            }
-        }
-
-        if (it.mottakenhetBlokk.ebService == DOCUMENT_INNTEKTFORESPORSEL_SERVICE) {
-            val fnr = document.getElementsByTagName(DOCUMENT_INNTEKTFORESPORSEL_FNUMMER).item(0).getTextContent()
-            log.info("refParam: " + birthDay(fnr))
-            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
-                log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
-            }
-        }
     }
 
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk =
