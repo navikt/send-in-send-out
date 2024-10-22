@@ -78,7 +78,7 @@ jobs:
           docker push ${{ env.IMAGE_NAME }}
 
   deploy_cpa_sync:
-    name: "Deploy  ${{ env.MODULE_NAME }}"
+    name: "Deploy cpa-sync"
     if: ${{ github.event.inputs.project == 'cpa-sync' || github.event.inputs.project == 'all' }}
     needs: build_cpa_sync
     runs-on: "ubuntu-20.04"
@@ -161,7 +161,7 @@ jobs:
           docker push ${{ env.IMAGE_NAME }}
 
   deploy_ebms_send_in:
-    name: "Deploy  ${{ env.MODULE_NAME }}"
+    name: "Deploy ebms-send-in"
     if: ${{ github.event.inputs.project == 'ebms-send-in' || github.event.inputs.project == 'all' }}
     needs: build_ebms_send_in
     runs-on: "ubuntu-20.04"
