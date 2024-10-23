@@ -21,6 +21,7 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
@@ -57,7 +58,11 @@ fun <T> timed(meterRegistry: PrometheusMeterRegistry, metricName: String, proces
 
 fun Application.ebmsSendInModule() {
     install(ContentNegotiation) {
-        json()
+        json(
+            Json {
+                explicitNulls = false
+            }
+        )
     }
     val appMicrometerRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
     install(MicrometerMetrics) {
