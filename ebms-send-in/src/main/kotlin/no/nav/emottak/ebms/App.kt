@@ -61,6 +61,7 @@ fun Application.ebmsSendInModule() {
         json(
             Json {
                 explicitNulls = false
+                ignoreUnknownKeys = true
             }
         )
     }
