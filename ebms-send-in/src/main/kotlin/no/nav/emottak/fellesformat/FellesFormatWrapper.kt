@@ -39,25 +39,22 @@ fun wrapMessageInEIFellesFormat(sendInRequest: SendInRequest): EIFellesformat =
         it.msgHead = unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }.also {
         val document = createDocument(ByteArrayInputStream(FellesFormatXmlMarshaller.marshal(it).toByteArray()))
-        if (it.mottakenhetBlokk.ebService == DOCUMENT_HARBORGERFRIKORT_SERVICE) {
-            val fnr = document.getElementsByTagName(DOCUMENT_EGENANDELFRIKORT_FNUMMER).item(0).getTextContent()
-            log.info("refParam: " + birthDay(fnr))
+        if ((it.mottakenhetBlokk.ebService == DOCUMENT_HARBORGERFRIKORT_SERVICE) && (document.getElementsByTagName(DOCUMENT_EGENANDELFRIKORT_FNUMMER).item(0) != null)) {
+            log.info("refParam: " + birthDay(document.getElementsByTagName(DOCUMENT_EGENANDELFRIKORT_FNUMMER).item(0).getTextContent()))
             if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
                 log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
             }
         }
 
-        if (it.mottakenhetBlokk.ebService == DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE) {
-            val fnr = document.getElementsByTagName(DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER).item(0).getTextContent()
-            log.info("refParam: " + birthDay(fnr))
+        if ((it.mottakenhetBlokk.ebService == DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE) && (document.getElementsByTagName(DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER).item(0) != null)) {
+            log.info("refParam: " + birthDay( document.getElementsByTagName(DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER).item(0).getTextContent()))
             if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
                 log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
             }
         }
 
-        if (it.mottakenhetBlokk.ebService == DOCUMENT_INNTEKTFORESPORSEL_SERVICE) {
-            val fnr = document.getElementsByTagName(DOCUMENT_INNTEKTFORESPORSEL_FNUMMER).item(0).getTextContent()
-            log.info("refParam: " + birthDay(fnr))
+        if ((it.mottakenhetBlokk.ebService == DOCUMENT_INNTEKTFORESPORSEL_SERVICE) && (document.getElementsByTagName(DOCUMENT_INNTEKTFORESPORSEL_FNUMMER).item(0) != null)) {
+            log.info("refParam: " + birthDay(document.getElementsByTagName(DOCUMENT_INNTEKTFORESPORSEL_FNUMMER).item(0).getTextContent()))
             if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
                 log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
             }
