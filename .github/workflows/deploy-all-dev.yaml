@@ -1,6 +1,12 @@
-name: "Deploy all services i send-in-send-out to DEV environment"
+name: "Deploy all to DEV"
 on:
   workflow_dispatch:
+
+permissions:
+  packages: write
+  repository-projects: write
+  contents: write
+  id-token: write
 
 jobs:
   deploy-cpa-sync:
