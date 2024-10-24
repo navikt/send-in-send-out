@@ -10,6 +10,7 @@ on:
     paths:
       - ebms-send-in/**
       - felles/**
+      - .github/workflows/ebms-send-in-deploy-dev.yaml
 
 env:
   MODULE_NAME: "ebms-send-in"
