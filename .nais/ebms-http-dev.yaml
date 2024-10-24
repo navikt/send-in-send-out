@@ -17,16 +17,6 @@ spec:
     initialDelay: 30
     timeout: 10
     failureThreshold: 10
-  observability:
-    autoInstrumentation:
-      enabled: true
-      runtime: java
-      destinations:
-        - id: "grafana-lgtm"
-        - id: "elastic-apm"
-    logging:
-      destinations:
-        - id: elastic
   readiness:
     path: "/internal/health/readiness"
     port: 8080
@@ -51,8 +41,6 @@ spec:
       memory: "256Mi"
   ingresses:
     - "https://ebms-http-fss.intern.dev.nav.no"
-  vault:
-    enabled: true
 #  gcp:
 #    sqlInstances:
 #        - type: POSTGRES_15

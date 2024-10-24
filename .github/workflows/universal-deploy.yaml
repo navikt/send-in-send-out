@@ -26,7 +26,7 @@ env:
   CPA_SYNC_MODULE_NAME: "cpa-sync"
   CPA_SYNC_IMAGE_NAME: "ghcr.io/${{ github.repository }}/cpa-sync:${{ github.sha }}"
   EBMS_HTTP_MODULE_NAME: "ebms-http"
-  EBMS_HTTP_IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
+  EBMS_HTTP_IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-http:${{ github.sha }}"
   EBMS_SEND_IN_MODULE_NAME: "ebms-send-in"
   EBMS_SEND_IN_IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
 
