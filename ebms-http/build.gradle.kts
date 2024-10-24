@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.bundles.prometheus)
-    implementation("no.nav.emottak:ebxml-processing-model:2024102305ad1b37a7c4ec36bc77ef91f5ff67098389922f")
+    implementation("no.nav.emottak:ebxml-processing-model:202410246ec28d6c18f5ad7d7125a83202761ee5bc3dd635")
     implementation(libs.jakarta.xml.bind.api)
     implementation("com.sun.xml.messaging.saaj:saaj-impl:3.0.2")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")

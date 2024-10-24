@@ -11,15 +11,17 @@ import io.ktor.server.routing.post
 import jakarta.xml.soap.SOAPFault
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import no.nav.emottak.message.model.EbmsFail
 import no.nav.emottak.message.model.EbmsMessage
 import no.nav.emottak.message.model.EbmsProcessing
+import no.nav.emottak.message.model.PayloadMessage
 import no.nav.emottak.util.getEnvVar
 
-private val ebxmlProcessorEndpoint = getEnvVar("EBXML_PROCESSOR_URL", "http://cpa-repo.team-emottak.svc.nais.local")
+private val ebxmlProcessorEndpoint = getEnvVar("EBXML_PROCESSOR_URL", "http://ebms-provider.team-emottak.svc.nais.local")
 fun Route.postEbmsSync(): Route = post("/ebms/sync") {
     val httpClient = defaultHttpClient().invoke()
-    val response = httpClient.post(ebxmlProcessorEndpoint) {
+    val response = httpClient.post("$ebxmlProcessorEndpoint/ebxml/unpack") {
         withContext(Dispatchers.IO) {
             this@post.setBody(call.receiveStream().readAllBytes())
         }
@@ -29,7 +31,9 @@ fun Route.postEbmsSync(): Route = post("/ebms/sync") {
             }
         }
     }
-    val ebxmlProcessingResponse: EbxmlProcessingResponse = response.body()
+    val ebxmlProcessingResponse: PayloadMessage = response.body()
+    val payloadMessage = Json.encodeToString(PayloadMessage.serializer(),ebxmlProcessingResponse)
+    println("payload message is $payloadMessage")
 }
 
 // @Serializable
