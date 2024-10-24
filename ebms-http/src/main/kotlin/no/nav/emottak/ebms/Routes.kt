@@ -9,6 +9,8 @@ import io.ktor.server.request.receiveStream
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import jakarta.xml.soap.SOAPFault
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.emottak.message.model.EbmsFail
 import no.nav.emottak.message.model.EbmsMessage
 import no.nav.emottak.message.model.EbmsProcessing
@@ -18,7 +20,9 @@ private val ebxmlProcessorEndpoint = getEnvVar("EBXML_PROCESSOR_URL", "http://cp
 fun Route.postEbmsSync(): Route = post("/ebms/sync") {
     val httpClient = defaultHttpClient().invoke()
     val response = httpClient.post(ebxmlProcessorEndpoint) {
-        this.setBody(call.receiveStream().readAllBytes())
+        withContext(Dispatchers.IO) {
+            this@post.setBody(call.receiveStream().readAllBytes())
+        }
         this.headers {
             call.request.headers.entries().forEach { header ->
                 this.appendAll(header.key, header.value)
