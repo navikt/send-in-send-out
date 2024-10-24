@@ -10,6 +10,7 @@ on:
         options:
           - cpa-sync
           - ebms-send-in
+          - ebms-http
           - all
       deploy_to_dev:
         description: "Deploy to dev?"
@@ -24,6 +25,8 @@ on:
 env:
   CPA_SYNC_MODULE_NAME: "cpa-sync"
   CPA_SYNC_IMAGE_NAME: "ghcr.io/${{ github.repository }}/cpa-sync:${{ github.sha }}"
+  EBMS_HTTP_MODULE_NAME: "ebms-http"
+  EBMS_HTTP_IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
   EBMS_SEND_IN_MODULE_NAME: "ebms-send-in"
   EBMS_SEND_IN_IMAGE_NAME: "ghcr.io/${{ github.repository }}/ebms-send-in:${{ github.sha }}"
 
@@ -107,7 +110,83 @@ jobs:
           CLUSTER: "prod-fss"
           RESOURCE: ".nais/cpa-sync-prod.yaml"
           IMAGE: ${{ env.CPA_SYNC_IMAGE_NAME }}
+  build_ebms_http:
+    name: "Build ebms-http"
+    if: ${{ github.event.inputs.project == 'ebms-http'}}
+    runs-on: "ubuntu-20.04"
+    permissions:
+      packages: write
+      repository-projects: write
+      contents: write
 
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - uses: "actions/setup-java@v3"
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: "Cache Gradle wrapper"
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: "Cache Gradle packages"
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-cache-${{ hashFiles('build.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-cache-
+
+      - name: "Build and test ${{ env.EBMS_HTTP_MODULE_NAME }}"
+        run: ./gradlew :$EBMS_HTTP_MODULE_NAME:test :$EBMS_HTTP_MODULE_NAME:build
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Login to GitHub Packages Docker Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Build and push ${{ env.EBMS_HTTP_MODULE_NAME }} docker image"
+        run: |
+          docker build --tag ${{ env.EBMS_HTTP_IMAGE_NAME }} -f Dockerfile ${{ env.EBMS_HTTP_MODULE_NAME }} --pull
+          docker push ${{ env.EBMS_HTTP_IMAGE_NAME }}
+  deploy_ebms_http:
+    name: "Deploy ebms-http"
+    if: ${{ github.event.inputs.project == 'ebms-http' }}
+    needs: build_ebms_http
+    runs-on: "ubuntu-20.04"
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v4"
+
+      - name: "Deploy  ${{ env.EBMS_HTTP_MODULE_NAME }} to dev"
+        if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "dev-fss"
+          RESOURCE: ".nais/ebms-http-dev.yaml"
+          IMAGE: ${{ env.EBMS_HTTP_IMAGE_NAME }}
+
+      - name: "Deploy  ${{ env.EBMS_HTTP_MODULE_NAME }} to Prod"
+        if: ${{ github.event.inputs.deploy_to_prod == 'true' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "prod-fss"
+          RESOURCE: ".nais/ebms-http-prod.yaml"
+          IMAGE: ${{ env.EBMS_HTTP_IMAGE_NAME }}
   build_ebms_send_in:
     name: "Build ebms-send-in"
     if: ${{ github.event.inputs.project == 'ebms-send-in' || github.event.inputs.project == 'all' }}
