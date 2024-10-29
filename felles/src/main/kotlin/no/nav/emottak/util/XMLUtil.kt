@@ -17,7 +17,32 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
+const val BIRTHDAY: Int = 6
+const val FNUMBER: Int = 11
+var fnr: String = "NA"
 
+fun refParam(nodeList: NodeList, tagName: String): String {
+    for (count in 0 until nodeList.length) {
+        val elemNode = nodeList.item(count)
+        if (elemNode.nodeType == Node.ELEMENT_NODE) {
+            if ("""${elemNode.nodeName}""".contains(tagName) ) {
+                fnr = elemNode.textContent
+                break
+            }
+            if (elemNode.hasChildNodes()) {
+                refParam(elemNode.childNodes, tagName)
+            }
+        }
+    }
+    return fnr
+}
+
+fun birthDay(fnr: String): String {
+    if ((fnr != null) && (fnr.length != FNUMBER)) {
+        return ""
+    }
+    return fnr.substring(0, BIRTHDAY)
+}
 
 fun createDocument(inputstream: InputStream): Document {
     val dbf = DocumentBuilderFactory.newInstance()
