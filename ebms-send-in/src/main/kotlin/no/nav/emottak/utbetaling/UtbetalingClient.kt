@@ -72,7 +72,7 @@ object UtbetalingClient {
 
                 else -> throw IllegalStateException("Ukjent meldingstype. Classname: " + melding.javaClass.name)
             }
-            return msgHeadResponse(msgHeadRequest, sendInRequest, marshal(response))
+            return msgHeadResponse(msgHeadRequest, sendInRequest, response)
         } catch (utbetalError: Throwable) {
             log.info("Handling inntektsforesporsel error: " + utbetalError.message)
             val feil = FinnUtbetalingListeFeil()
