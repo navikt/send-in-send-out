@@ -27,7 +27,6 @@ import java.io.FileInputStream
 import java.time.Instant
 import java.util.UUID
 import javax.xml.namespace.QName
-import javax.xml.ws.BindingProvider
 
 object UtbetalingClient {
     val log = LoggerFactory.getLogger(UtbetalingClient::class.java)
