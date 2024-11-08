@@ -19,6 +19,7 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingL
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeUgyldigKombinasjonBrukerIdOgBrukertype
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.melding.model.SendInRequest
+import no.nav.emottak.utbetaling.UtbetalingClient.UTBETAL_SOAP_ENDPOINT
 import no.nav.emottak.util.getEnvVar
 import no.nav.emottak.util.toXMLGregorianCalendar
 import org.slf4j.LoggerFactory
@@ -26,37 +27,52 @@ import java.io.FileInputStream
 import java.time.Instant
 import java.util.UUID
 import javax.xml.namespace.QName
+import javax.xml.ws.BindingProvider
 
 object UtbetalingClient {
-
     val log = LoggerFactory.getLogger(UtbetalingClient::class.java)
 
-    val utbetalingObjectFactory: no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.ObjectFactory =
-        no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.ObjectFactory()
-
-    val YRP_URL_TEST = "https://ytelser-rest-proxy.intern.dev.nav.no"
+    val YRP_URL_TEST = "https://ytelser-rest-proxy.dev.intern.nav.no"
     val YRP_URL_PROD = "https://ytelser-rest-proxy.intern.nav.no"
     val RESOLVED_UTBETAL_URL =
         when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-            "local" -> YRP_URL_TEST
-            "dev-fss" -> YRP_URL_TEST
             "prod-fss" -> YRP_URL_PROD
             else -> YRP_URL_TEST
         }
     val UTBETAL_SOAP_ENDPOINT = RESOLVED_UTBETAL_URL + "/Utbetaling"
 
     fun behandleInntektsforesporsel(sendInRequest: SendInRequest): MsgHead {
-        val msgHeadRequest = UtbetalingXmlMarshaller.unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
+        val msgHeadRequest =
+            UtbetalingXmlMarshaller.unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
+        val orgnr = msgHeadRequest.msgInfo.sender.organisation.ident.first { it.typeId.v == "ENH" }?.id
+
         val melding = msgHeadRequest.document.map { it.refDoc.content.any }
             .also { if (it.size > 1) log.warn("Inntektsforesporsel refdoc har size >1") }
             .first().also { if (it.size > 1) log.warn("Inntektsforesporsel content har size >1") }.first()
         try {
             val response: Any = when (melding) {
-                is FinnUtbetalingListe -> FinnUtbetalingListeResponse().apply { response = inntektsforesporselSoapEndpoint.finnUtbetalingListe(melding.request) }
-                is FinnBrukersUtbetalteYtelser -> FinnBrukersUtbetalteYtelserResponse().apply { response = inntektsforesporselSoapEndpoint.finnBrukersUtbetalteYtelser(melding.request) }
+                is FinnUtbetalingListe -> FinnUtbetalingListeResponse().apply {
+                    response =
+                        inntektsforesporselService
+                            .withOrgnrHeader(orgnr)
+                            .withUserNameToken(
+                                SERVICEUSER_NAME,
+                                SERVICEUSER_PASSWORD
+                            ).get().finnUtbetalingListe(melding.request)
+                }
+
+                is FinnBrukersUtbetalteYtelser -> FinnBrukersUtbetalteYtelserResponse().apply { // Brukes aldri...
+                    response =
+                        inntektsforesporselService
+                            .withOrgnrHeader(orgnr)
+                            .withUserNameToken(
+                                SERVICEUSER_NAME,
+                                SERVICEUSER_PASSWORD
+                            ).get().finnBrukersUtbetalteYtelser(melding.request)
+                }
+
                 else -> throw IllegalStateException("Ukjent meldingstype. Classname: " + melding.javaClass.name)
             }
-
             return msgHeadResponse(msgHeadRequest, sendInRequest, marshal(response))
         } catch (utbetalError: Throwable) {
             log.info("Handling inntektsforesporsel error: " + utbetalError.message)
@@ -64,27 +80,47 @@ object UtbetalingClient {
             when (utbetalError) {
                 is FinnUtbetalingListeBrukerIkkeFunnet
                 -> feil.finnUtbetalingListebrukerIkkeFunnet = utbetalError.faultInfo
+
                 is FinnUtbetalingListeBaksystemIkkeTilgjengelig
                 -> feil.finnUtbetalingListebaksystemIkkeTilgjengelig = utbetalError.faultInfo
+
                 is FinnUtbetalingListeIngenTilgangTilEnEllerFlereYtelser
                 -> feil.finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser = utbetalError.faultInfo
+
                 is FinnUtbetalingListeUgyldigDato
                 -> feil.finnUtbetalingListeugyldigDato = utbetalError.faultInfo
+
                 is FinnUtbetalingListeUgyldigKombinasjonBrukerIdOgBrukertype
                 -> feil.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype = utbetalError.faultInfo
+
                 else ->
                     throw utbetalError.also { log.error("Ukjent feiltype: " + it.message, it) }
             }
             return msgHeadResponse(msgHeadRequest, sendInRequest, feil)
         }
     }
+
+    private val SERVICEUSER_NAME = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
+        "local" -> "testPassword"
+        else -> String(FileInputStream("/secret/serviceuser/password").readAllBytes())
+    }
+
+    private val SERVICEUSER_PASSWORD = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
+        "local" -> "testPassword"
+        else -> String(FileInputStream("/secret/serviceuser/password").readAllBytes())
+    }
 }
 
-val inntektsforesporselSoapEndpoint: no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.Utbetaling =
+val inntektsforesporselService =
     ServiceBuilder(
         no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.Utbetaling::class.java
     )
-        .withAddress(getEnvVar("UTBETALING_URL", "https://ytelser-rest-proxy.dev.intern.nav.no/Utbetaling"))
+        .apply {
+            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
+                this.withLogging()
+            }
+        }
+        .withAddress(UTBETAL_SOAP_ENDPOINT)
         .withWsdl(
             "classpath:no.nav.ekstern.virkemiddelokonomi/tjenester/utbetaling/utbetaling.wsdl"
             // "classpath:no.nav.ekstern.virkemiddelokonomi/tjenester.utbetaling/utbetaling.wsdl"
@@ -92,17 +128,6 @@ val inntektsforesporselSoapEndpoint: no.nav.ekstern.virkemiddelokonomi.tjenester
         .withServiceName(QName("http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1", "Utbetaling"))
         .withEndpointName(QName("http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1", "UtbetalingPort"))
         .build()
-        .withUserNameToken(
-            when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-                "local" -> "testUserName"
-                else -> String(FileInputStream("/secret/serviceuser/username").readAllBytes())
-            },
-            when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-                "local" -> "testPassword"
-                else -> String(FileInputStream("/secret/serviceuser/password").readAllBytes())
-            }
-        )
-        .get()
 
 fun senderToReceiver(sender: Sender): Receiver {
     val receiver = Receiver()
