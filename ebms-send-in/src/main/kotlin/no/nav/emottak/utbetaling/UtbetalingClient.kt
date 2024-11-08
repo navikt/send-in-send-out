@@ -43,7 +43,7 @@ object UtbetalingClient {
     fun behandleInntektsforesporsel(sendInRequest: SendInRequest): MsgHead {
         val msgHeadRequest =
             UtbetalingXmlMarshaller.unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
-        val orgnr = msgHeadRequest.msgInfo.sender.organisation.ident.first { it.typeId.v == "ENH" }?.id
+        val orgnr = msgHeadRequest.msgInfo.sender.organisation.ident.firstOrNull { it.typeId.v == "ENH" }?.id
 
         val melding = msgHeadRequest.document.map { it.refDoc.content.any }
             .also { if (it.size > 1) log.warn("Inntektsforesporsel refdoc har size >1") }
