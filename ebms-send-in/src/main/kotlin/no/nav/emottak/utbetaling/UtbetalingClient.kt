@@ -53,7 +53,7 @@ object UtbetalingClient {
                 is FinnUtbetalingListe -> FinnUtbetalingListeResponse().apply {
                     response =
                         inntektsforesporselService
-                            .withOrgnrHeader(orgnr)
+                            //.withOrgnrHeader(orgnr)
                             .withUserNameToken(
                                 SERVICEUSER_NAME,
                                 SERVICEUSER_PASSWORD
@@ -100,8 +100,8 @@ object UtbetalingClient {
     }
 
     private val SERVICEUSER_NAME = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-        "local" -> "testPassword"
-        else -> String(FileInputStream("/secret/serviceuser/password").readAllBytes())
+        "local" -> "testUsername"
+        else -> String(FileInputStream("/secret/serviceuser/username").readAllBytes())
     }
 
     private val SERVICEUSER_PASSWORD = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
