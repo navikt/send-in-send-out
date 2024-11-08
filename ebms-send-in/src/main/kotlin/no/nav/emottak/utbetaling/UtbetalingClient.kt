@@ -53,7 +53,7 @@ object UtbetalingClient {
                 is FinnUtbetalingListe -> FinnUtbetalingListeResponse().apply {
                     response =
                         inntektsforesporselService
-                            //.withOrgnrHeader(orgnr)
+                            .withOrgnrHeader(orgnr)
                             .withUserNameToken(
                                 SERVICEUSER_NAME,
                                 SERVICEUSER_PASSWORD
