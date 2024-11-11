@@ -101,25 +101,12 @@ fun Route.mailRead(): Route = get("/mail/read") {
         log.error(it.message, it)
         call.respond(it.localizedMessage)
     }
-//    logBccMessages()
 }
 
 fun Route.logOutgoing(): Route = get("/mail/log/outgoing") {
     logBccMessages()
     call.respond(HttpStatusCode.OK)
 }
-
-//        get("/mail/nuke") { // TODO fjern før prod
-//            incomingStore.getFolder("INBOX")
-//                .batchDelete(100)
-//            bccStore.getFolder("INBOX")
-//                .batchDelete(100)
-//            bccStore.getFolder("testdata")
-//                .batchDelete(100)
-//            call.respond(HttpStatusCode.OK)
-//        }
-//   }
-// }
 
 fun logBccMessages() {
     if ("dev-fss" != getEnvVar("NAIS_CLUSTER_NAME", "dev-fss")) {
@@ -129,12 +116,6 @@ fun logBccMessages() {
     val testDataInbox = bccStore.getFolder("testdata") as IMAPFolder
     testDataInbox.open(Folder.READ_WRITE)
     if (testDataInbox.messageCount > getEnvVar("INBOX_LIMIT", "2000").toInt()) {
-//        testDataInbox.messages.map {  // TODO slett denne koden hvis deleteAll() funker
-//            it.setFlag(Flags.Flag.DELETED, true)
-//            it
-//        }.toTypedArray().also {
-//            testDataInbox.expunge(it)
-//        }
         testDataInbox.deleteAll()
     }
     inbox.open(Folder.READ_WRITE)
@@ -183,12 +164,12 @@ fun Folder.deleteAll() {
         if (name.lowercase().contains("inbox")) {
             val deleteMeFolder = getFolder("DeleteMe")
             if (!deleteMeFolder.exists()) create(HOLDS_MESSAGES)
-            this.renameTo(deleteMeFolder)
+            renameTo(deleteMeFolder)
             deleteMeFolder.delete(true)
-            log.info("${this.fullName} deleted.")
+            log.info("$fullName deleted.")
         } else {
             delete(true)
-            log.info("${this.fullName} deleted.")
+            log.info("$fullName deleted.")
         }
     } else {
         log.warn("DeleteAll strategy only valid for IMAP")

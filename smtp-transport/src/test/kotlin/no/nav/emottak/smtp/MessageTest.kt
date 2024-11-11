@@ -57,7 +57,7 @@ class MessageTest {
     @Test
     fun `Ta en melding`() {
         val session = mockSession()
-        val stream = this.javaClass.classLoader.getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
+        val stream = javaClass.classLoader.getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
         val msg = MimeMessage(session, stream)
         val store = mockStore(msg)
         val reader = MailReader(store)
@@ -70,7 +70,7 @@ class MessageTest {
     @Test
     fun `Delete in batches`() {
         val session = mockSession()
-        val stream = this.javaClass.classLoader.getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
+        val stream = javaClass.classLoader.getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
         val msg = MimeMessage(session, stream)
         val store = mockStore(msg)
         store.getFolder("INBOX").batchDelete(100)
