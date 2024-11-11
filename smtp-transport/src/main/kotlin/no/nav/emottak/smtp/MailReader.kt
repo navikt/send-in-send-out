@@ -13,17 +13,17 @@ import net.logstash.logback.marker.Markers
 
 data class EmailMsg(
     val headers: Map<String, String>,
-    val parts: List<Part>,
+    val parts: List<Part>
 )
 
 data class Part(
     val headers: Map<String, String>,
-    val bytes: ByteArray,
+    val bytes: ByteArray
 )
 
 class MailReader(
     private val store: Store,
-    private val expunge: Boolean = true,
+    private val expunge: Boolean = true
 ) : AutoCloseable {
     private val inbox: Folder = getInbox()
 
@@ -158,6 +158,6 @@ class MailReader(
 
     private fun createHeaderMarker(xMailer: String?): LogstashMarker = Markers
         .appendEntries(
-            mutableMapOf("systemkilde" to (xMailer ?: "-"))
+            mutableMapOf("system source" to (xMailer ?: "-"))
         )
 }

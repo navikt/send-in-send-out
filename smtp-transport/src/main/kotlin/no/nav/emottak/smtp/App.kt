@@ -29,11 +29,7 @@ fun Application.myApplicationModule() {
         registry = appMicrometerRegistry
     }
     routing {
-        if (getEnvVar("NAIS_CLUSTER_NAME") != "prod-fss") {
-            mailCheck()
-            mailRead()
-            logOutgoing()
-        }
+        mailRead()
         registerHealthEndpoints(appMicrometerRegistry)
     }
 }

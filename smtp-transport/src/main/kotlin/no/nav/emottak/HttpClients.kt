@@ -11,7 +11,7 @@ import io.ktor.http.Headers
 import io.ktor.http.HeadersBuilder
 import io.ktor.http.content.PartData
 import io.ktor.util.CaseInsensitiveMap
-import jakarta.mail.internet.MimeUtility
+import jakarta.mail.internet.MimeUtility.unfold
 import no.nav.emottak.smtp.EmailMsg
 import no.nav.emottak.smtp.MimeHeaders.CONTENT_DESCRIPTION
 import no.nav.emottak.smtp.MimeHeaders.CONTENT_DISPOSITION
@@ -96,30 +96,26 @@ suspend fun HttpClient.postEbmsMessageMultiPart(message: EmailMsg): HttpResponse
 }
 
 fun Map<String, String>.filterHeader(vararg headerNames: String): HeadersBuilder.() -> Unit = {
-    val caseInsensitiveMap = CaseInsensitiveMap<String>().apply {
-        putAll(this@filterHeader)
-    }
-    headerNames.map {
-        Pair(it, caseInsensitiveMap[it])
-    }.forEach {
-        if (it.second != null) {
-            val headerValue = MimeUtility.unfold(it.second!!.replace("\t", " "))
-            append(it.first, headerValue)
+    val caseInsensitiveMap = CaseInsensitiveMap<String>().apply { putAll(this@filterHeader) }
+    headerNames.map { Pair(it, caseInsensitiveMap[it]) }
+        .forEach {
+            if (it.second != null) {
+                val headerValue = unfold(it.second!!.replace("\t", " "))
+                append(it.first, headerValue)
+            }
         }
-    }
-
-    appendMessageIdAsContentIdIfContentIdIsMissingOnTextXMLContentTypes(caseInsensitiveMap)
+    appendMessageIdWhenContentIdMissing(caseInsensitiveMap)
 }
 
-private fun HeadersBuilder.appendMessageIdAsContentIdIfContentIdIsMissingOnTextXMLContentTypes(caseInsensitiveMap: CaseInsensitiveMap<String>) {
-    if (MimeUtility.unfold(caseInsensitiveMap[CONTENT_TYPE])?.contains("text/xml") == true) {
+private fun HeadersBuilder.appendMessageIdWhenContentIdMissing(caseInsensitiveMap: CaseInsensitiveMap<String>) {
+    if (unfold(caseInsensitiveMap[CONTENT_TYPE])?.contains("text/xml") == true) {
         if (caseInsensitiveMap[CONTENT_ID] != null) {
             log.warn(
-                "Content-Id header allerede satt for text/xml: " + caseInsensitiveMap[CONTENT_ID] +
+                "Content-Id header already set for text/xml: " + caseInsensitiveMap[CONTENT_ID] +
                     "\nMessage-Id: " + caseInsensitiveMap[MESSAGE_ID]
             )
         } else {
-            val headerValue = MimeUtility.unfold(caseInsensitiveMap[MESSAGE_ID]!!.replace("\t", " "))
+            val headerValue = unfold(caseInsensitiveMap[MESSAGE_ID]!!.replace("\t", " "))
             append(CONTENT_ID, headerValue)
             log.info("Header: <$CONTENT_ID> - <$headerValue>")
         }

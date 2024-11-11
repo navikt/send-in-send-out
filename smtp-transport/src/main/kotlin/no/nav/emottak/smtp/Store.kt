@@ -7,7 +7,6 @@ import jakarta.mail.Store
 import java.util.Properties
 
 private val smtpUsername_incoming = getEnvVar("SMTP_INCOMING_USERNAME", "test@test.test")
-private val smtpUsername_bcc = getEnvVar("SMTP_BCC_USERNAME", "test@test.test")
 private val smtpPassword = getEnvVar("SMTP_PASSWORD", "changeit")
 
 private val properties = Properties()
@@ -22,7 +21,6 @@ private val properties = Properties()
         setProperty("mail.imap.host", "d32mxvl002.oera-t.local")
     }
 
-val bccStore = run { smtpPassword.createStore(smtpUsername_bcc, "imap") }
 val incomingStore = run { smtpPassword.createStore(smtpUsername_incoming, "pop3") }
 
 private fun String.createStore(username: String, protocol: String = "pop3"): Store {
