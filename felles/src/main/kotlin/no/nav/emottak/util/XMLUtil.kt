@@ -1,13 +1,7 @@
 package no.nav.emottak.util
 
-import org.apache.xml.security.utils.Constants
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.security.cert.X509Certificate
 import java.time.Instant
 import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
@@ -16,30 +10,34 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 
 const val BIRTHDAY: Int = 6
 const val FNUMBER: Int = 11
-var fnr: String = "NA"
 
 fun refParam(nodeList: NodeList, tagName: String): String {
     for (count in 0 until nodeList.length) {
         val elemNode = nodeList.item(count)
         if (elemNode.nodeType == Node.ELEMENT_NODE) {
-            if ("""${elemNode.nodeName}""".contains(tagName) ) {
-                fnr = elemNode.textContent
-                break
+            if (elemNode.nodeName.contains(tagName) ) {
+                return elemNode.textContent
             }
-            if (elemNode.hasChildNodes()) {
-                refParam(elemNode.childNodes, tagName)
+
+            val attr: String = refParam(elemNode.childNodes, tagName)
+            if (attr != "NA") {
+                return attr
             }
         }
     }
-    return fnr
+    return "NA"
 }
 
 fun birthDay(fnr: String): String {
-    if ((fnr != null) && (fnr.length != FNUMBER)) {
-        return ""
+    if (fnr.length != FNUMBER) {
+        return "NA"
     }
     return fnr.substring(0, BIRTHDAY)
 }

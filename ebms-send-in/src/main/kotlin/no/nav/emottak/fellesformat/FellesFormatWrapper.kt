@@ -15,6 +15,7 @@ import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.util.birthDay
 import no.nav.emottak.util.createDocument
 import no.nav.emottak.util.getEnvVar
+import no.nav.emottak.util.marker
 import no.nav.emottak.util.refParam
 import no.nav.emottak.util.toXMLGregorianCalendar
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -40,29 +41,15 @@ fun wrapMessageInEIFellesFormat(sendInRequest: SendInRequest): EIFellesformat =
         it.msgHead = unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }.also {
         val document = createDocument(ByteArrayInputStream(FellesFormatXmlMarshaller.marshal(it).toByteArray()))
-
-        if ((it.mottakenhetBlokk.ebService == DOCUMENT_HARBORGERFRIKORT_SERVICE)) {
-            var fnr: String = refParam(document.getChildNodes(), DOCUMENT_EGENANDELFRIKORT_FNUMMER)
-            log.info("refParam: " + birthDay(fnr))
-            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
-                log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
-            }
+        val fnr = when (it.mottakenhetBlokk.ebService) {
+            DOCUMENT_HARBORGERFRIKORT_SERVICE -> refParam(document.getChildNodes(), DOCUMENT_EGENANDELFRIKORT_FNUMMER)
+            DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE -> refParam(document.getChildNodes(), DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER)
+            DOCUMENT_INNTEKTFORESPORSEL_SERVICE -> refParam(document.getChildNodes(), DOCUMENT_INNTEKTFORESPORSEL_FNUMMER)
+            else -> "NA"
         }
-
-        if ((it.mottakenhetBlokk.ebService == DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE)) {
-            var fnr: String = refParam(document.getChildNodes(), DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER)
-            log.info("refParam: " + birthDay(fnr))
-            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
-                log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
-            }
-        }
-
-        if ((it.mottakenhetBlokk.ebService == DOCUMENT_INNTEKTFORESPORSEL_SERVICE)) {
-            var fnr: String = refParam(document.getChildNodes(), DOCUMENT_INNTEKTFORESPORSEL_FNUMMER)
-            log.info("refParam: " + birthDay(fnr))
-            if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
-                log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
-            }
+        log.info(sendInRequest.marker(mapOf("refParam" to birthDay(fnr))), "Melding sendt til fagsystem")
+        if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
+            log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
         }
     }
 
