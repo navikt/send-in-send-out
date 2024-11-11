@@ -71,6 +71,7 @@ dependencies {
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation("javax.activation:activation:1.1.1")
     testImplementation(testLibs.ktor.server.test.host)
+    testImplementation(testLibs.mock.oauth2.server)
     testImplementation(testLibs.junit.jupiter.api)
     testImplementation(testLibs.mockk.jvm)
     testImplementation(testLibs.mockk.dsl.jvm)

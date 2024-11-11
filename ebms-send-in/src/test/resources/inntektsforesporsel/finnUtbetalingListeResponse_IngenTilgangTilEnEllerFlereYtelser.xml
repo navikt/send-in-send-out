@@ -1,0 +1,17 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Body>
+      <soapenv:Fault xmlns:m="http://schemas.xmlsoap.org/soap/envelope/">
+         <faultcode>m:Server</faultcode>
+         <faultstring>Ingen tilgang til hemmelig ytelse</faultstring>
+         <detail>
+            <v1:finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser xmlns:v1="http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1">
+               <errorMessage>Ingen tilgang til hemmelig ytelse</errorMessage>
+               <errorSource>Mock</errorSource>
+               <errorType>Business</errorType>
+               <rootCause>Emulert feil</rootCause>
+               <dateTimeStamp>idag</dateTimeStamp>
+            </v1:finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser>
+         </detail>
+      </soapenv:Fault>
+   </soapenv:Body>
+</soapenv:Envelope>

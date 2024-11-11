@@ -1,0 +1,17 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Body>
+      <soapenv:Fault xmlns:m="http://schemas.xmlsoap.org/soap/envelope/">
+         <faultcode>m:Server</faultcode>
+         <faultstring>Ugyldig kombinasjon: PERSON og 9-sifret ident.</faultstring>
+         <detail>
+            <v1:finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype xmlns:v1="http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1">
+               <errorMessage>Ugyldig kombinasjon: PERSON og 9-sifret ident.</errorMessage>
+               <errorSource>Mock</errorSource>
+               <errorType>Business</errorType>
+               <rootCause>Emulert feil</rootCause>
+               <dateTimeStamp>idag</dateTimeStamp>
+            </v1:finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype>
+         </detail>
+      </soapenv:Fault>
+   </soapenv:Body>
+</soapenv:Envelope>
