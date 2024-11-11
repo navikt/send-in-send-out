@@ -8,7 +8,8 @@ import jakarta.mail.Message
 import jakarta.mail.Session
 import jakarta.mail.Store
 import jakarta.mail.internet.MimeMessage
-import jakarta.mail.internet.MimeUtility
+import jakarta.mail.internet.MimeUtility.unfold
+import no.nav.emottak.smtp.MimeHeaders.CONTENT_TYPE
 import org.junit.jupiter.api.Test
 import java.util.Properties
 import kotlin.test.assertEquals
@@ -17,19 +18,20 @@ const val testHeaderValue = """multipart/related;
 	boundary="------=_part_f14474e0_7fda_4a15_b649_87dc04fb39f8"; charset=utf-8;
 	start="<soap-c5a5690b-6a9b-4d0a-b50e-8a636948ed13@eik.no>"; type="text/xml""""
 
+private val stream = object {}.javaClass
+    .classLoader
+    .getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
+
 class MessageTest {
     @Test
-    fun testHeader() {
-        val headers = Headers.build {
-            append(MimeHeaders.CONTENT_TYPE, MimeUtility.unfold(testHeaderValue))
-        }
+    fun `Verify header`() {
+        val headers = Headers.build { append(CONTENT_TYPE, unfold(testHeaderValue)) }
         println(headers)
     }
 
     @Test
-    fun `Ta en melding`() {
+    fun `Map one mail message`() {
         val session = mockSession()
-        val stream = javaClass.classLoader.getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
         val msg = MimeMessage(session, stream)
         val store = mockStore(msg)
         val reader = MailReader(store)
@@ -40,9 +42,8 @@ class MessageTest {
     }
 
     @Test
-    fun `Delete in batches`() {
+    fun `Batch delete 100 messages`() {
         val session = mockSession()
-        val stream = javaClass.classLoader.getResourceAsStream("mails/nyebmstest@test-es.nav.no/INBOX/example.eml")
         val msg = MimeMessage(session, stream)
         val store = mockStore(msg)
         store.getFolder("INBOX").batchDelete(100)
