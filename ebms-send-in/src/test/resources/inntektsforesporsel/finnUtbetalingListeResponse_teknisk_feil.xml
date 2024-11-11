@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Body>
+      <soapenv:Fault>
+         <faultcode>soapenv:Server</faultcode>
+         <faultstring><![CDATA[javax.xml.ws.WebServiceException: com.ibm.websphere.sca.ServiceRuntimeException: CWSXM0201E: Exception returned by mediation flow for component UtbetalingMedFlow in module ekstern-virkemiddelokonomi-tjeneste-utbetaling_v1: CWSXM3300E: Fail primitive 'ArbeidOgAktivitetYtelseFailed', component 'UtbetalingMedFlow', module 'ekstern-virkemiddelokonomi-tjeneste-utbetaling_v1', interface '{http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1}Utbetaling', operation 'finnUtbetalingListe', raised a FailFlowException. The user-supplied error message is '<soapenv:Body xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><soapenv:Fault><faultcode>soapenv:Server</faultcode><faultstring>javax.xml.ws.WebServiceException: com.ibm.websphere.sca.ServiceRuntimeException: Dette er en teknisk feil fra baksystem</faultstring></soapenv:Fault></soapenv:Body>']]></faultstring>
+      </soapenv:Fault>
+   </soapenv:Body>
+</soapenv:Envelope>
