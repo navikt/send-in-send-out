@@ -44,9 +44,11 @@ class InntektsforesporselPayloadIntegrationTest {
 
     private fun <T> ebmsSendInTestApp(xmlPath: String, testBlock: suspend ApplicationTestBuilder.() -> T) = testApplication {
         utbetalingMock.enqueue(
-            MockResponse().setBody(String(
-                ClassLoader.getSystemResourceAsStream(xmlPath)!!.readAllBytes()
-            ))
+            MockResponse().setBody(
+                String(
+                    ClassLoader.getSystemResourceAsStream(xmlPath)!!.readAllBytes()
+                )
+            )
         )
         application(Application::ebmsSendInModule)
         testBlock()
@@ -54,7 +56,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel normal respons`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_endret_fnr.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -84,7 +85,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel BrukerIkkeFunnet`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_BrukerIkkeFunnet.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -119,7 +119,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel BaksystemIkkeTilgjengelig`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_BaksystemIkkeTilgjengelig.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -154,7 +153,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel IngenTilgangTilEnEllerFlereYtelser`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_IngenTilgangTilEnEllerFlereYtelser.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -189,7 +187,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel UgyldigDato`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_UgyldigDato.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -224,7 +221,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel UgyldigKombinasjonBrukerIdOgBrukertype`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_UgyldigKombinasjonBrukerIdOgBrukertype.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -259,7 +255,6 @@ class InntektsforesporselPayloadIntegrationTest {
 
     @Test
     fun `Test Inntektsforespørsel teknisk feil`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_teknisk_feil.xml") {
-
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -280,7 +275,6 @@ class InntektsforesporselPayloadIntegrationTest {
         assert(responsePayload.contains("com.ibm.websphere.sca.ServiceRuntimeException"))
         assert(responsePayload.contains("Dette er en teknisk feil fra baksystem"))
     }
-
 
     private fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server.issueToken(
         issuerId = AZURE_AD_AUTH,
