@@ -10,6 +10,7 @@ on:
     paths:
       - cpa-sync/**
       - felles/**
+      - .github/workflows/cpa-sync-deploy-dev.yaml
 
 env:
   MODULE_NAME: "cpa-sync"

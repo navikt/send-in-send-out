@@ -1,5 +1,7 @@
 package no.nav.emottak.cxf
 import org.apache.cxf.frontend.ClientProxy
+import org.apache.cxf.headers.Header
+import org.apache.cxf.jaxb.JAXBDataBinding
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.transport.http.HTTPConduit
 import org.apache.cxf.ws.addressing.WSAddressingFeature
@@ -95,6 +97,19 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
             val conduit: HTTPConduit = ClientProxy.getClient(portType).conduit as HTTPConduit
             conduit.authorization.userName = userName
             conduit.authorization.password = password
+            return this
+        }
+
+        fun withOrgnrHeader(orgnr: String?): PortTypeBuilder<R> {
+            if (orgnr == null) return this
+            val headersList: MutableList<Header> = ArrayList()
+            val testHeader = Header(
+                QName("no.nav.emottak.utbetaling", "orgnr"),
+                orgnr,
+                JAXBDataBinding(String::class.java)
+            )
+            headersList.add(testHeader)
+            ClientProxy.getClient(portType).contexts.requestContext[Header.HEADER_LIST] = headersList
             return this
         }
 

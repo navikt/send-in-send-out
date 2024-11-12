@@ -1,0 +1,62 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "ebms-http"
+  namespace: "team-emottak"
+  labels:
+    "team": "team-emottak"
+spec:
+  azure:
+    application:
+      enabled: true
+  webproxy: true
+  image: {{image}}
+  liveness:
+    path: "/internal/health/liveness"
+    port: 8080
+    initialDelay: 30
+    timeout: 10
+    failureThreshold: 10
+  readiness:
+    path: "/internal/health/readiness"
+    port: 8080
+    initialDelay: 30
+    timeout: 10
+    failureThreshold: 10
+  prometheus:
+    enabled: true
+    path: /prometheus
+  replicas:
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 30
+    min: 1
+    max: 6
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  ingresses:
+    - "https://ebms-http-fss.intern.dev.nav.no"
+#  gcp:
+#    sqlInstances:
+#        - type: POSTGRES_15
+#          databases:
+#            - name: ebms-db
+  accessPolicy:
+    outbound:
+      rules:
+        - application: ebms-provider
+  env:
+    - name: KEYSTORE_FILE
+      value: /var/run/secrets/ebms-keystore-signering/signering-key.p12
+    - name: EMOTTAK_LOGGING_LEVEL
+      value: DEBUG
+  envFrom:
+    - secret: ebms-payload-secret
+  filesFrom:
+    - secret: ebms-keystore-signering
+      mountPath: /var/run/secrets/ebms-keystore-signering

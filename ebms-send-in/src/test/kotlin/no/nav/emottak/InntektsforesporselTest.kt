@@ -10,6 +10,7 @@ import no.nav.emottak.melding.model.EbmsProcessing
 import no.nav.emottak.melding.model.Party
 import no.nav.emottak.melding.model.PartyId
 import no.nav.emottak.melding.model.SendInRequest
+import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.utbetaling.msgHeadResponse
 import no.nav.emottak.utbetaling.unmarshal
@@ -64,6 +65,27 @@ class InntektsforesporselTest {
             UtbetalingXmlMarshaller.marshalToByteArray(msgHeadResponse)
         )
         println(feilElementString)
+    }
+
+    // @Test
+    fun testUtbetalClient() {
+        UtbetalingClient.behandleInntektsforesporsel(
+            SendInRequest(
+                "my-message-id",
+                "my-conversation-id",
+                "my-payload-id",
+                msgHeadEksempel.toByteArray(),
+                Addressing(
+                    Party(listOf(PartyId("org", "12345")), "mottaker"),
+                    Party(listOf(PartyId("org", "67890")), "innsender"),
+                    "Inntektsforesporsel",
+                    "Inntektsforesporsel"
+                ),
+                "dummycpa",
+                EbmsProcessing(),
+                null
+            )
+        )
     }
 
     val msgHeadEksempel = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
