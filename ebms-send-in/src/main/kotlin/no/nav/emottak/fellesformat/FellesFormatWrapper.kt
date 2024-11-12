@@ -15,7 +15,6 @@ import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.util.birthDay
 import no.nav.emottak.util.createDocument
 import no.nav.emottak.util.getEnvVar
-import no.nav.emottak.util.marker
 import no.nav.emottak.util.refParam
 import no.nav.emottak.util.toXMLGregorianCalendar
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -47,7 +46,7 @@ fun wrapMessageInEIFellesFormat(sendInRequest: SendInRequest): EIFellesformat =
             DOCUMENT_INNTEKTFORESPORSEL_SERVICE -> refParam(document.getChildNodes(), DOCUMENT_INNTEKTFORESPORSEL_FNUMMER)
             else -> "NA"
         }
-        log.info(sendInRequest.marker(mapOf("refParam" to birthDay(fnr))), "Melding sendt til fagsystem")
+        log.info("refParam ${birthDay(fnr)}")
         if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
             log.info("Sending in request to fag with body " + FellesFormatXmlMarshaller.marshal(it))
         }
