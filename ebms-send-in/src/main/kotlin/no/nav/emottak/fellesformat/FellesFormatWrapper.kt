@@ -35,6 +35,7 @@ fun EIFellesformat.addressing(toParty: Party): Addressing {
     return Addressing(partyTo, partyFrom, this.mottakenhetBlokk.ebService, this.mottakenhetBlokk.ebAction)
 }
 
+
 fun wrapMessageInEIFellesFormat(sendInRequest: SendInRequest): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().also {
         it.mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(sendInRequest)
