@@ -28,7 +28,6 @@ jobs:
       - name: "Naisjob Readmail"
         uses: "nais/deploy/actions/deploy@v1"
         env:
-          APIKEY: "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           CLUSTER: "dev-fss"
           RESOURCE: ".nais/naisjob-readmail.yaml"
           IMAGE: "ghcr.io/${{ github.repository }}/curl:master"
