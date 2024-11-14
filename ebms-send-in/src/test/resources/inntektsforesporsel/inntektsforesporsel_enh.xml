@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MsgHead xmlns:kith="http://www.kith.no/xmlstds" xmlns:xsd="http://www.w3.org/2001/XMLSchema.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24"
+         xsi:schemaLocation="http://www.kith.no/xmlstds/msghead/2006-05-24 MsgHead-v1_2.xsd">
+    <MsgInfo>
+        <Type V="InntektsForesporsel" DN="Forespørsel på borgers ytelser"/>
+        <MIGversion>v1.2 2006-05-24</MIGversion>
+        <GenDate>2024-06-17T08:31:10</GenDate>
+        <MsgId>309c5972-b5be-4b60-b172-094c5d236713</MsgId>
+        <ProcessingStatus V="P" DN="Produksjon"/>
+        <RequestedPriority V="N" DN="Normal"/>
+        <Ack V="J" DN="Ja"/>
+        <Sender>
+            <Organisation>
+                <OrganisationName>Tromsø kommune</OrganisationName>
+                <TypeOrganisation V="102" S="1.2.3.4.5.6.7.8" DN="Kommune"/>
+                <Ident>
+                    <Id>940101808</Id>
+                    <TypeId V="ENH" S="1.2.3.4.5.6.7.8" DN="Organisasjonsnummeret i Enhetsregister"/>
+                </Ident>
+                <Ident>
+                    <Id>1234</Id>
+                    <TypeId V="HER" S="1.2.3.4.5.6.7.8" DN="HER-id"/>
+                </Ident>
+                <Address>
+                    <Type V="PST" DN="Postadresse"/>
+                    <County V="5501" DN="Tromsø"/>
+                </Address>
+                <Organisation>
+                    <OrganisationName>Økonomi og oppgjør</OrganisationName>
+                    <Ident>
+                        <Id>12345</Id>
+                        <TypeId V="HER" S="1.2.3.4.5.6.7.8" DN="HER-id"/>
+                    </Ident>
+                    <Address>
+                        <Type V="PST" DN="Postadresse"/>
+                        <County V="5501" DN="Tromsø"/>
+                    </Address>
+                </Organisation>
+            </Organisation>
+        </Sender>
+        <Receiver>
+            <Organisation>
+                <OrganisationName>NAV Pensjon</OrganisationName>
+                <Ident>
+                    <Id>889640782</Id>
+                    <TypeId V="ENH" S="1.2.3.4.5.6.7.8" DN="Organisasjonsnummeret i Enhetsregister"/>
+                </Ident>
+                <Ident>
+                    <Id>12345</Id>
+                    <TypeId V="HER" S="1.2.3.4.5.6.7.8" DN="HER-id"/>
+                </Ident>
+            </Organisation>
+        </Receiver>
+        <Patient>
+            <FamilyName>Nordmann</FamilyName>
+            <GivenName>Ola</GivenName>
+            <Ident>
+                <Id>12345678965</Id>
+                <TypeId V="FNR" S="1.2.3.4.5.6.7.8" DN="Fødselsnummer"/>
+            </Ident>
+            <Address>
+                <Type V="H" DN="Bostedsadresse"/>
+                <StreetAdr>Veigaten 1</StreetAdr>
+                <PostalCode>1234</PostalCode>
+                <City>OSLO</City>
+            </Address>
+            <TeleCom>
+                <TypeTelecom V="H" DN="Hjemme eller ukjent"/>
+                <TeleAddress V="tel:91381895"/>
+            </TeleCom>
+        </Patient>
+    </MsgInfo>
+    <Document>
+        <Consent V="1" S="1.2.3.4.5.6.7.8" DN="Ja"/>
+        <RefDoc>
+            <IssueDate V="2024-06-17T08:31:10"/>
+            <MsgType V="XML" DN="XML-instans"/>
+            <Content>
+                <finnUtbetalingListe xmlns:xsd="http://www.w3.org/2001/XMLSchema.xsd"
+                                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                     xmlns:kith="http://www.kith.no/xmlstds"
+                                     xmlns="http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1"
+                                     xsi:schemaLocation="http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1 inntektsforesporsel.xsd">
+                    <request xmlns="">
+                        <bruker>
+                            <brukerId>12345678965</brukerId>
+                            <brukertypeKode>PERSON</brukertypeKode>
+                        </bruker>
+                        <hjemmelshaverKode>KOMMUNE</hjemmelshaverKode>
+                        <posteringsperiodefilter>
+                            <fom>2024-06-01</fom>
+                            <tom>2024-06-12</tom>
+                        </posteringsperiodefilter>
+                    </request>
+                </finnUtbetalingListe>
+            </Content>
+        </RefDoc>
+    </Document>
+</MsgHead>
