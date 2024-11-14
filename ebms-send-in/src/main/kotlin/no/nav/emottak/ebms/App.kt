@@ -24,6 +24,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
+import no.nav.emottak.constants.LogIndex.DOCUMENT_EGENANDELFRIKORT_FNUMMER
+import no.nav.emottak.constants.LogIndex.DOCUMENT_INNTEKTFORESPORSEL_FNUMMER
+import no.nav.emottak.constants.LogIndex.DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.wrapMessageInEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
@@ -32,10 +35,14 @@ import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
+import no.nav.emottak.util.birthDay
+import no.nav.emottak.util.createDocument
 import no.nav.emottak.util.isProdEnv
 import no.nav.emottak.util.marker
+import no.nav.emottak.util.refParam
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.slf4j.LoggerFactory
+import java.io.ByteArrayInputStream
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.ebms.App")
 
@@ -89,6 +96,7 @@ fun Application.ebmsSendInModule() {
                 }
                 runCatching {
                     log.info(request.marker(), "Payload ${request.payloadId} videresendes til fagsystem")
+                    val document = createDocument(ByteArrayInputStream(FellesFormatXmlMarshaller.marshal(it).toByteArray()))
                     withContext(Dispatchers.IO) {
                         when (request.addressing.service) {
                             "Inntektsforesporsel" ->
@@ -101,6 +109,14 @@ fun Application.ebmsSendInModule() {
                                             UtbetalingXmlMarshaller.marshalToByteArray(it)
                                         )
                                     }
+                                    log.info(
+                                        "refParam ${birthDay(
+                                            refParam(
+                                                document.getChildNodes(),
+                                                DOCUMENT_INNTEKTFORESPORSEL_FNUMMER
+                                            )
+                                        )}"
+                                    )
                                 }
 
                             "HarBorgerEgenandelFritak", "HarBorgerFrikort" -> timed(
@@ -118,6 +134,14 @@ fun Application.ebmsSendInModule() {
                                         FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
                                     )
                                 }
+                                log.info(
+                                    "refParam ${birthDay(
+                                        refParam(
+                                            document.getChildNodes(),
+                                            DOCUMENT_EGENANDELFRIKORT_FNUMMER
+                                        )
+                                    )}"
+                                )
                             }
 
                             "PasientlisteForesporsel" -> timed(appMicrometerRegistry, "PasientlisteForesporsel") {
@@ -125,8 +149,16 @@ fun Application.ebmsSendInModule() {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                 }
                                 PasientlisteService.pasientlisteForesporsel(request)
-                            }
+                                log.info(
+                                    "refParam ${birthDay(
+                                        refParam(
+                                            document.getChildNodes(),
+                                            DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER
+                                        )
+                                    )}"
 
+                                )
+                            }
                             else -> {
                                 throw NotImplementedError("Service: ${request.addressing.service} is not implemented")
                             }
@@ -144,7 +176,6 @@ fun Application.ebmsSendInModule() {
                 }
             }
         }
-
         registerHealthEndpoints(appMicrometerRegistry)
     }
 }
