@@ -70,7 +70,7 @@ fun Headers.actuallyUsefulToString(): String {
 }
 
 @Throws(MimeValidationException::class)
-suspend fun ApplicationCall.receiveEbmsDokument(): EbMSDocument {
+suspend fun ApplicationCall.receiveEbmsDokument(): EbMSDocumentent {
     log.info("Parsing message with Message-Id: ${request.header(SMTPHeaders.MESSAGE_ID)}")
     val debugClearText = !request.header("cleartext").isNullOrBlank()
     return when (val contentType = this.request.contentType().withoutParameters()) {

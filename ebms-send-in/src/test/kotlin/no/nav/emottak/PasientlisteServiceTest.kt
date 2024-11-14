@@ -27,7 +27,7 @@ class PasientlisteServiceTest {
         val fnrFraFagmeldingen = "17087000133"
         mockkObject(PasientlisteClient)
         every {
-            PasientlisteClient.hentPasientliste(any())
+            PasientlisteClient.sendRequest(any())
         } answers {
             ClassLoader.getSystemResourceAsStream("hentpasientliste/pasientListeToktResponse.xml").readAllBytes().let {
                 unmarshal(String(it), EIFellesformat::class.java)

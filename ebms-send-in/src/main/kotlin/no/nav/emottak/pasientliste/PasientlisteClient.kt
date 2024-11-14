@@ -21,7 +21,7 @@ object PasientlisteClient {
     private val username = lazy { String(FileInputStream("/secret/serviceuser/username").readAllBytes()) }
     private val password = lazy { String(FileInputStream("/secret/serviceuser/password").readAllBytes()) }
 
-    fun hentPasientliste(request: EIFellesformat): EIFellesformat {
+    fun sendRequest(request: EIFellesformat): EIFellesformat {
         val marshalledFellesformat = FellesFormatXmlMarshaller.marshal(request)
         val httpClient = HttpClient(CIO)
 
@@ -45,7 +45,7 @@ object PasientlisteClient {
         }
 
         if (!isProdEnv()) {
-            log.info("HentPasientliste result: {}", result)
+            log.info("PasientlisteForesporsel result: {}", result)
         }
 
         return FellesFormatXmlMarshaller.unmarshal(result, EIFellesformat::class.java)
