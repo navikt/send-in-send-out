@@ -11,7 +11,7 @@ object PasientlisteService {
 
     fun pasientlisteForesporsel(request: SendInRequest): SendInResponse {
         return when (request.addressing.action) {
-            "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus"  -> forwardRequest(request)
+            "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus" -> forwardRequest(request)
             else -> throw NotImplementedError("Action: ${request.addressing.action} for service: ${request.addressing.service} is not implemented")
         }
     }
