@@ -55,7 +55,7 @@ class InntektsforesporselPayloadIntegrationTest {
     }
 
     @Test
-    fun `Test Inntektsforespørsel normal respons`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_endret_fnr.xml") {
+    fun `Test Inntektsforespørsel normal respons uten orgnr`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_endret_fnr.xml") {
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -80,7 +80,49 @@ class InntektsforesporselPayloadIntegrationTest {
 
         val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
         assertNotNull(finnUtbetalingListeResponse)
+        assertEquals(finnUtbetalingListeResponse.response.forespurtBrukerId, "12345678909")
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 5)
+        assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.first().utbetalingGjelder.brukerId, "11223312345")
+
+        // Validering av request:
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
+        assert("no.nav.emottak.utbetaling" !in body) // Uten org-nr i req-header
+    }
+
+    @Test
+    fun `Test Inntektsforespørsel normal respons med orgnr`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_tom_liste.xml") {
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(
+                "Authorization",
+                "Bearer ${getToken().serialize()}"
+            )
+            setBody(validSendInInntektforesporselRequestWithENH.value)
+            contentType(ContentType.Application.Json)
+        }
+        assertEquals(HttpStatusCode.OK, httpResponse.status)
+
+        val responsePayload = httpResponse.body<SendInResponse>().payload
+        assertNotNull(responsePayload)
+
+        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+        assert(response is FinnUtbetalingListeResponse)
+
+        val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
+        assertNotNull(finnUtbetalingListeResponse)
+        assertEquals(finnUtbetalingListeResponse.response.forespurtBrukerId, "12345678965")
+        assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 0)
+
+        // Validering av request:
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
+        assert("<orgnr xmlns=\"no.nav.emottak.utbetaling\">940101808</orgnr>" in body) // Med org-nr i req-header
     }
 
     @Test
@@ -115,6 +157,9 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigDato)
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebrukerIkkeFunnet.errorMessage, "Bruker ikke funnet")
+
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
     }
 
     @Test
@@ -149,6 +194,9 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigDato)
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebaksystemIkkeTilgjengelig.errorMessage, "Baksystemet er ikke tilgjengelig")
+
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
     }
 
     @Test
@@ -183,6 +231,9 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigDato)
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser.errorMessage, "Ingen tilgang til hemmelig ytelse")
+
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
     }
 
     @Test
@@ -217,6 +268,9 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNotNull(fault.finnUtbetalingListeugyldigDato)
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigDato.errorMessage, "Dato er ikke gyldig")
+
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
     }
 
     @Test
@@ -251,6 +305,9 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigDato)
         assertNotNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype.errorMessage, "Ugyldig kombinasjon: PERSON og 9-sifret ident.")
+
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
     }
 
     @Test
@@ -274,6 +331,9 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNotNull(responsePayload)
         assert(responsePayload.contains("com.ibm.websphere.sca.ServiceRuntimeException"))
         assert(responsePayload.contains("Dette er en teknisk feil fra baksystem"))
+
+        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        assert("UsernameToken" in body)
     }
 
     private fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server.issueToken(
