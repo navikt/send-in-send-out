@@ -21,6 +21,11 @@ val validSendInInntektforesporselRequest = lazy {
     mockSendInRequest("Inntektsforesporsel", "Foresporsel", fagmelding.readAllBytes(), "123456789")
 }
 
+val validSendInInntektforesporselRequestWithENH = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("inntektsforesporsel/inntektsforesporsel_enh.xml")
+    mockSendInRequest("Inntektsforesporsel", "Foresporsel", fagmelding.readAllBytes(), "123456789")
+}
+
 fun mockSendInRequest(service: String, action: String, payload: ByteArray, signedOf: String? = null) = SendInRequest(
     messageId = "321",
     conversationId = "321",

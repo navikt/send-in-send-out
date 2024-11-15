@@ -1,0 +1,9 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Body>
+      <v1:finnUtbetalingListeResponse xmlns:v1="http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1">
+         <response>
+            <forespurtBrukerId>12345678965</forespurtBrukerId>
+         </response>
+      </v1:finnUtbetalingListeResponse>
+   </soapenv:Body>
+</soapenv:Envelope>
