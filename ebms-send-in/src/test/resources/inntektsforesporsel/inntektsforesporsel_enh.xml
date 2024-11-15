@@ -67,7 +67,7 @@
             </Address>
             <TeleCom>
                 <TypeTelecom V="H" DN="Hjemme eller ukjent"/>
-                <TeleAddress V="tel:91381895"/>
+                <TeleAddress V="tel:98765432"/>
             </TeleCom>
         </Patient>
     </MsgInfo>

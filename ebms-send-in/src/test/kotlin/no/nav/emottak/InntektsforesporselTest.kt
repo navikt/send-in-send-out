@@ -157,7 +157,7 @@ class InntektsforesporselTest {
         "            </Address>\n" +
         "            <TeleCom>\n" +
         "                <TypeTelecom V=\"H\" DN=\"Hjemme eller ukjent\"/>\n" +
-        "                <TeleAddress V=\"tel:91381895\"/>\n" +
+        "                <TeleAddress V=\"tel:98765432\"/>\n" +
         "            </TeleCom>\n" +
         "        </Patient>\n" +
         "    </MsgInfo>\n" +
