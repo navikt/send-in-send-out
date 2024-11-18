@@ -32,27 +32,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class InntektsforesporselPayloadIntegrationTest {
-
-    private val mockOAuth2Server = MockOAuth2Server().also { it.start(port = 3344) }
-
-    private var utbetalingMock: MockWebServer = MockWebServer()
-        .also { it.start() }
-        .also {
-            System.setProperty("UTBETALING_TEST_ENDPOINT", "http://localhost:${it.port}")
-        }
-
-    private fun <T> ebmsSendInTestApp(xmlPath: String, testBlock: suspend ApplicationTestBuilder.() -> T) = testApplication {
-        utbetalingMock.enqueue(
-            MockResponse().setBody(
-                String(
-                    ClassLoader.getSystemResourceAsStream(xmlPath)!!.readAllBytes()
-                )
-            )
-        )
-        application(Application::ebmsSendInModule)
-        testBlock()
-    }
+class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("UTBETALING_TEST_ENDPOINT") {
 
     @Test
     fun `Test Inntektsforespørsel normal respons uten orgnr`() = ebmsSendInTestApp("inntektsforesporsel/finnUtbetalingListeResponse_endret_fnr.xml") {
@@ -85,7 +65,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.first().utbetalingGjelder.brukerId, "11223312345")
 
         // Validering av request:
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
         assert("no.nav.emottak.utbetaling" !in body) // Uten org-nr i req-header
     }
@@ -120,7 +100,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 0)
 
         // Validering av request:
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
         assert("<orgnr xmlns=\"no.nav.emottak.utbetaling\">940101808</orgnr>" in body) // Med org-nr i req-header
     }
@@ -158,7 +138,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebrukerIkkeFunnet.errorMessage, "Bruker ikke funnet")
 
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -195,7 +175,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebaksystemIkkeTilgjengelig.errorMessage, "Baksystemet er ikke tilgjengelig")
 
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -232,7 +212,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser.errorMessage, "Ingen tilgang til hemmelig ytelse")
 
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -269,7 +249,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigDato.errorMessage, "Dato er ikke gyldig")
 
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -306,7 +286,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assertNotNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype.errorMessage, "Ugyldig kombinasjon: PERSON og 9-sifret ident.")
 
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -332,13 +312,7 @@ class InntektsforesporselPayloadIntegrationTest {
         assert(responsePayload.contains("com.ibm.websphere.sca.ServiceRuntimeException"))
         assert(responsePayload.contains("Dette er en teknisk feil fra baksystem"))
 
-        val body: String = utbetalingMock.takeRequest().body.readByteString().utf8()
+        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
-
-    private fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server.issueToken(
-        issuerId = AZURE_AD_AUTH,
-        audience = audience,
-        subject = "testUser"
-    )
 }

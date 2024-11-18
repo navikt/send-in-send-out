@@ -12,7 +12,7 @@ val validSendInPasientlisteRequest = lazy {
 }
 
 val validSendInHarBorgerFrikortRequest = lazy {
-    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/egenandelforesporsel.xml")
+    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelForesporsel_HarBorgerFrikortRequest.xml")
     mockSendInRequest("HarBorgerFrikort", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")
 }
 

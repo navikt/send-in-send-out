@@ -4,8 +4,10 @@ import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.util.getEnvVar
+import no.nav.emottak.util.getSecret
 import no.nav.emottak.util.isProdEnv
 import no.nav.tjeneste.ekstern.frikort.v1.FrikortV1Port
+import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.ObjectFactory
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -21,7 +23,9 @@ fun frikortEndpoint(): FrikortV1Port =
         .withServiceName(QName("http://nav.no/tjeneste/ekstern/frikort/v1", "Frikort_v1Service"))
         .withEndpointName(QName("http://nav.no/tjeneste/ekstern/frikort/v1", "Frikort_v1Port"))
         .build()
-        .withBasicSecurity()
+        .withBasicSecurity(
+            getSecret("/secret/serviceuser/username", "testUsername"),
+            getSecret("/secret/serviceuser/password", "testPassword"))
         .get()
 
 fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
@@ -34,6 +38,20 @@ fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
     ).also {
         if (!isProdEnv()) {
             log.info("Send in Frikort response " + FellesFormatXmlMarshaller.marshal(it))
+        }
+    }
+}
+
+fun frikortsporringMengde(fellesformat: EIFellesformat): FrikortsporringMengdeResponse {
+    if (!isProdEnv()) {
+        log.info("Sending in frikortsporringMengde request with body: " + FellesFormatXmlMarshaller.marshal(fellesformat))
+    }
+
+    return frikortClient.frikortsporringMengde(
+        frikortObjectFactory.createFrikortsporringMengdeRequest().also { it.eiFellesformat = fellesformat }
+    ).also {
+        if (!isProdEnv()) {
+            log.info("Send in FrikortMengde response " + FellesFormatXmlMarshaller.marshal(it))
         }
     }
 }

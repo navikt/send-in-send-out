@@ -89,13 +89,9 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
     }
 
     inner class PortTypeBuilder<R> constructor(val portType: R) {
-        fun withBasicSecurity(): PortTypeBuilder<R> {
-            val usernameKv = "/secret/serviceuser/username"
-            val passwordKv = "/secret/serviceuser/password"
-            val userName = String(FileInputStream(usernameKv).readAllBytes())
-            val password = String(FileInputStream(passwordKv).readAllBytes())
+        fun withBasicSecurity(username:String, password:String): PortTypeBuilder<R> {
             val conduit: HTTPConduit = ClientProxy.getClient(portType).conduit as HTTPConduit
-            conduit.authorization.userName = userName
+            conduit.authorization.userName = username
             conduit.authorization.password = password
             return this
         }
