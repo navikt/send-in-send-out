@@ -1,6 +1,5 @@
 package no.nav.emottak
 
-import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
@@ -11,20 +10,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.Application
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeFeil
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
-import no.nav.emottak.auth.AZURE_AD_AUTH
-import no.nav.emottak.auth.AuthConfig
-import no.nav.emottak.ebms.ebmsSendInModule
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.utbetaling.unmarshal
-import no.nav.security.mock.oauth2.MockOAuth2Server
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

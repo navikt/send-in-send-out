@@ -25,7 +25,8 @@ fun frikortEndpoint(): FrikortV1Port =
         .build()
         .withBasicSecurity(
             getSecret("/secret/serviceuser/username", "testUsername"),
-            getSecret("/secret/serviceuser/password", "testPassword"))
+            getSecret("/secret/serviceuser/password", "testPassword")
+        )
         .get()
 
 fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {

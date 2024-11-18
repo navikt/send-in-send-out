@@ -10,7 +10,6 @@ import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.wss4j.common.ConfigurationConstants
 import org.apache.wss4j.common.ext.WSPasswordCallback
 import org.slf4j.LoggerFactory
-import java.io.FileInputStream
 import javax.security.auth.callback.Callback
 import javax.security.auth.callback.CallbackHandler
 import javax.xml.namespace.QName
@@ -89,7 +88,7 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
     }
 
     inner class PortTypeBuilder<R> constructor(val portType: R) {
-        fun withBasicSecurity(username:String, password:String): PortTypeBuilder<R> {
+        fun withBasicSecurity(username: String, password: String): PortTypeBuilder<R> {
             val conduit: HTTPConduit = ClientProxy.getClient(portType).conduit as HTTPConduit
             conduit.authorization.userName = username
             conduit.authorization.password = password

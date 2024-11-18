@@ -76,7 +76,7 @@ fun Application.ebmsSendInModule() {
     }
 
     if (!isProdEnv()) {
-        //DecoroutinatorRuntime.load()
+        DecoroutinatorRuntime.load()
     }
 
     routing {

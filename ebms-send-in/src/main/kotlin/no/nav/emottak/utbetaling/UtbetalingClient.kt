@@ -24,7 +24,6 @@ import no.nav.emottak.util.getEnvVar
 import no.nav.emottak.util.getSecret
 import no.nav.emottak.util.toXMLGregorianCalendar
 import org.slf4j.LoggerFactory
-import java.io.FileInputStream
 import java.time.Instant
 import java.util.UUID
 import javax.xml.namespace.QName
