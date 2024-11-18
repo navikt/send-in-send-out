@@ -1,0 +1,91 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+	<soap:Body>
+		<ns5:frikortsporringMengdeResponse xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24"
+		                            xmlns:ns2="http://www.w3.org/2000/09/xmldsig#"
+		                            xmlns:ns3="http://www.trygdeetaten.no/xml/eiff/1/"
+		                            xmlns:ns4="http://www.kith.no/xmlstds/apprec/2004-11-21"
+		                            xmlns:ns5="http://nav.no/tjeneste/ekstern/frikort/v1/types">
+			<ns3:EI_fellesformat>
+				<MsgHead>
+					<MsgInfo>
+						<Type V="EgenandelForesporsel"
+						      DN="NAV toveiskommunikasjonstjenestemelding"/>
+						<MIGversion>v1.2 2006-05-24</MIGversion>
+						<GenDate>2008-11-26T20:31:17.281+01:00</GenDate>
+						<MsgId>cc169595-bbf0-11dd-9ca9-117f241b4a68</MsgId>
+						<Sender>
+							<Organisation>
+								<OrganisationName>TESTORGNAME</OrganisationName>
+								<Ident>
+									<Id>889640782</Id>
+									<TypeId V="ENH"
+									        S="2.16.578.1.12.4.1.1.9051"
+									        DN="Organisasjonsnummeret i Enhetsregister"/>
+								</Ident>
+								<HealthcareProfessional>
+									<FamilyName>Larsen</FamilyName>
+									<GivenName>Tore</GivenName>
+									<Ident>
+										<Id>12345678901</Id>
+										<TypeId V="FNR"
+										        DN="Fødselsnummer"/>
+									</Ident>
+								</HealthcareProfessional>
+							</Organisation>
+						</Sender>
+						<Receiver>
+							<Organisation>
+								<OrganisationName>NAV</OrganisationName>
+								<Ident>
+									<Id>999999999</Id>
+									<TypeId/>
+								</Ident>
+							</Organisation>
+						</Receiver>
+					</MsgInfo>
+					<Document>
+						<DocumentConnection V="H"
+						                    DN="Hoveddokument"/>
+						<RefDoc>
+							<MsgType V="XML"
+							         DN="XML-instans"/>
+							<Content>
+								<EgenandelMengdeSvarV2 xmlns="http://www.kith.no/xmlstds/nav/egenandel/2016-06-10">
+									<HarBorgerFrikortSvar>
+										<BorgerFnr>22119901234</BorgerFnr>
+										<Dato>2020-01-06+01:00</Dato>
+										<TjenestetypeKode>LE</TjenestetypeKode>
+										<Status DN="Ingen data" V="0"/>
+										<Svarmelding>Informasjon om fritak fra egenandel er ikke tilgjengelig.</Svarmelding>
+									</HarBorgerFrikortSvar>
+									<HarBorgerFrikortSvar>
+										<BorgerFnr>22119912345</BorgerFnr>
+										<Dato>2024-12-31+01:00</Dato>
+										<TjenestetypeKode>LE</TjenestetypeKode>
+										<Status DN="Ja" V="1"/>
+										<Svarmelding>Personen er fritatt for egenandel.</Svarmelding>
+									</HarBorgerFrikortSvar>
+								</EgenandelMengdeSvarV2>
+							</Content>
+						</RefDoc>
+					</Document>
+				</MsgHead>
+				<ns3:MottakenhetBlokk ediLoggId="321"
+				                      avsender="TODO1"
+				                      ebXMLSamtaleId="321"
+				                      mottaksId="321"
+				                      meldingsType="xml"
+				                      avsenderRef="TODO2"
+				                      avsenderFnrFraDigSignatur="TODO3"
+				                      mottattDatotid="2024-11-18T15:26:44.975+01:00"
+				                      orgNummer="TODO6"
+				                      avsenderOrgNrFraDigSignatur="TODO4"
+				                      partnerReferanse="dummyCpa"
+				                      herIdentifikator="TODO5"
+				                      ebRole="dymmyRole"
+				                      ebService="HarBorgerFrikort"
+				                      ebAction="EgenandelForesporsel"/>
+			</ns3:EI_fellesformat>
+		</ns5:frikortsporringMengdeResponse>
+	</soap:Body>
+</soap:Envelope>

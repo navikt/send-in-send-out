@@ -121,7 +121,7 @@ fun Application.ebmsSendInModule() {
                                 }
                             }
 
-                            "HarBorgerFritakMengde" -> timed(
+                            "HarBorgerFrikortMengde" -> timed(
                                 appMicrometerRegistry,
                                 "frikortMengde-sporing" // TODO: Korrekt metricName?
                             ) {

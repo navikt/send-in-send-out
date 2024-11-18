@@ -46,11 +46,11 @@ abstract class PayloadIntegrationTestFelles(
         }
     }
 
-    protected fun <T> ebmsSendInTestApp(xmlPath: String? = null, testBlock: suspend ApplicationTestBuilder.() -> T) = testApplication {
+    protected fun <T> ebmsSendInTestApp(mockResponsePath: String? = null, testBlock: suspend ApplicationTestBuilder.() -> T) = testApplication {
         wsSoapMock!!.enqueue(
             MockResponse().setBody(
                 String(
-                    ClassLoader.getSystemResourceAsStream(xmlPath)!!.readAllBytes()
+                    ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
                 )
             )
         )
