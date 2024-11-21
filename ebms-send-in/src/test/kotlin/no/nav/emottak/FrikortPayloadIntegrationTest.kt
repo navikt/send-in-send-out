@@ -23,6 +23,7 @@ import org.junit.jupiter.api.TestInstance
 import org.w3c.dom.Node
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Unmarshaller
+import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL") {
@@ -53,11 +54,19 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
 
         // Validering av response:
         assertEquals(HttpStatusCode.OK, httpResponse.status)
-
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        println("responsePayload som string:\n" + String(responsePayload))
-        // TODO: Verifisere at Content-tag er i henhold til XSD (NAV-Egenandel-2016-06-10.xsd fra emottak-payload-xsd)
+        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+
+        // Unmarshall av Content-tag, som er anytype:
+        val context: JAXBContext = JAXBContext.newInstance(EgenandelSvarV2::class.java)
+        val um: Unmarshaller = context.createUnmarshaller()
+        val content: EgenandelSvarV2 = um.unmarshal(response as Node?) as EgenandelSvarV2
+
+        //  Validating response content
+        assertTrue(content is EgenandelSvarV2)
+        assertEquals("Informasjon om fritak fra egenandel er ikke tilgjengelig.", content.svarmelding)
     }
 
     @Test

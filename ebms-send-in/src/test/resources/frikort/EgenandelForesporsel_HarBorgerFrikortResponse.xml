@@ -51,8 +51,8 @@
 							         DN="XML-instans"/>
 							<Content>
 								<EgenandelSvarV2 xmlns="http://www.kith.no/xmlstds/nav/egenandel/2016-06-10">
-									<CS V="0" DN="Ingen data" />
-									<svarmelding>Informasjon om fritak fra egenandel er ikke tilgjengelig.</svarmelding>
+									<Status V="0" DN="Ingen data" />
+									<Svarmelding>Informasjon om fritak fra egenandel er ikke tilgjengelig.</Svarmelding>
 								</EgenandelSvarV2>
 							</Content>
 						</RefDoc>
