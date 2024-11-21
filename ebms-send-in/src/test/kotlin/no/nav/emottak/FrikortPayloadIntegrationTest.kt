@@ -12,6 +12,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.utbetaling.unmarshal
@@ -23,7 +24,6 @@ import org.junit.jupiter.api.TestInstance
 import org.w3c.dom.Node
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Unmarshaller
-import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL") {
