@@ -36,7 +36,7 @@
         <ns1:RefDoc>
             <ns1:MsgType V="XML" DN="XML-instans"/>
             <ns1:Content>
-                <ns4:EgenandelMendgeForesporselV2 xmlns:ns4="http://www.kith.no/xmlstds/nav/egenandel/2016-06-10">
+                <ns4:EgenandelMendgeForesporselV2 xmlns:ns4="http://www.kith.no/xmlstds/nav/egenandelmengde/2016-06-10">
                     <ns4:HarBorgerFrikort>
                         <ns4:BorgerFnr>22119901234</ns4:BorgerFnr>
                         <ns4:Dato>2024-12-31</ns4:Dato>

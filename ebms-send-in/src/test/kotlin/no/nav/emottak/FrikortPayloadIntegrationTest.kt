@@ -11,9 +11,13 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.utbetaling.unmarshal
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -84,5 +88,13 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         assertNotNull(responsePayload)
         println("responsePayload som string:\n" + String(responsePayload))
         // TODO: Verifisere at Content-tag er i henhold til XSD (NAV-EgenandelMengde-2016-06-10.xsd fra emottak-payload-xsd)
+
+
+        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        println(msgHead)
+        val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+        println(response.javaClass.name)
+        assertTrue(response is EgenandelMengdeSvarV2)
+        //assert(String(responsePayload).contains("EgenandelMengdeSvarV2"))
     }
 }
