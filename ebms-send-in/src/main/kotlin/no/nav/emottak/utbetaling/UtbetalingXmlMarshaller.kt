@@ -1,19 +1,19 @@
 package no.nav.emottak.utbetaling
 
-import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnBrukersUtbetalteYtelserRequest
-import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnUtbetalingListeRequest
-import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
-import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
-import java.io.ByteArrayOutputStream
-import java.io.StringWriter
-import javax.xml.bind.JAXBContext
-import javax.xml.stream.XMLInputFactory
 import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2
 import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnBrukersUtbetalteYtelserRequest
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnUtbetalingListeRequest
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeRequest
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
+import java.io.ByteArrayOutputStream
+import java.io.StringWriter
+import javax.xml.bind.JAXBContext
+import javax.xml.stream.XMLInputFactory
 
 val UtbetalingXmlMarshaller = XmlMarshaller()
 
