@@ -11,6 +11,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import javax.xml.bind.JAXBContext
+import javax.xml.bind.Unmarshaller
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.melding.model.SendInResponse
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.w3c.dom.Node
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL") {
@@ -83,18 +86,18 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
 
         // Validering av response:
         assertEquals(HttpStatusCode.OK, httpResponse.status)
-
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        println("responsePayload som string:\n" + String(responsePayload))
-        // TODO: Verifisere at Content-tag er i henhold til XSD (NAV-EgenandelMengde-2016-06-10.xsd fra emottak-payload-xsd)
-
-
         val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
-        println(msgHead)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-        println(response.javaClass.name)
-        assertTrue(response is EgenandelMengdeSvarV2)
-        //assert(String(responsePayload).contains("EgenandelMengdeSvarV2"))
+
+        // Unmarshall av Content-tag, som er anytype:
+        val context: JAXBContext = JAXBContext.newInstance(EgenandelMengdeSvarV2::class.java)
+        val um: Unmarshaller = context.createUnmarshaller()
+        val content: EgenandelMengdeSvarV2 = um.unmarshal(response as Node?) as EgenandelMengdeSvarV2
+
+//       Validating response content
+        assertTrue(content is EgenandelMengdeSvarV2)
+        assertEquals(2, content.harBorgerFrikortSvar.size)
     }
 }
