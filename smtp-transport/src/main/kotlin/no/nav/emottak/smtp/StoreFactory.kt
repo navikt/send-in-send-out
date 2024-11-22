@@ -10,10 +10,13 @@ import no.nav.emottak.configuration.toProperties
 object StoreFactory {
     fun createStore(smtp: Smtp): Store {
         val auth = object : Authenticator() {
-            override fun getPasswordAuthentication() = PasswordAuthentication(smtp.username, smtp.password)
+            override fun getPasswordAuthentication() = PasswordAuthentication(
+                smtp.username.value,
+                smtp.password.value
+            )
         }
         return Session.getInstance(smtp.toProperties(), auth)
-            .getStore(smtp.storeProtocol)
+            .getStore(smtp.storeProtocol.value)
             .also { it.connect() }
     }
 }
