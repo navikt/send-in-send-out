@@ -11,6 +11,8 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
+            version("arrow", "1.2.4")
+            version("suspendapp", "0.4.0")
             version("bouncycastle", "1.76")
             version("exposed", "0.47.0")
             version("ktor", "2.3.8")
@@ -19,6 +21,12 @@ dependencyResolutionManagement {
             version("jsch", "0.2.16")
             version("cxf", "3.5.5")
             version("hoplite", "2.8.2")
+
+            library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
+            library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
+            library("arrow-resilience", "io.arrow-kt", "arrow-resilience").versionRef("arrow")
+            library("arrow-suspendapp", "io.arrow-kt", "suspendapp").versionRef("suspendapp")
+            library("arrow-suspendapp-ktor", "io.arrow-kt", "suspendapp-ktor").versionRef("suspendapp")
 
             library("bcpkix-jdk18on", "org.bouncycastle", "bcpkix-jdk18on").versionRef("bouncycastle")
             library("bcprov-jdk18on", "org.bouncycastle", "bcprov-jdk18on").versionRef("bouncycastle")

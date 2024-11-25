@@ -31,6 +31,11 @@ tasks {
 }
 
 dependencies {
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
+    implementation(libs.arrow.resilience)
+    implementation(libs.arrow.suspendapp)
+    implementation(libs.arrow.suspendapp.ktor)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotiation)
