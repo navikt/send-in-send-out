@@ -123,7 +123,7 @@ fun Application.ebmsSendInModule() {
 
                             "HarBorgerFrikortMengde" -> timed(
                                 appMicrometerRegistry,
-                                "frikortMengde-sporing" // TODO: Korrekt metricName?
+                                "frikortMengde-sporing"
                             ) {
                                 frikortsporringMengde(wrapMessageInEIFellesFormat(request)).let {
                                     SendInResponse(
