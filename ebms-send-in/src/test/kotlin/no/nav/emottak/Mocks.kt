@@ -16,6 +16,11 @@ val validSendInHarBorgerFrikortRequest = lazy {
     mockSendInRequest("HarBorgerFrikort", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")
 }
 
+val validSendInHarBorgerEgenandelfritakRequest = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelForesporsel_HarBorgerEgenandelFritakRequest.xml")
+    mockSendInRequest("HarBorgerEgenandelFritak", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")
+}
+
 val validSendInHarBorgerFrikortMengdeRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelMengdeForesporsel_HarBorgerFrikortMengdeRequest.xml")
     mockSendInRequest("HarBorgerFrikortMengde", "EgenandelMengdeForesporsel", fagmelding.readAllBytes(), "123456789")

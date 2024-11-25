@@ -50,22 +50,7 @@
 							<MsgType V="XML"
 							         DN="XML-instans"/>
 							<Content>
-								<EgenandelMengdeSvarV2 xmlns="http://www.kith.no/xmlstds/nav/egenandelmengde/2016-06-10">
-									<HarBorgerFrikortSvar>
-										<BorgerFnr>22119901234</BorgerFnr>
-										<Dato>2020-01-06+01:00</Dato>
-										<TjenestetypeKode>LE</TjenestetypeKode>
-										<Status DN="Ingen data" V="0"/>
-										<Svarmelding>Informasjon om fritak fra egenandel er ikke tilgjengelig.</Svarmelding>
-									</HarBorgerFrikortSvar>
-									<HarBorgerFrikortSvar>
-										<BorgerFnr>22119912345</BorgerFnr>
-										<Dato>2024-12-31+01:00</Dato>
-										<TjenestetypeKode>LE</TjenestetypeKode>
-										<Status DN="Ja" V="1"/>
-										<Svarmelding>Personen er fritatt for egenandel.</Svarmelding>
-									</HarBorgerFrikortSvar>
-								</EgenandelMengdeSvarV2>
+								<EgenandelMengdeSvarV2 xmlns="http://www.kith.no/xmlstds/nav/egenandelmengde/2016-06-10"/>
 							</Content>
 						</RefDoc>
 					</Document>

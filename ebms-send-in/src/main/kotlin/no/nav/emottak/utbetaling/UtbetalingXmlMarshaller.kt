@@ -1,15 +1,9 @@
 package no.nav.emottak.utbetaling
 
-import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel
-import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2
-import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel
-import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnBrukersUtbetalteYtelserRequest
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnUtbetalingListeRequest
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
-import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeRequest
-import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
 import java.io.ByteArrayOutputStream
 import java.io.StringWriter
 import javax.xml.bind.JAXBContext
@@ -28,12 +22,6 @@ class XmlMarshaller {
             FinnBrukersUtbetalteYtelserRequest::class.java,
             FinnUtbetalingListe::class.java,
             FinnUtbetalingListeResponse::class.java,
-            FrikortsporringMengdeRequest::class.java,
-            FrikortsporringMengdeResponse::class.java,
-            EgenandelForesporsel::class.java,
-            EgenandelForesporselV2::class.java,
-            EgenandelMengdeForesporsel::class.java,
-            EgenandelMengdeForesporselV2::class.java,
             org.oasis_open.committees.ebxml_cppa.schema.cpp_cpa_2_0.ObjectFactory::class.java,
             no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.ObjectFactory::class.java,
             no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.feil.v1.ObjectFactory::class.java,
