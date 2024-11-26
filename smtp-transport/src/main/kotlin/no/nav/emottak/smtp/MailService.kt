@@ -23,7 +23,7 @@ import java.time.Instant
 import kotlin.Int.Companion.MAX_VALUE
 import kotlin.time.toKotlinDuration
 
-class MailReaderService(private val config: Config) {
+class MailService(private val config: Config) {
     private val httpClient = HttpClient(CIO)
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
