@@ -27,7 +27,7 @@ class MailReaderService(private val config: Config) {
     private val httpClient = HttpClient(CIO)
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    suspend fun readMessages(): Flow<Result<HttpResponse>> {
+    suspend fun processMessages(): Flow<Result<HttpResponse>> {
         var messages = emptyFlow<Result<HttpResponse>>()
         val timeStart = Instant.now()
         runCatching {
@@ -47,7 +47,7 @@ class MailReaderService(private val config: Config) {
                 val throughputPerMinute = messages.count() / (timeToCompletion.toMillis().toDouble() / 1000 / 60)
                 log.info(
                     Markers.appendEntries(mapOf(Pair("MailReaderTPM", throughputPerMinute))),
-                    "${messages.count()} processed in ${timeToCompletion.toKotlinDuration()},($throughputPerMinute tpm)"
+                    "${messages.count()} messages processed in ${timeToCompletion.toKotlinDuration()},($throughputPerMinute tpm)"
                 )
             }
             .onFailure {

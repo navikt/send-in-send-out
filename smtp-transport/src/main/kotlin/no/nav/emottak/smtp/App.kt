@@ -32,7 +32,7 @@ fun main() = SuspendApp {
                 configureRoutes(registry)
             }
             val mailReaderService = MailReaderService(config)
-            scheduleWithInitialDelay(mailReaderService::readMessages)
+            scheduleWithInitialDelay(mailReaderService::processMessages)
 
             awaitCancellation()
         }
