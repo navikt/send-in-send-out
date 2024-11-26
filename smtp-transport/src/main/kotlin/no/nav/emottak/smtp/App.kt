@@ -11,6 +11,7 @@ import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import no.nav.emottak.config
+import no.nav.emottak.configuration.Job
 import no.nav.emottak.metricsRegistry
 import no.nav.emottak.plugin.configureContentNegotiation
 import no.nav.emottak.plugin.configureMetrics
@@ -32,7 +33,7 @@ fun main() = SuspendApp {
                 configureRoutes(registry)
             }
             val mailService = MailService(config)
-            scheduleWithInitialDelay(mailService::processMessages)
+            scheduleWithInitialDelay(config.job, mailService::processMessages)
 
             awaitCancellation()
         }
@@ -45,12 +46,15 @@ fun main() = SuspendApp {
         }
 }
 
-private suspend fun scheduleWithInitialDelay(block: suspend () -> Flow<Result<HttpResponse>>) {
+private suspend fun scheduleWithInitialDelay(
+    job: Job,
+    block: suspend () -> Flow<Result<HttpResponse>>
+) {
     // Repeat every 5 minutes
-    Schedule.spaced<Unit>(5.minutes)
+    Schedule.spaced<Unit>(job.fixedInterval)
         .delayed { attempt, _ ->
             // Delay by 1 minute only for the first attempt
-            if (attempt == 0L) 1.minutes else 0.minutes
+            if (attempt == 0L) job.initialDelay else 0.minutes
         }
         .repeat { block().collect {} }
 }
