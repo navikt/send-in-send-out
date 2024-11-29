@@ -8,7 +8,6 @@ plugins {
     id("io.ktor.plugin")
     kotlin("plugin.serialization")
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
-    id("dev.reformator.stacktracedecoroutinator") version "2.4.6"
 }
 
 tasks {
@@ -31,6 +30,11 @@ tasks {
 }
 
 dependencies {
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
+    implementation(libs.arrow.resilience)
+    implementation(libs.arrow.suspendapp)
+    implementation(libs.arrow.suspendapp.ktor)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotiation)
@@ -46,6 +50,8 @@ dependencies {
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.server.auth.jvm)
     implementation(libs.token.validation.ktor.v2)
+    implementation(libs.hoplite.core)
+    implementation(libs.hoplite.hocon)
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testRuntimeOnly(testLibs.junit.jupiter.engine)
     testImplementation(testLibs.mockk.jvm)
