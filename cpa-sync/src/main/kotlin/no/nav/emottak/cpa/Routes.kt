@@ -57,6 +57,7 @@ var TIMEOUT_EXCEPTION_COUNTER = 0
 fun Routing.registerHealthEndpoints(collectorRegistry: PrometheusMeterRegistry) {
     get("/internal/health/liveness") {
         if (TIMEOUT_EXCEPTION_COUNTER > 5) { // TODO : årsak ukjent, cpa-repo/timestamps endepunkt timer ut etter en stund
+            log.info("CPA sync needs restart!")
             call.respond(HttpStatusCode.ServiceUnavailable, "Restart me X_X")
         } else {
             call.respondText("I'm alive! :)")
