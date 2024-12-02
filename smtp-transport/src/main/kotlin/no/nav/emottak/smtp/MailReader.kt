@@ -10,6 +10,7 @@ import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
 import net.logstash.logback.marker.LogstashMarker
 import net.logstash.logback.marker.Markers
+import no.nav.emottak.configuration.Mail
 
 data class EmailMsg(
     val headers: Map<String, String>,
@@ -22,6 +23,7 @@ data class Part(
 )
 
 class MailReader(
+    private val mail: Mail,
     private val store: Store,
     private val expunge: Boolean = true
 ) : AutoCloseable {
@@ -69,36 +71,34 @@ class MailReader(
         }
     }
 
-    private val takeN = 1
     private var start = 1
-    private val inboxLimit: Int = getEnvVar("INBOX_LIMIT", "2000").toInt()
 
     fun count() = inbox.messageCount
 
-    private fun expunge(): Boolean = (expunge || count() > inboxLimit)
+    private fun expunge(): Boolean = (expunge || count() > mail.inboxLimit)
 
     override fun close() {
         inbox.close(
             expunge().also {
                 if (expunge != it) {
-                    log.warn("Inbox limit [$inboxLimit] exceeded. Expunge forced $it")
+                    log.warn("Inbox limit [${mail.inboxLimit}] exceeded. Expunge forced $it")
                 }
             }
         )
     }
 
     @Throws(Exception::class)
-    fun readMail(): List<EmailMsg> {
+    fun readMailBatches(batchSize: Int): List<EmailMsg> {
         try {
-            val messageCount = inbox.messageCount
+            val messageCount = count()
             return if (messageCount != 0) {
-                val endIndex = (takeN + start - 1).takeIf { it < messageCount } ?: messageCount
+                val endIndex = (batchSize + start - 1).takeIf { it < messageCount } ?: messageCount
                 val result = inbox.getMessages(start, endIndex)
                     .map { it as MimeMessage }
                     .toList()
                     .onEach(::processMimeMessage)
-                start += takeN
-                result.map(mapEmailMsg())
+                start += batchSize // Update start index
+                result.map(mapEmailMsg()) // Return all mapped emails
             } else {
                 emptyList<EmailMsg>().also { log.info("No email messages found") }
             }
