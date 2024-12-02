@@ -27,6 +27,7 @@ import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.wrapMessageInEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
+import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
@@ -120,6 +121,23 @@ fun Application.ebmsSendInModule() {
                                 }
                             }
 
+                            "HarBorgerFrikortMengde" -> timed(
+                                appMicrometerRegistry,
+                                "frikortMengde-sporing"
+                            ) {
+                                frikortsporringMengde(wrapMessageInEIFellesFormat(request)).let {
+                                    SendInResponse(
+                                        request.messageId,
+                                        request.conversationId,
+                                        request.addressing.replyTo(
+                                            it.eiFellesformat.mottakenhetBlokk.ebService,
+                                            it.eiFellesformat.mottakenhetBlokk.ebAction
+                                        ),
+                                        FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
+                                    )
+                                }
+                            }
+
                             "PasientlisteForesporsel" -> timed(appMicrometerRegistry, "PasientlisteForesporsel") {
                                 if (isProdEnv()) {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
@@ -140,7 +158,7 @@ fun Application.ebmsSendInModule() {
                     call.respond(it)
                 }.onFailure {
                     log.error(request.marker(), "Payload ${request.payloadId} videresending feilet", it)
-                    call.respond(HttpStatusCode.BadRequest, it.localizedMessage)
+                    call.respond(HttpStatusCode.BadRequest, it.localizedMessage ?: it.cause?.message ?: it.javaClass.simpleName)
                 }
             }
         }

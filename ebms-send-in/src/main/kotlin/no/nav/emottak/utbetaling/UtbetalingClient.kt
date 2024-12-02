@@ -21,9 +21,9 @@ import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.utbetaling.UtbetalingClient.UTBETAL_SOAP_ENDPOINT
 import no.nav.emottak.util.getEnvVar
+import no.nav.emottak.util.getSecret
 import no.nav.emottak.util.toXMLGregorianCalendar
 import org.slf4j.LoggerFactory
-import java.io.FileInputStream
 import java.time.Instant
 import java.util.UUID
 import javax.xml.namespace.QName
@@ -96,15 +96,8 @@ object UtbetalingClient {
         }
     }
 
-    private val SERVICEUSER_NAME = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-        "local" -> "testUsername"
-        else -> String(FileInputStream("/secret/serviceuser/username").readAllBytes())
-    }
-
-    private val SERVICEUSER_PASSWORD = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-        "local" -> "testPassword"
-        else -> String(FileInputStream("/secret/serviceuser/password").readAllBytes())
-    }
+    private val SERVICEUSER_NAME = getSecret("/secret/serviceuser/username", "testUsername")
+    private val SERVICEUSER_PASSWORD = getSecret("/secret/serviceuser/password", "testPassword")
 }
 
 val inntektsforesporselService =
