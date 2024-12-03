@@ -95,7 +95,7 @@ dependencyResolutionManagement {
             version("testPostgres", "1.18.0")
             version("xmlunit", "2.9.1")
             version("ktor-server-test", "2.3.4")
-            version("kotest", "5.8.0")
+            version("kotest", "5.9.1")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
