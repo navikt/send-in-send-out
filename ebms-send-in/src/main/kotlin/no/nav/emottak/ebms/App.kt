@@ -110,6 +110,7 @@ fun Application.ebmsSendInModule() {
                                         )
                                     }
                                     log.info(
+                                        request.marker(),
                                         "refParam ${birthDay(
                                             refParam(
                                                 document.getChildNodes(),
@@ -135,6 +136,7 @@ fun Application.ebmsSendInModule() {
                                     )
                                 }
                                 log.info(
+                                    request.marker(),
                                     "refParam ${birthDay(
                                         refParam(
                                             document.getChildNodes(),
@@ -150,6 +152,7 @@ fun Application.ebmsSendInModule() {
                                 }
                                 PasientlisteService.pasientlisteForesporsel(request)
                                 log.info(
+                                    request.marker(),
                                     "refParam ${birthDay(
                                         refParam(
                                             document.getChildNodes(),

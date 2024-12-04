@@ -32,12 +32,12 @@ fun Header.marker(): LogstashMarker = Markers.appendEntries(
     )
 )
 
-
-fun SendInRequest.marker(): LogstashMarker = Markers.appendEntries(
+fun SendInRequest.marker(loggableHeaderPairs: Map<String, String> = mapOf()): LogstashMarker = Markers.appendEntries(
     mapOf(
         MESSAGE_ID to this.messageId,
         CONVERSATION_ID to this.conversationId,
-    )
+        CPA_ID to this.cpaId
+    ) + loggableHeaderPairs
 )
 
 fun MessageHeader.marker(loggableHeaderPairs: Map<String, String> = mapOf()): LogstashMarker = Markers.appendEntries(
