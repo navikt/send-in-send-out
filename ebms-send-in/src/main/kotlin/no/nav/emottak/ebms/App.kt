@@ -97,7 +97,6 @@ fun Application.ebmsSendInModule() {
                 }
                 runCatching {
                     log.info(request.marker(), "Payload ${request.payloadId} videresendes til fagsystem")
-                    val document = createDocument(ByteArrayInputStream(FellesFormatXmlMarshaller.marshal(it).toByteArray()))
                     withContext(Dispatchers.IO) {
                         when (request.addressing.service) {
                             "Inntektsforesporsel" ->
@@ -109,16 +108,9 @@ fun Application.ebmsSendInModule() {
                                             request.addressing.replyTo(request.addressing.service, it.msgInfo.type.v),
                                             UtbetalingXmlMarshaller.marshalToByteArray(it)
                                         )
+                                    }.also {
+                                        loggReferanseParameter(request, DOCUMENT_INNTEKTFORESPORSEL_FNUMMER)
                                     }
-                                    log.info(
-                                        request.marker(),
-                                        "refParam ${birthDay(
-                                            refParam(
-                                                document.getChildNodes(),
-                                                DOCUMENT_INNTEKTFORESPORSEL_FNUMMER
-                                            )
-                                        )}"
-                                    )
                                 }
 
                             "HarBorgerEgenandelFritak", "HarBorgerFrikort" -> timed(
@@ -135,16 +127,9 @@ fun Application.ebmsSendInModule() {
                                         ),
                                         FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
                                     )
+                                }.also {
+                                    loggReferanseParameter(request, DOCUMENT_EGENANDELFRIKORT_FNUMMER)
                                 }
-                                log.info(
-                                    request.marker(),
-                                    "refParam ${birthDay(
-                                        refParam(
-                                            document.getChildNodes(),
-                                            DOCUMENT_EGENANDELFRIKORT_FNUMMER
-                                        )
-                                    )}"
-                                )
                             }
 
                             "HarBorgerFrikortMengde" -> timed(
@@ -168,17 +153,9 @@ fun Application.ebmsSendInModule() {
                                 if (isProdEnv()) {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                 }
-                                PasientlisteService.pasientlisteForesporsel(request)
-                                log.info(
-                                    request.marker(),
-                                    "refParam ${birthDay(
-                                        refParam(
-                                            document.getChildNodes(),
-                                            DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER
-                                        )
-                                    )}"
-
-                                )
+                                PasientlisteService.pasientlisteForesporsel(request).also {
+                                    loggReferanseParameter(request, DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER)
+                                }
                             }
                             else -> {
                                 throw NotImplementedError("Service: ${request.addressing.service} is not implemented")
@@ -198,5 +175,24 @@ fun Application.ebmsSendInModule() {
             }
         }
         registerHealthEndpoints(appMicrometerRegistry)
+    }
+}
+
+private fun loggReferanseParameter(request: SendInRequest, tagName: String) {
+    try {
+        val document = createDocument(ByteArrayInputStream(request.payload))
+        log.info(
+            request.marker(),
+            "refParam ${
+            birthDay(
+                refParam(
+                    document.childNodes,
+                    tagName
+                )
+            )
+            }"
+        )
+    } catch (e: Exception) {
+        log.warn(request.marker(), "Failed to read refParam")
     }
 }
