@@ -1,0 +1,51 @@
+<MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.kith.no/xmlstds/msghead/2006-05-24 MsgHead-v1_2.xsd">
+    <MsgInfo>
+        <Type V="EgenandelForesporsel" DN="NAV toveiskommunikasjonstjenestemelding"/>
+        <MIGversion>v1.2 2006-05-24</MIGversion>
+        <GenDate>2008-11-26T20:31:17.281+01:00</GenDate>
+        <MsgId>cc169595-bbf0-11dd-9ca9-117f241b4a68</MsgId>
+        <Sender>
+            <Organisation>
+                <OrganisationName>TESTORGNAME</OrganisationName>
+                <Ident>
+                    <Id>889640782</Id>
+                    <TypeId V="ENH" DN="Organisasjonsnummeret i Enhetsregister" S="2.16.578.1.12.4.1.1.9051"/>
+                </Ident>
+                <HealthcareProfessional>
+                    <FamilyName>Larsen</FamilyName>
+                    <GivenName>Tore</GivenName>
+                    <Ident>
+                        <Id>12345678901</Id>
+                        <TypeId V="FNR" DN="Fødselsnummer"/>
+                    </Ident>
+                </HealthcareProfessional>
+            </Organisation>
+        </Sender>
+        <Receiver>
+            <Organisation>
+                <OrganisationName>NAV</OrganisationName>
+                <Ident>
+                    <Id>999999999</Id>
+                    <TypeId/>
+                </Ident>
+            </Organisation>
+        </Receiver>
+    </MsgInfo>
+    <Document>
+        <DocumentConnection V="H" DN="Hoveddokument"/>
+        <RefDoc>
+            <MsgType V="XML" DN="XML-instans"/>
+            <Content>
+                <eg:EgenandelForesporselV2 xmlns:eg="http://www.kith.no/xmlstds/nav/egenandel/2016-06-10">
+                    <eg:HarBorgerFrikort>
+                        <eg:BorgerFnr>12345678910</eg:BorgerFnr>
+                        <eg:Dato>2023-11-20</eg:Dato>
+                        <eg:TjenestetypeKode>A</eg:TjenestetypeKode>
+                    </eg:HarBorgerFrikort>
+                </eg:EgenandelForesporselV2>
+            </Content>
+        </RefDoc>
+    </Document>
+</MsgHead>

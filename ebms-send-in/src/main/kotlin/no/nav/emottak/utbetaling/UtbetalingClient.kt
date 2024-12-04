@@ -21,9 +21,9 @@ import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.utbetaling.UtbetalingClient.UTBETAL_SOAP_ENDPOINT
 import no.nav.emottak.util.getEnvVar
+import no.nav.emottak.util.getSecret
 import no.nav.emottak.util.toXMLGregorianCalendar
 import org.slf4j.LoggerFactory
-import java.io.FileInputStream
 import java.time.Instant
 import java.util.UUID
 import javax.xml.namespace.QName
@@ -31,14 +31,16 @@ import javax.xml.namespace.QName
 object UtbetalingClient {
     val log = LoggerFactory.getLogger(UtbetalingClient::class.java)
 
-    val YRP_URL_TEST = "https://ytelser-rest-proxy.dev.intern.nav.no"
-    val YRP_URL_PROD = "https://ytelser-rest-proxy.intern.nav.no"
-    val RESOLVED_UTBETAL_URL =
+    private val YRP_URL_LOCAL = getEnvVar("UTBETALING_TEST_ENDPOINT", "http://localhost:8080")
+    private const val YRP_URL_TEST = "https://ytelser-rest-proxy.dev.intern.nav.no"
+    private const val YRP_URL_PROD = "https://ytelser-rest-proxy.intern.nav.no"
+    private val RESOLVED_UTBETAL_URL =
         when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
+            "local" -> YRP_URL_LOCAL
             "prod-fss" -> YRP_URL_PROD
             else -> YRP_URL_TEST
         }
-    val UTBETAL_SOAP_ENDPOINT = RESOLVED_UTBETAL_URL + "/Utbetaling"
+    val UTBETAL_SOAP_ENDPOINT = "$RESOLVED_UTBETAL_URL/Utbetaling"
 
     fun behandleInntektsforesporsel(sendInRequest: SendInRequest): MsgHead {
         val msgHeadRequest =
@@ -79,19 +81,14 @@ object UtbetalingClient {
             when (utbetalError) {
                 is FinnUtbetalingListeBrukerIkkeFunnet
                 -> feil.finnUtbetalingListebrukerIkkeFunnet = utbetalError.faultInfo
-
                 is FinnUtbetalingListeBaksystemIkkeTilgjengelig
                 -> feil.finnUtbetalingListebaksystemIkkeTilgjengelig = utbetalError.faultInfo
-
                 is FinnUtbetalingListeIngenTilgangTilEnEllerFlereYtelser
                 -> feil.finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser = utbetalError.faultInfo
-
                 is FinnUtbetalingListeUgyldigDato
                 -> feil.finnUtbetalingListeugyldigDato = utbetalError.faultInfo
-
                 is FinnUtbetalingListeUgyldigKombinasjonBrukerIdOgBrukertype
                 -> feil.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype = utbetalError.faultInfo
-
                 else ->
                     throw utbetalError.also { log.error("Ukjent feiltype: " + it.message, it) }
             }
@@ -99,15 +96,8 @@ object UtbetalingClient {
         }
     }
 
-    private val SERVICEUSER_NAME = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-        "local" -> "testUsername"
-        else -> String(FileInputStream("/secret/serviceuser/username").readAllBytes())
-    }
-
-    private val SERVICEUSER_PASSWORD = when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
-        "local" -> "testPassword"
-        else -> String(FileInputStream("/secret/serviceuser/password").readAllBytes())
-    }
+    private val SERVICEUSER_NAME = getSecret("/secret/serviceuser/username", "testUsername")
+    private val SERVICEUSER_PASSWORD = getSecret("/secret/serviceuser/password", "testPassword")
 }
 
 val inntektsforesporselService =
@@ -122,7 +112,6 @@ val inntektsforesporselService =
         .withAddress(UTBETAL_SOAP_ENDPOINT)
         .withWsdl(
             "classpath:no.nav.ekstern.virkemiddelokonomi/tjenester/utbetaling/utbetaling.wsdl"
-            // "classpath:no.nav.ekstern.virkemiddelokonomi/tjenester.utbetaling/utbetaling.wsdl"
         )
         .withServiceName(QName("http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1", "Utbetaling"))
         .withEndpointName(QName("http://nav.no/ekstern/virkemiddelokonomi/tjenester/utbetaling/v1", "UtbetalingPort"))

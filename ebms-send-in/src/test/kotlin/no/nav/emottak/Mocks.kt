@@ -12,12 +12,27 @@ val validSendInPasientlisteRequest = lazy {
 }
 
 val validSendInHarBorgerFrikortRequest = lazy {
-    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/egenandelforesporsel.xml")
+    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelForesporsel_HarBorgerFrikortRequest.xml")
     mockSendInRequest("HarBorgerFrikort", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")
+}
+
+val validSendInHarBorgerEgenandelfritakRequest = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelForesporsel_HarBorgerEgenandelFritakRequest.xml")
+    mockSendInRequest("HarBorgerEgenandelFritak", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")
+}
+
+val validSendInHarBorgerFrikortMengdeRequest = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelMengdeForesporsel_HarBorgerFrikortMengdeRequest.xml")
+    mockSendInRequest("HarBorgerFrikortMengde", "EgenandelMengdeForesporsel", fagmelding.readAllBytes(), "123456789")
 }
 
 val validSendInInntektforesporselRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("inntektsforesporsel/inntektsforesporsel.xml")
+    mockSendInRequest("Inntektsforesporsel", "Foresporsel", fagmelding.readAllBytes(), "123456789")
+}
+
+val validSendInInntektforesporselRequestWithENH = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("inntektsforesporsel/inntektsforesporsel_enh.xml")
     mockSendInRequest("Inntektsforesporsel", "Foresporsel", fagmelding.readAllBytes(), "123456789")
 }
 

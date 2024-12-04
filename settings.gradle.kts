@@ -11,6 +11,8 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
+            version("arrow", "1.2.4")
+            version("suspendapp", "0.4.0")
             version("bouncycastle", "1.76")
             version("exposed", "0.47.0")
             version("ktor", "2.3.8")
@@ -18,6 +20,13 @@ dependencyResolutionManagement {
             version("eclipse-angus", "2.0.2")
             version("jsch", "0.2.16")
             version("cxf", "3.5.5")
+            version("hoplite", "2.8.2")
+
+            library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
+            library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
+            library("arrow-resilience", "io.arrow-kt", "arrow-resilience").versionRef("arrow")
+            library("arrow-suspendapp", "io.arrow-kt", "suspendapp").versionRef("suspendapp")
+            library("arrow-suspendapp-ktor", "io.arrow-kt", "suspendapp-ktor").versionRef("suspendapp")
 
             library("bcpkix-jdk18on", "org.bouncycastle", "bcpkix-jdk18on").versionRef("bouncycastle")
             library("bcprov-jdk18on", "org.bouncycastle", "bcprov-jdk18on").versionRef("bouncycastle")
@@ -30,6 +39,9 @@ dependencyResolutionManagement {
             library("exposed-java-time", "org.jetbrains.exposed", "exposed-java-time").versionRef("exposed")
             library("exposed-jdbc", "org.jetbrains.exposed", "exposed-jdbc").versionRef("exposed")
             library("exposed-json", "org.jetbrains.exposed", "exposed-json").versionRef("exposed")
+
+            library("hoplite-core", "com.sksamuel.hoplite", "hoplite-core").versionRef("hoplite")
+            library("hoplite-hocon", "com.sksamuel.hoplite", "hoplite-hocon").versionRef("hoplite")
 
             library("jsch", "com.github.mwiede", "jsch").versionRef("jsch")
 
@@ -56,7 +68,7 @@ dependencyResolutionManagement {
             library("ktor-server-auth-jvm", "io.ktor:ktor-server-auth-jvm:2.3.8")
             library("token-validation-ktor-v2", "no.nav.security:token-validation-ktor-v2:4.1.4")
             library("flyway-core", "org.flywaydb:flyway-core:9.16.3")
-            library("emottak-payload-xsd", "no.nav.emottak:emottak-payload-xsd:0.0.5")
+            library("emottak-payload-xsd", "no.nav.emottak:emottak-payload-xsd:0.0.6")
             library("jaxb-runtime", "org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
             library("cxf-rt-frontend-jaxws", "org.apache.cxf", "cxf-rt-frontend-jaxws").versionRef("cxf")
             library("cxf-rt-transports-http", "org.apache.cxf", "cxf-rt-transports-http").versionRef("cxf")
@@ -83,7 +95,7 @@ dependencyResolutionManagement {
             version("testPostgres", "1.18.0")
             version("xmlunit", "2.9.1")
             version("ktor-server-test", "2.3.4")
-            version("kotest", "5.8.0")
+            version("kotest", "5.9.1")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
