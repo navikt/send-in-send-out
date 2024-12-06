@@ -1,4 +1,4 @@
-package no.nav.emottak.smtp
+package no.nav.emottak
 
 import arrow.continuations.SuspendApp
 import arrow.continuations.ktor.server
@@ -8,12 +8,12 @@ import arrow.resilience.Schedule
 import io.ktor.server.netty.Netty
 import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.awaitCancellation
-import no.nav.emottak.config
 import no.nav.emottak.configuration.Job
-import no.nav.emottak.initDependencies
 import no.nav.emottak.plugin.configureContentNegotiation
 import no.nav.emottak.plugin.configureMetrics
 import no.nav.emottak.plugin.configureRoutes
+import no.nav.emottak.publisher.MailPublisher
+import no.nav.emottak.service.MailService
 import org.slf4j.LoggerFactory
 import kotlin.time.Duration.Companion.seconds
 
@@ -29,8 +29,10 @@ fun main() = SuspendApp {
                 configureContentNegotiation()
                 configureRoutes(deps.meterRegistry)
             }
-            val mailService = MailService(config, deps.store, deps.httpClient)
-            scheduleWithFixedInterval(config.job, mailService::processMessages)
+            val mailService = MailService(config, deps.store)
+            val mailPublisher = MailPublisher(config, deps.publisherSettings)
+
+            schedulePublish(config.job, mailService, mailPublisher)
 
             awaitCancellation()
         }
@@ -43,7 +45,11 @@ fun main() = SuspendApp {
         }
 }
 
-private suspend fun scheduleWithFixedInterval(job: Job, block: suspend () -> Unit) =
-    Schedule.spaced<Unit>(job.fixedInterval).repeat { block() }
+private suspend fun schedulePublish(job: Job, service: MailService, publisher: MailPublisher) =
+    Schedule.spaced<Unit>(job.fixedInterval)
+        .repeat {
+            val messages = service.processMessages()
+            publisher.publishMessages(messages)
+        }
 
 private fun logError(t: Throwable) = log.error("Shutdown smtp-transport due to: ${t.stackTraceToString()}")

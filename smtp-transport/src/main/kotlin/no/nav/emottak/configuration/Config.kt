@@ -8,8 +8,11 @@ data class Config(
     val job: Job,
     val mail: Mail,
     val ebms: Ebms,
+    val kafka: Kafka,
     val smtp: Smtp
 )
+
+fun Config.withKafka(update: Kafka.() -> Kafka) = copy(kafka = kafka.update())
 
 data class Job(
     val initialDelay: Duration,
@@ -19,6 +22,12 @@ data class Job(
 data class Mail(val inboxLimit: Int)
 
 data class Ebms(val providerUrl: String)
+
+data class Kafka(
+    val bootstrapServers: String,
+    val topic: String,
+    val groupId: String
+)
 
 @JvmInline
 value class Username(val value: String)
