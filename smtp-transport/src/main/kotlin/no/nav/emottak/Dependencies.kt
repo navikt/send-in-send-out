@@ -4,8 +4,7 @@ import arrow.core.memoize
 import arrow.fx.coroutines.ExitCase
 import arrow.fx.coroutines.ResourceScope
 import arrow.fx.coroutines.parZip
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.github.nomisRev.kafka.publisher.PublisherSettings
 import io.micrometer.prometheus.PrometheusConfig.DEFAULT
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import jakarta.mail.Authenticator
@@ -13,34 +12,35 @@ import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
 import jakarta.mail.Store
 import no.nav.emottak.configuration.Config
+import no.nav.emottak.configuration.Kafka
 import no.nav.emottak.configuration.Smtp
 import no.nav.emottak.configuration.toProperties
-import no.nav.emottak.smtp.log
+import org.apache.kafka.common.serialization.ByteArraySerializer
+import org.apache.kafka.common.serialization.StringSerializer
 
 data class Dependencies(
     val store: Store,
     val session: Session,
-    val httpClient: HttpClient,
+    val publisherSettings: PublisherSettings<String, ByteArray>,
     val meterRegistry: PrometheusMeterRegistry
 )
 
-suspend fun ResourceScope.httpClient(): HttpClient =
-    install({ HttpClient(CIO) }) { h, _: ExitCase -> h.close().also { log.info("Closed http client") } }
-
-suspend fun ResourceScope.metricsRegistry(): PrometheusMeterRegistry =
+private suspend fun ResourceScope.metricsRegistry(): PrometheusMeterRegistry =
     install({ PrometheusMeterRegistry(DEFAULT) }) { p, _: ExitCase ->
         p.close().also { log.info("Closed prometheus registry") }
     }
 
-suspend fun ResourceScope.store(smtp: Smtp): Store =
+private suspend fun ResourceScope.store(smtp: Smtp): Store =
     install({ session(smtp).getStore(smtp.storeProtocol.value).also { it.connect() } }) { s, _: ExitCase ->
         s.close().also { log.info("Closed session store") }
     }
 
-suspend fun ResourceScope.initDependencies(config: Config) =
-    parZip({ store(config.smtp) }, { httpClient() }, { metricsRegistry() }) { store, httpClient, metricsRegistry ->
-        Dependencies(store, session(config.smtp), httpClient, metricsRegistry)
-    }
+fun kafkaPublisherSettings(kafka: Kafka): PublisherSettings<String, ByteArray> =
+    PublisherSettings(
+        bootstrapServers = kafka.bootstrapServers,
+        keySerializer = StringSerializer(),
+        valueSerializer = ByteArraySerializer()
+    )
 
 private val session: (Smtp) -> Session = { smtp: Smtp ->
     Session.getInstance(
@@ -54,3 +54,12 @@ private val session: (Smtp) -> Session = { smtp: Smtp ->
     )
 }
     .memoize()
+
+suspend fun ResourceScope.initDependencies(config: Config) =
+    parZip(
+        { store(config.smtp) },
+        { kafkaPublisherSettings(config.kafka) },
+        { metricsRegistry() }
+    ) { store, kafkaPublisher, metricsRegistry ->
+        Dependencies(store, session(config.smtp), kafkaPublisher, metricsRegistry)
+    }

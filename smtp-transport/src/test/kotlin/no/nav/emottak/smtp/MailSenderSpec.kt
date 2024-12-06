@@ -6,8 +6,9 @@ import com.icegreen.greenmail.util.ServerSetupTest.SMTP_POP3
 import io.kotest.core.spec.style.StringSpec
 import no.nav.emottak.config
 import no.nav.emottak.initDependencies
+import no.nav.emottak.service.MailService
 
-class MailSenderTest : StringSpec({
+class MailSenderSpec : StringSpec({
     val config = config()
 
     "test send mail" {
@@ -23,7 +24,7 @@ class MailSenderTest : StringSpec({
             val mailSender = MailSender(deps.session)
             mailSender.sendMessage()
 
-            val service = MailService(config, deps.store, deps.httpClient)
+            val service = MailService(config, deps.store)
             service.processMessages()
 
             greenMail.stop()
