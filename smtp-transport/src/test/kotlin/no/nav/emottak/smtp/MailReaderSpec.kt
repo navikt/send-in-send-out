@@ -14,7 +14,7 @@ import java.nio.file.Path.of
 private const val REQUEST = "mails/test@test.test/INBOX/EgenAndelForespoersel.eml"
 private const val EXAMPLE = "mails/test@test.test/INBOX/example.eml"
 
-class MailReaderTest : StringSpec({
+class MailReaderSpec : StringSpec({
     val config = config()
 
     val classLoader = this::class.java.classLoader

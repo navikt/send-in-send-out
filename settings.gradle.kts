@@ -21,6 +21,7 @@ dependencyResolutionManagement {
             version("jsch", "0.2.16")
             version("cxf", "3.5.5")
             version("hoplite", "2.8.2")
+            version("kotlin-kafka", "0.4.0")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
             library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
@@ -44,6 +45,8 @@ dependencyResolutionManagement {
             library("hoplite-hocon", "com.sksamuel.hoplite", "hoplite-hocon").versionRef("hoplite")
 
             library("jsch", "com.github.mwiede", "jsch").versionRef("jsch")
+
+            library("kotlin-kafka", "io.github.nomisrev", "kotlin-kafka").versionRef("kotlin-kafka")
 
             library("ktor-server-core", "io.ktor", "ktor-server-core").versionRef("ktor")
             library("ktor-server-netty", "io.ktor", "ktor-server-netty").versionRef("ktor")
@@ -96,6 +99,9 @@ dependencyResolutionManagement {
             version("xmlunit", "2.9.1")
             version("ktor-server-test", "2.3.4")
             version("kotest", "5.9.1")
+            version("testcontainers", "1.18.1")
+            version("kotest-extensions", "2.0.2")
+            version("turbine", "1.2.0")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
@@ -115,6 +121,13 @@ dependencyResolutionManagement {
 
             library("kotest-runner-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
             library("kotest-framework-datatest", "io.kotest", "kotest-framework-datatest").versionRef("kotest")
+            library("kotest-extensions-testcontainers", "io.kotest.extensions", "kotest-extensions-testcontainers").versionRef("kotest-extensions")
+            library("kotest-extensions-testcontainers-kafka", "io.kotest.extensions", "kotest-extensions-testcontainers-kafka").versionRef("kotest-extensions")
+
+            library("testcontainers", "org.testcontainers", "testcontainers").versionRef("testcontainers")
+            library("testcontainers-kafka", "org.testcontainers", "kafka").versionRef("testcontainers")
+
+            library("turbine", "app.cash.turbine", "turbine").versionRef("turbine")
 
             bundle("kotest", listOf("kotest-runner-junit5", "kotest-framework-datatest"))
             bundle("mockk", listOf("mockk-jvm", "mockk-dsl-jvm"))
