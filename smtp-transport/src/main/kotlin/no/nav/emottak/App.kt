@@ -14,7 +14,6 @@ import no.nav.emottak.plugin.configureMetrics
 import no.nav.emottak.plugin.configureRoutes
 import no.nav.emottak.processor.MailProcessor
 import no.nav.emottak.publisher.MailPublisher
-import no.nav.emottak.repository.PayloadRepository
 import no.nav.emottak.smtp.MailReader
 import org.slf4j.LoggerFactory
 import kotlin.time.Duration.Companion.seconds
@@ -33,12 +32,12 @@ fun main() = SuspendApp {
             }
 
             val mailReader = MailReader(config.mail, deps.store)
-            val payloadRepository = PayloadRepository(deps.payloadDatabase)
+            // val payloadRepository = PayloadRepository(deps.payloadDatabase)
             val mailPublisher = MailPublisher(config.kafka, deps.kafkaPublisher)
 
-            val mailProcessor = MailProcessor(mailReader, mailPublisher, payloadRepository)
+            val mailProcessor = MailProcessor(mailReader, mailPublisher)
 
-            schedulePublish(config.job, mailProcessor)
+            scheduleProcessMessages(config.job, mailProcessor)
 
             awaitCancellation()
         }
@@ -51,7 +50,7 @@ fun main() = SuspendApp {
         }
 }
 
-private suspend fun schedulePublish(job: Job, mailProcessor: MailProcessor) =
+private suspend fun scheduleProcessMessages(job: Job, mailProcessor: MailProcessor) =
     Schedule
         .spaced<Unit>(job.fixedInterval)
         .repeat(mailProcessor::processMessages)
