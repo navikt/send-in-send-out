@@ -80,14 +80,14 @@ suspend fun ResourceScope.initDependencies(config: Config) =
     parZip(
         { store(config.smtp) },
         { kafkaPublisher(config.kafka) },
-        { null },
+        { hikari(config.database.toProperties()) }, // TODO: Korrekt?
         { metricsRegistry() }
     ) { store, kafkaPublisher, jdbcDriver, metricsRegistry ->
         Dependencies(
             store,
             session(config.smtp),
             kafkaPublisher,
-            null,
+            null, // TODO
             metricsRegistry
         )
     }

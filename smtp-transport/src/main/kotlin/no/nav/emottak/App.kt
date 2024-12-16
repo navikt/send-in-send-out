@@ -9,29 +9,35 @@ import io.ktor.server.netty.Netty
 import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.configuration.Job
+import no.nav.emottak.plugin.configureAuthentication
 import no.nav.emottak.plugin.configureContentNegotiation
 import no.nav.emottak.plugin.configureMetrics
 import no.nav.emottak.plugin.configureRoutes
 import no.nav.emottak.processor.MailProcessor
 import no.nav.emottak.publisher.MailPublisher
+import no.nav.emottak.repository.PayloadRepository
+import no.nav.emottak.smtp.MailReader
 import org.slf4j.LoggerFactory
 import kotlin.time.Duration.Companion.seconds
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.smtp")
 
 fun main() = SuspendApp {
+    log.info("smtp-transport starting")
     val config = config()
     result {
         resourceScope {
             val deps = initDependencies(config)
+            val payloadRepository = PayloadRepository(deps.payloadDatabase!!)
             server(Netty, port = 8080, preWait = 5.seconds) {
                 configureMetrics(deps.meterRegistry)
                 configureContentNegotiation()
-                configureRoutes(deps.meterRegistry)
+                configureAuthentication()
+                configureRoutes(deps.meterRegistry, payloadRepository)
             }
-            // val payloadRepository = PayloadRepository(deps.payloadDatabase)
-            val mailPublisher = MailPublisher(config.kafka, deps.kafkaPublisher)
 
+            val mailReader = MailReader(config.mail, deps.store, false)
+            val mailPublisher = MailPublisher(config.kafka, deps.kafkaPublisher)
             val mailProcessor = MailProcessor(config, deps, mailPublisher)
 
             scheduleProcessMessages(config.job, mailProcessor)
