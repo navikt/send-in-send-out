@@ -24,22 +24,47 @@ class MailPublisherSpec : KafkaSpec(
                 }
         }
 
-        "All published messages are received - one message single part" {
-            val modifiedConfig = config.withKafka { copy(topic = "single-part-topic") }
+        "Publish payload message - message is received" {
             resourceScope {
                 turbineScope {
                     val publisher = MailPublisher(
-                        modifiedConfig.kafka,
-                        kafkaPublisher(modifiedConfig.kafka)
+                        config.kafka,
+                        kafkaPublisher(config.kafka)
                     )
 
                     val referenceId = UUID.randomUUID()
-                    val content = "content".toByteArray()
+                    val content = "payload".toByteArray()
 
-                    publisher.publishMessage(referenceId, content)
+                    publisher.publishPayloadMessage(referenceId, content)
 
                     val receiver = KafkaReceiver(receiverSettings())
-                    val consumer = receiver.receive(modifiedConfig.kafka.topic)
+                    val consumer = receiver.receive(config.kafka.payloadTopic)
+                        .map { Pair(it.key(), it.value()) }
+
+                    consumer.test {
+                        val (key, value) = awaitItem()
+                        key shouldBe referenceId.toString()
+                        value shouldBe content
+                    }
+                }
+            }
+        }
+
+        "Publish signal message - message is received" {
+            resourceScope {
+                turbineScope {
+                    val publisher = MailPublisher(
+                        config.kafka,
+                        kafkaPublisher(config.kafka)
+                    )
+
+                    val referenceId = UUID.randomUUID()
+                    val content = "signal".toByteArray()
+
+                    publisher.publishSignalMessage(referenceId, content)
+
+                    val receiver = KafkaReceiver(receiverSettings())
+                    val consumer = receiver.receive(config.kafka.signalTopic)
                         .map { Pair(it.key(), it.value()) }
 
                     consumer.test {

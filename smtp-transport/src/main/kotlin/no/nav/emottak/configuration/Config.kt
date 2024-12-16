@@ -50,7 +50,8 @@ data class Kafka(
     val truststoreType: TruststoreType,
     val truststoreLocation: TruststoreLocation,
     val truststorePassword: Masked,
-    val topic: String,
+    val payloadTopic: String,
+    val signalTopic: String,
     val groupId: String
 )
 

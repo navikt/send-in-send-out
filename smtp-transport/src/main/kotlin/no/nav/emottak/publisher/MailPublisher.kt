@@ -10,16 +10,22 @@ class MailPublisher(
     private val kafka: Kafka,
     private val kafkaPublisher: KafkaPublisher<String, ByteArray>
 ) {
-    suspend fun publishMessage(referenceId: UUID, content: ByteArray) =
+    suspend fun publishPayloadMessage(referenceId: UUID, content: ByteArray) =
+        publishMessage(kafka.payloadTopic, referenceId, content)
+
+    suspend fun publishSignalMessage(referenceId: UUID, content: ByteArray) =
+        publishMessage(kafka.signalTopic, referenceId, content)
+
+    private suspend fun publishMessage(topic: String, referenceId: UUID, content: ByteArray) =
         kafkaPublisher.publishScope {
-            publishCatching(toProducerRecord(referenceId, content))
+            publishCatching(toProducerRecord(topic, referenceId, content))
         }
-            .onSuccess { log.info("Published message with reference id: $referenceId") }
+            .onSuccess { log.info("Published message with reference id $referenceId to: $topic") }
             .onFailure { log.error("Failed to publish message with reference id: $referenceId") }
 
-    private fun toProducerRecord(referenceId: UUID, content: ByteArray) =
+    private fun toProducerRecord(topic: String, referenceId: UUID, content: ByteArray) =
         ProducerRecord(
-            kafka.topic,
+            topic,
             referenceId.toString(),
             content
         )

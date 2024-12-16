@@ -13,7 +13,6 @@ import no.nav.emottak.smtp.EmailMsg
 import no.nav.emottak.smtp.MailReader
 import no.nav.emottak.util.getContent
 import no.nav.emottak.util.toPayloads
-import java.util.UUID
 import java.util.UUID.randomUUID
 
 class MailProcessor(
@@ -50,11 +49,11 @@ class MailProcessor(
             // Multipart message: Insert payloads (drop the first which will be published)
             // when (val result = insertPayloads(payloads.dropFirst())) {
             // is Right ->
-            publishMessage(referenceId, emailMsg.getContent())
+            mailPublisher.publishPayloadMessage(referenceId, emailMsg.getContent())
             // else -> log.error("Could not insert payload: ${result.left()}")
         } else {
             // Single-part message: Directly publish
-            publishMessage(referenceId, emailMsg.getContent())
+            mailPublisher.publishSignalMessage(referenceId, emailMsg.getContent())
         }
     }
 
@@ -62,7 +61,4 @@ class MailProcessor(
     //     with(payloadRepository) {
     //         either { insert(payloads) }
     //     }
-
-    private suspend fun publishMessage(referenceId: UUID, content: ByteArray) =
-        mailPublisher.publishMessage(referenceId, content)
 }
