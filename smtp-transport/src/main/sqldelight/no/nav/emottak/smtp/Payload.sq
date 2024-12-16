@@ -27,3 +27,6 @@ VALUES (
 :direction
 )
 RETURNING reference_id, content_id;
+
+getPayload:
+SELECT * FROM payload WHERE reference_id = :reference_id;
