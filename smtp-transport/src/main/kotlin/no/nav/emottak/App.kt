@@ -29,6 +29,7 @@ fun main() = SuspendApp {
             val deps = initDependencies(config)
             deps.migrationService.migrate()
             val payloadRepository = PayloadRepository(deps.payloadDatabase)
+
             server(Netty, port = 8080, preWait = 5.seconds) {
                 configureMetrics(deps.meterRegistry)
                 configureContentNegotiation()
