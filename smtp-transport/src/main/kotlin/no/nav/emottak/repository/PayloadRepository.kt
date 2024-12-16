@@ -78,4 +78,43 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
                 throw e
             }
         }
+
+    /*
+    suspend fun Raise<NotFoundException>.getPayload(referenceId: String): Payload =
+        withContext(IO) {
+            payloadQueries.transactionWithResult {
+                catch({
+                    val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
+                        reference_id = referenceId,
+                    ).executeAsOneOrNull()
+                    Payload(
+                        referenceId = payload!!.reference_id,
+                        contentId = payload.content_id,
+                        contentType = payload.content_type,
+                        content = payload.content
+                        // TODO: Trenger vi feltene direction og/eller created_at?
+                    )
+                }) { _: SQLException ->
+                    raise(
+                        NotFoundException("Fant ikke payload.reference_id $referenceId")
+                    )
+                }
+            }
+        }
+    */
+
+    // TODO: Skal denne egentlig være suspend?
+    fun getPayload(referenceId: String): Payload =
+        payloadQueries.transactionWithResult {
+            val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
+                reference_id = referenceId
+            ).executeAsOneOrNull()
+            Payload(
+                referenceId = payload!!.reference_id,
+                contentId = payload.content_id,
+                contentType = payload.content_type,
+                content = payload.content
+                // TODO: Trenger vi feltene direction og/eller created_at?
+            )
+        }
 }
