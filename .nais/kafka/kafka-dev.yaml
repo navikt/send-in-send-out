@@ -23,6 +23,9 @@ spec:
     - access: read
       application: emottak-kafka-manager
       team: team-emottak
+    - access: read
+      application: ebms-provider
+      team: team-emottak
 
 ---
 
@@ -50,4 +53,7 @@ spec:
       team: team-emottak
     - access: read
       application: emottak-kafka-manager
+      team: team-emottak
+    - access: read
+      application: ebms-provider
       team: team-emottak
