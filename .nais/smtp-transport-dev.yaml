@@ -53,6 +53,11 @@ spec:
     pool: nav-dev
   envFrom:
     - secret: smtp-transport-secrets
+  vault:
+    enabled: true
+    paths:
+      - kvPath: /serviceuser/data/dev/srvtokt
+        mountPath: /secret/serviceuser
   accessPolicy:
     inbound:
       rules:
