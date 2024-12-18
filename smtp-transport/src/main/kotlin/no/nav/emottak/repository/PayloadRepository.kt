@@ -65,8 +65,8 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
                         referenceId = payload!!.reference_id,
                         contentId = payload.content_id,
                         contentType = payload.content_type,
-                        content = payload.content
-                        // TODO: Trenger vi feltene direction og/eller created_at?
+                        content = payload.content,
+                        createdAt = payload.created_at
                     )
                 }) { _: SQLException ->
                     raise(
@@ -78,17 +78,17 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
     */
 
     // TODO: Skal denne egentlig være suspend?
-    fun getPayload(referenceId: String): Payload =
+    fun getPayloads(referenceId: String): List<Payload> =
         payloadQueries.transactionWithResult {
-            val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
+            payloadQueries.getPayloads(
                 reference_id = referenceId
-            ).executeAsOneOrNull()
-            if (payload != null) Payload(
-                referenceId = payload.reference_id,
-                contentId = payload.content_id,
-                contentType = payload.content_type,
-                content = payload.content
-                // TODO: Trenger vi feltene direction og/eller created_at?
-            ) else throw NotFoundException()
+            ).executeAsList().map {
+                Payload(
+                    referenceId = it.reference_id,
+                    contentId = it.content_id,
+                    contentType = it.content_type,
+                    content = it.content,
+                    createdAt = it.created_at
+                )}
         }
 }

@@ -21,36 +21,36 @@ private const val REFERENCE_ID = "referenceId"
 
 fun Application.configureRoutes(registry: PrometheusMeterRegistry, db: PayloadRepository) {
     routing {
-        get("/internal/health/liveness") {
-            call.respondText("I'm alive! :)")
-        }
-        get("/internal/health/readiness") {
-            call.respondText("I'm ready! :)")
-        }
-        get("/prometheus") {
-            call.respond(registry.scrape())
-        }
+        healthEndpoints(registry)
         authenticate(AZURE_AD_AUTH) {
-            getPayload(registry, db)
+            getPayloads(registry, db)
         }
     }
 }
 
-fun Route.getPayload(registry: PrometheusMeterRegistry, db: PayloadRepository): Route = get("/payload/{$REFERENCE_ID}") {
+fun Route.healthEndpoints(registry: PrometheusMeterRegistry) {
+    get("/internal/health/liveness") {
+        call.respondText("I'm alive! :)")
+    }
+    get("/internal/health/readiness") {
+        call.respondText("I'm ready! :)")
+    }
+    get("/prometheus") {
+        call.respond(registry.scrape())
+    }
+}
+
+fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository): Route = get("/payload/{$REFERENCE_ID}") {
     val referenceId = call.parameters[REFERENCE_ID] ?: throw BadRequestException("Mangler $REFERENCE_ID")
     runCatching {
-        timed(registry, "getPayload") {
-            db.getPayload(referenceId)
+        timed(registry, "getPayloads") {
+            db.getPayloads(referenceId)
         }
     }.onSuccess {
         call.respond(HttpStatusCode.OK, it)
     }.onFailure {
         log.warn("Feil ved henting av Payload.reference_id \"$referenceId\"", it)
-        if (it is NotFoundException) {
-            call.respond(HttpStatusCode.NotFound, "Reference-id not found")
-        } else {
-            call.respond(HttpStatusCode.InternalServerError, it)
-        }
+        call.respond(HttpStatusCode.InternalServerError, it)
     }
 }
 

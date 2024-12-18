@@ -2,6 +2,7 @@ package no.nav.emottak.util
 
 import no.nav.emottak.smtp.EmailMsg
 import no.nav.emottak.smtp.Part
+import java.time.LocalDateTime
 import java.util.UUID
 
 private const val CONTENT_ID = "Content-Id"
@@ -11,7 +12,8 @@ data class Payload(
     val referenceId: String,
     val contentId: String,
     val contentType: String,
-    val content: ByteArray
+    val content: ByteArray,
+    val createdAt: LocalDateTime?
 )
 
 fun EmailMsg.getContent() = parts.first().bytes
@@ -26,5 +28,6 @@ private fun Part.toPayload(referenceId: UUID) = Payload(
     referenceId.toString(),
     getContentId(),
     getContentType(),
-    bytes
+    bytes,
+    null // TODO: sette CreatedAt?
 )
