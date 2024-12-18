@@ -51,11 +51,6 @@ spec:
     - "https://smtp-transport.intern.nav.no"
   envFrom:
     - secret: smtp-router-secrets
-  vault:
-    enabled: true
-    paths:
-      - kvPath: /serviceuser/data/prod/srvtokt
-        mountPath: /secret/serviceuser
   accessPolicy:
     inbound:
       rules:
