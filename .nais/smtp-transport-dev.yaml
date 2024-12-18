@@ -49,12 +49,15 @@ spec:
       memory: "512Mi"
   ingresses:
     - "https://smtp-transport.intern.dev.nav.no"
-  vault:
-    enabled: true
   kafka:
     pool: nav-dev
   envFrom:
     - secret: smtp-transport-secrets
+  vault:
+    enabled: true
+    paths:
+      - kvPath: /serviceuser/data/dev/srvtokt
+        mountPath: /secret/serviceuser
   accessPolicy:
     inbound:
       rules:
