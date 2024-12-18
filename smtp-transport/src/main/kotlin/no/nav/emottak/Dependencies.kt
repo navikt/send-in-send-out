@@ -30,7 +30,7 @@ data class Dependencies(
     val store: Store,
     val session: Session,
     val kafkaPublisher: KafkaPublisher<String, ByteArray>,
-    val payloadDatabase: PayloadDatabase?,
+    val payloadDatabase: PayloadDatabase,
     val meterRegistry: PrometheusMeterRegistry
 )
 
@@ -80,14 +80,14 @@ suspend fun ResourceScope.initDependencies(config: Config) =
     parZip(
         { store(config.smtp) },
         { kafkaPublisher(config.kafka) },
-        { null },
+        { hikari(config.database.toProperties()) }, // TODO: Korrekt?
         { metricsRegistry() }
     ) { store, kafkaPublisher, jdbcDriver, metricsRegistry ->
         Dependencies(
             store,
             session(config.smtp),
             kafkaPublisher,
-            null,
+            PayloadDatabase.invoke(jdbcDriver.asJdbcDriver()), // TODO: Korrekt?
             metricsRegistry
         )
     }

@@ -51,6 +51,10 @@ spec:
     - "https://smtp-transport.intern.nav.no"
   envFrom:
     - secret: smtp-router-secrets
+  accessPolicy:
+    inbound:
+      rules:
+        - application: ebms-provider
   env:
     - name: SMTP_POP3_FACTORY_PORT
       value: "110"

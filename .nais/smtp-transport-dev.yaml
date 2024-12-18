@@ -53,6 +53,13 @@ spec:
     pool: nav-dev
   envFrom:
     - secret: smtp-transport-secrets
+  accessPolicy:
+    inbound:
+      rules:
+        - application: ebms-provider
+        - application: azure-token-generator
+          namespace: aura
+          cluster: dev-gcp
   env:
     - name: SMTP_POP3_FACTORY_PORT
       value: "110"

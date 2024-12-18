@@ -50,6 +50,7 @@ configurations {
 }
 
 dependencies {
+    implementation(project(":felles"))
     implementation(libs.arrow.core)
     implementation(libs.arrow.fx.coroutines)
     implementation(libs.arrow.resilience)

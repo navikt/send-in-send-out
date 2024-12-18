@@ -2,6 +2,7 @@ package no.nav.emottak.repository
 
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import no.nav.emottak.Error.PayloadAlreadyExist
@@ -50,5 +51,44 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
             } else {
                 throw e
             }
+        }
+
+    /*
+    suspend fun Raise<NotFoundException>.getPayload(referenceId: String): Payload =
+        withContext(IO) {
+            payloadQueries.transactionWithResult {
+                catch({
+                    val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
+                        reference_id = referenceId,
+                    ).executeAsOneOrNull()
+                    Payload(
+                        referenceId = payload!!.reference_id,
+                        contentId = payload.content_id,
+                        contentType = payload.content_type,
+                        content = payload.content,
+                        createdAt = payload.created_at
+                    )
+                }) { _: SQLException ->
+                    raise(
+                        NotFoundException("Fant ikke payload.reference_id $referenceId")
+                    )
+                }
+            }
+        }
+    */
+
+    // TODO: Skal denne egentlig være suspend?
+    fun getPayloads(referenceId: String): List<Payload> =
+        payloadQueries.transactionWithResult {
+            payloadQueries.getPayloads(
+                reference_id = referenceId
+            ).executeAsList().map {
+                Payload(
+                    referenceId = it.reference_id,
+                    contentId = it.content_id,
+                    contentType = it.content_type,
+                    content = it.content,
+                    createdAt = it.created_at
+                )}
         }
 }
