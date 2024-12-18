@@ -20,6 +20,12 @@ spec:
     - access: write
       application: smtp-transport
       team: team-emottak
+    - access: read
+      application: emottak-kafka-manager
+      team: team-emottak
+    - access: read
+      application: ebms-provider
+      team: team-emottak
 
 ---
 
@@ -44,4 +50,10 @@ spec:
   acl:
     - access: write
       application: smtp-transport
+      team: team-emottak
+    - access: read
+      application: emottak-kafka-manager
+      team: team-emottak
+    - access: read
+      application: ebms-provider
       team: team-emottak
