@@ -30,7 +30,7 @@ data class Dependencies(
     val store: Store,
     val session: Session,
     val kafkaPublisher: KafkaPublisher<String, ByteArray>,
-    val payloadDatabase: PayloadDatabase?,
+    val payloadDatabase: PayloadDatabase,
     val meterRegistry: PrometheusMeterRegistry
 )
 
@@ -87,7 +87,7 @@ suspend fun ResourceScope.initDependencies(config: Config) =
             store,
             session(config.smtp),
             kafkaPublisher,
-            null, // TODO
+            PayloadDatabase.invoke(jdbcDriver.asJdbcDriver()), // TODO: Korrekt?
             metricsRegistry
         )
     }

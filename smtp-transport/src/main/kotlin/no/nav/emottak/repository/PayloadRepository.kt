@@ -2,6 +2,7 @@ package no.nav.emottak.repository
 
 import arrow.core.raise.Raise
 import arrow.core.raise.catch
+import io.ktor.server.plugins.NotFoundException
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import no.nav.emottak.Error.PayloadAlreadyExist
@@ -107,12 +108,12 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
             val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
                 reference_id = referenceId
             ).executeAsOneOrNull()
-            Payload(
-                referenceId = payload!!.reference_id,
+            if (payload != null) Payload(
+                referenceId = payload.reference_id,
                 contentId = payload.content_id,
                 contentType = payload.content_type,
                 content = payload.content
                 // TODO: Trenger vi feltene direction og/eller created_at?
-            )
+            ) else throw NotFoundException()
         }
 }
