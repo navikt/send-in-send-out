@@ -42,13 +42,15 @@ spec:
     cpuThresholdPercentage: 50
   resources:
     limits:
-      cpu: "200m"
-      memory: "512Mi"
+      cpu: "1000m"
+      memory: "1024Mi"
     requests:
       cpu: "200m"
       memory: "512Mi"
   ingresses:
     - "https://smtp-transport.intern.dev.nav.no"
+  kafka:
+    pool: nav-dev
   envFrom:
     - secret: smtp-transport-secrets
   env:

@@ -13,13 +13,16 @@ jobs:
   deploy-to-dev:
     name: Deploy to dev-gcp
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Deploy topics to dev
-        uses: nais/deploy/actions/deploy@v1
+        uses: nais/deploy/actions/deploy@v2
         env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-gcp
           VAR: kafka-pool=nav-dev
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RESOURCE: ${{ env.TOPIC_FILE }}
