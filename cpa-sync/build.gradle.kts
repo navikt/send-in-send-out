@@ -56,6 +56,7 @@ dependencies {
     testImplementation("com.icegreen:greenmail:2.1.0-alpha-3")
     testImplementation("com.icegreen:greenmail-junit5:2.1.0-alpha-3")
     testImplementation(kotlin("test"))
+    testImplementation("org.apache.commons:commons-lang3:3.13.0")
     implementation(kotlin("stdlib-jdk8"))
 }
 
