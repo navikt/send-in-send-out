@@ -24,6 +24,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
+import no.nav.emottak.constants.LogIndex.DOCUMENT_EGENANDELFRIKORT_FNUMMER
+import no.nav.emottak.constants.LogIndex.DOCUMENT_INNTEKTFORESPORSEL_FNUMMER
+import no.nav.emottak.constants.LogIndex.DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.wrapMessageInEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
@@ -33,10 +36,14 @@ import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
+import no.nav.emottak.util.birthDay
+import no.nav.emottak.util.createDocument
 import no.nav.emottak.util.isProdEnv
 import no.nav.emottak.util.marker
+import no.nav.emottak.util.refParam
 import no.nav.security.token.support.v2.tokenValidationSupport
 import org.slf4j.LoggerFactory
+import java.io.ByteArrayInputStream
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.ebms.App")
 
@@ -101,6 +108,8 @@ fun Application.ebmsSendInModule() {
                                             request.addressing.replyTo(request.addressing.service, it.msgInfo.type.v),
                                             UtbetalingXmlMarshaller.marshalToByteArray(it)
                                         )
+                                    }.also {
+                                        loggReferanseParameter(request, DOCUMENT_INNTEKTFORESPORSEL_FNUMMER)
                                     }
                                 }
 
@@ -118,6 +127,8 @@ fun Application.ebmsSendInModule() {
                                         ),
                                         FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
                                     )
+                                }.also {
+                                    loggReferanseParameter(request, DOCUMENT_EGENANDELFRIKORT_FNUMMER)
                                 }
                             }
 
@@ -142,9 +153,10 @@ fun Application.ebmsSendInModule() {
                                 if (isProdEnv()) {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                 }
-                                PasientlisteService.pasientlisteForesporsel(request)
+                                PasientlisteService.pasientlisteForesporsel(request).also {
+                                    loggReferanseParameter(request, DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER)
+                                }
                             }
-
                             else -> {
                                 throw NotImplementedError("Service: ${request.addressing.service} is not implemented")
                             }
@@ -162,7 +174,25 @@ fun Application.ebmsSendInModule() {
                 }
             }
         }
-
         registerHealthEndpoints(appMicrometerRegistry)
+    }
+}
+
+private fun loggReferanseParameter(request: SendInRequest, tagName: String) {
+    try {
+        val document = createDocument(ByteArrayInputStream(request.payload))
+        log.info(
+            request.marker(),
+            "refParam ${
+            birthDay(
+                refParam(
+                    document.childNodes,
+                    tagName
+                )
+            )
+            }"
+        )
+    } catch (e: Exception) {
+        log.warn(request.marker(), "Failed to read refParam")
     }
 }
