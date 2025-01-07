@@ -100,7 +100,9 @@ dependencyResolutionManagement {
             version("kotest", "5.9.1")
             version("testcontainers", "1.18.1")
             version("kotest-extensions", "2.0.2")
+            version("postgres", "42.7.4")
             version("turbine", "1.2.0")
+            version("arrow", "1.2.4")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
@@ -113,8 +115,6 @@ dependencyResolutionManagement {
             library("mockk-jvm", "io.mockk", "mockk-jvm").versionRef("mockk")
             library("mockk-dsl-jvm", "io.mockk", "mockk-dsl-jvm").versionRef("mockk")
 
-            library("postgresql", "org.testcontainers", "postgresql").versionRef("testPostgres")
-
             library("xmlunit-core", "org.xmlunit", "xmlunit-core").versionRef("xmlunit")
             library("xmlunit-matchers", "org.xmlunit", "xmlunit-matchers").versionRef("xmlunit")
 
@@ -123,8 +123,13 @@ dependencyResolutionManagement {
             library("kotest-extensions-testcontainers", "io.kotest.extensions", "kotest-extensions-testcontainers").versionRef("kotest-extensions")
             library("kotest-extensions-testcontainers-kafka", "io.kotest.extensions", "kotest-extensions-testcontainers-kafka").versionRef("kotest-extensions")
 
+            library("kotest-assertions-arrow", "io.kotest.extensions", "kotest-assertions-arrow").versionRef("arrow")
+
             library("testcontainers", "org.testcontainers", "testcontainers").versionRef("testcontainers")
             library("testcontainers-kafka", "org.testcontainers", "kafka").versionRef("testcontainers")
+            library("testcontainers-postgresql", "org.testcontainers", "postgresql").versionRef("testcontainers")
+
+            library("postgresql", "org.postgresql", "postgresql").versionRef("postgres")
 
             library("turbine", "app.cash.turbine", "turbine").versionRef("turbine")
 
