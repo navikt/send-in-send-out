@@ -56,9 +56,7 @@ class PayloadRepositorySpec : StringSpec(
 
         "should fail on non existing payload" {
             with(repository) {
-                either {
-                    retrieve("no-ref-id", "no-content-id")
-                } shouldBe Left(
+                either { retrieve("no-ref-id", "no-content-id") } shouldBe Left(
                     PayloadDoesNotExist(
                         "no-ref-id",
                         "no-content-id"
