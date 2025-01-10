@@ -1,5 +1,6 @@
 package no.nav.emottak.util
 
+import kotlinx.serialization.Serializable
 import no.nav.emottak.smtp.EmailMsg
 import no.nav.emottak.smtp.Part
 import java.util.UUID
@@ -7,6 +8,7 @@ import java.util.UUID
 private const val CONTENT_ID = "Content-Id"
 private const val CONTENT_TYPE = "Content-Type"
 
+@Serializable
 data class Payload(
     val referenceId: String,
     val contentId: String,

@@ -5,8 +5,10 @@ import arrow.continuations.ktor.server
 import arrow.core.raise.result
 import arrow.fx.coroutines.resourceScope
 import arrow.resilience.Schedule
+import io.ktor.server.application.Application
 import io.ktor.server.netty.Netty
 import io.ktor.utils.io.CancellationException
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.configuration.Job
 import no.nav.emottak.plugin.configureAuthentication
@@ -30,12 +32,15 @@ fun main() = SuspendApp {
             deps.migrationService.migrate()
             val payloadRepository = PayloadRepository(deps.payloadDatabase)
 
-            server(Netty, port = 8080, preWait = 5.seconds) {
-                configureMetrics(deps.meterRegistry)
-                configureContentNegotiation()
-                configureAuthentication()
-                configureRoutes(deps.meterRegistry, payloadRepository)
-            }
+            server(
+                Netty,
+                port = 8080,
+                preWait = 5.seconds,
+                module = smtpTransportModule(
+                    deps.meterRegistry,
+                    payloadRepository
+                )
+            )
 
             val mailPublisher = MailPublisher(config.kafka, deps.kafkaPublisher)
             val mailProcessor = MailProcessor(config, deps, mailPublisher, payloadRepository)
@@ -51,6 +56,18 @@ fun main() = SuspendApp {
                 else -> logError(error)
             }
         }
+}
+
+fun smtpTransportModule(
+    meterRegistry: PrometheusMeterRegistry,
+    payloadRepository: PayloadRepository
+): Application.() -> Unit {
+    return {
+        configureMetrics(meterRegistry)
+        configureContentNegotiation()
+        configureAuthentication()
+        configureRoutes(meterRegistry, payloadRepository)
+    }
 }
 
 private suspend fun scheduleProcessMessages(job: Job, mailProcessor: MailProcessor) =

@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm")
     application
     id("io.ktor.plugin")
-    kotlin("plugin.serialization")
+    kotlin("plugin.serialization") apply true
     id("app.cash.sqldelight") version "2.0.2"
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
 }
@@ -55,8 +55,8 @@ tasks {
 
 dependencies {
     implementation(project(":felles")) {
-        exclude(group = "no.nav.emottak", module = "emottak-payload-xsd")
-    }
+        exclude(group = "no.nav.emottak", module = "emottak-payload-xsd") // For å unngå feil i MailReaderSpec:
+    } //                                               Caused by: java.lang.NoClassDefFoundError at MailReaderSpec.kt:35
     implementation(libs.arrow.core)
     implementation(libs.arrow.fx.coroutines)
     implementation(libs.arrow.resilience)
@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.vault.jdbc)
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testRuntimeOnly(testLibs.junit.jupiter.engine)
+    testImplementation(testLibs.mock.oauth2.server)
     testImplementation(testLibs.mockk.jvm)
     testImplementation(testLibs.mockk.dsl.jvm)
     testImplementation(testLibs.junit.jupiter.api)
