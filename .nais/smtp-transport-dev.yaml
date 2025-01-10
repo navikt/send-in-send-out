@@ -71,7 +71,7 @@ spec:
     - name: SMTP_OUTGOING_USERNAME_NY
       value: "nyebms2@test-es.nav.no"
     - name: POSTGRES_JDBC_URL
-      value: "jdbc:postgresql://b27dbvl035.preprod.local:5432/"
+      value: "jdbc:postgresql://b27dbvl035.preprod.local:5432/emottak-smtp-transport-payload"
     - name: POSTGRES_MOUNT_PATH
       value: "postgresql/preprod-fss"
     - name: POSTGRES_USER_ROLE
