@@ -24,6 +24,7 @@ dependencyResolutionManagement {
             version("kotlin-kafka", "0.4.0")
             version("sqldelight", "2.0.2")
             version("postgres", "42.7.4")
+            version("vault-jdbc", "1.3.10")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
             library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
@@ -64,6 +65,8 @@ dependencyResolutionManagement {
             library("sqldelight-primitive-adapters", "app.cash.sqldelight", "primitive-adapters").versionRef("sqldelight")
 
             library("postgresql", "org.postgresql", "postgresql").versionRef("postgres")
+
+            library("vault-jdbc", "no.nav", "vault-jdbc").versionRef("vault-jdbc")
 
             library("hikari", "com.zaxxer:HikariCP:5.0.1")
             library("labai-jsr305x-annotations", "com.github.labai:labai-jsr305x-annotations:0.0.2")
