@@ -1,13 +1,10 @@
 package no.nav.emottak.util
 
-import org.apache.xml.security.utils.Constants
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
-import org.w3c.dom.NodeList
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
-import java.security.cert.X509Certificate
 import java.time.Instant
 import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
@@ -16,8 +13,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-
-
 
 fun createDocument(inputstream: InputStream): Document {
     val dbf = DocumentBuilderFactory.newInstance()
