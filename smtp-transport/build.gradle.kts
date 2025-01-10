@@ -42,13 +42,13 @@ tasks {
         }
     }
     compileKotlin.configure {
+        // sqldelight task generateMainPayloadDatabaseMigrations will output .sqm files as valid SQL
+        // in the output directory, with the output format.
+        // Create a dependency from compileKotlin where flyway will have the files available on the classpath
         dependsOn("generateMainPayloadDatabaseMigrations")
     }
     build {
         dependsOn("ktlintCheck")
-        // /sqldelight task generateMainSampleMigrations will output your .sqm files as valid SQL
-        // in the output directory, with the output format.
-        // Create a dependency from compileKotlin where flyway will have the files available on the classpath
     }
 }
 
