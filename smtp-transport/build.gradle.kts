@@ -38,7 +38,8 @@ tasks {
     }
     ktlint {
         filter {
-            exclude { it.file.path.contains("/generated/").or(it.file.path.contains("\\generated\\")) }
+            exclude { it.file.path.contains("/generated/") }
+            exclude { it.file.path.contains("\\generated\\") }
         }
     }
     compileKotlin.configure {
@@ -53,7 +54,9 @@ tasks {
 }
 
 dependencies {
-    implementation(project(":felles"))
+    implementation(project(":felles")) {
+        exclude(group = "no.nav.emottak", module = "emottak-payload-xsd")
+    }
     implementation(libs.arrow.core)
     implementation(libs.arrow.fx.coroutines)
     implementation(libs.arrow.resilience)
