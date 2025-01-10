@@ -29,7 +29,7 @@ abstract class PayloadIntegrationTestFelles(
     }
 
     companion object {
-        protected var mockOAuth2Server: MockOAuth2Server? = null
+        protected lateinit var mockOAuth2Server: MockOAuth2Server
 
         @JvmStatic
         @BeforeAll
@@ -42,7 +42,7 @@ abstract class PayloadIntegrationTestFelles(
         @AfterAll
         fun tearDownAll() {
             println("=== Stopping MockOAuth2Server ===")
-            mockOAuth2Server?.shutdown()
+            mockOAuth2Server.shutdown()
         }
     }
 
@@ -58,7 +58,7 @@ abstract class PayloadIntegrationTestFelles(
         testBlock()
     }
 
-    protected fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server!!.issueToken(
+    protected fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server.issueToken(
         issuerId = AZURE_AD_AUTH,
         audience = audience,
         subject = "testUser"
