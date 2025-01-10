@@ -29,7 +29,7 @@ tasks {
     }
     ktlint {
         filter {
-            exclude { it.file.path.contains("/generated/") }
+            exclude { it.file.path.contains("/generated/").or(it.file.path.contains("\\generated\\")) }
         }
     }
     build {
