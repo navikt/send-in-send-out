@@ -1,11 +1,12 @@
 package no.nav.emottak.plugin
 
+import arrow.core.Either
+import arrow.core.raise.either
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -13,22 +14,25 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.Timer.ResourceSample
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import kotlinx.coroutines.runBlocking
 import no.nav.emottak.AZURE_AD_AUTH
+import no.nav.emottak.Error.PayloadDoesNotExist
 import no.nav.emottak.log
 import no.nav.emottak.repository.PayloadRepository
+import no.nav.emottak.util.Payload
 
 private const val REFERENCE_ID = "referenceId"
 
 fun Application.configureRoutes(registry: PrometheusMeterRegistry, db: PayloadRepository) {
     routing {
-        healthEndpoints(registry)
+        registerHealthEndpoints(registry)
         authenticate(AZURE_AD_AUTH) {
             getPayloads(registry, db)
         }
     }
 }
 
-fun Route.healthEndpoints(registry: PrometheusMeterRegistry) {
+fun Route.registerHealthEndpoints(registry: PrometheusMeterRegistry) {
     get("/internal/health/liveness") {
         call.respondText("I'm alive! :)")
     }
@@ -44,7 +48,16 @@ fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository):
     val referenceId = call.parameters[REFERENCE_ID] ?: throw BadRequestException("Mangler $REFERENCE_ID")
     runCatching {
         timed(registry, "getPayloads") {
-            db.getPayloads(referenceId)
+            runBlocking {
+                with(db) {
+                    val enten: Either<PayloadDoesNotExist, List<Payload>> =
+                        either { retrieve(referenceId) }
+                    when (enten) {
+                        is Either.Left -> throw enten.value
+                        is Either.Right -> return@with enten.value
+                    }
+                }
+            }
         }
     }.onSuccess {
         call.respond(HttpStatusCode.OK, it)
