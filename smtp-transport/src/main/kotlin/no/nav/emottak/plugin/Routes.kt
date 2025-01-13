@@ -1,6 +1,7 @@
 package no.nav.emottak.plugin
 
 import arrow.core.Either
+import arrow.core.NonEmptyList
 import arrow.core.raise.either
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -14,12 +15,11 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.Timer.ResourceSample
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import kotlinx.coroutines.runBlocking
 import no.nav.emottak.AZURE_AD_AUTH
-import no.nav.emottak.Error.PayloadDoesNotExist
+import no.nav.emottak.PayloadRequestValidationError
 import no.nav.emottak.log
 import no.nav.emottak.repository.PayloadRepository
-import no.nav.emottak.util.Payload
+import no.nav.emottak.repository.PayloadRequest
 
 private const val REFERENCE_ID = "referenceId"
 
@@ -45,25 +45,27 @@ fun Route.registerHealthEndpoints(registry: PrometheusMeterRegistry) {
 }
 
 fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository): Route = get("/payload/{$REFERENCE_ID}") {
-    val referenceId = call.parameters[REFERENCE_ID] ?: throw BadRequestException("Mangler $REFERENCE_ID")
-    runCatching {
-        timed(registry, "getPayloads") {
-            runBlocking {
-                with(db) {
-                    val enten: Either<PayloadDoesNotExist, List<Payload>> =
-                        either { retrieve(referenceId) }
-                    when (enten) {
-                        is Either.Left -> throw enten.value
-                        is Either.Right -> return@with enten.value
+    val request : Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> = PayloadRequest(REFERENCE_ID)
+    when (request) {
+        is Either.Left -> { // Valideringsfeil:
+            val msg = request.value.joinToString()
+            log.warn("Validation failed:\n$msg")
+            throw BadRequestException(msg)
+        }
+        is Either.Right -> { // OK request:
+            // timed(registry, "getPayloads") { // TODO: timed() er ikke en coroutine-body, how to fix?
+                when (val result = with(db) { either { retrieve(REFERENCE_ID) } }) {
+                    is Either.Right -> call.respond(HttpStatusCode.OK, result.value)
+                    is Either.Left -> {
+                        log.warn("Did not find Payload.reference_id '$REFERENCE_ID'")
+                        call.respond(HttpStatusCode.NotFound, result.value)
                     }
                 }
-            }
+            // }
         }
-    }.onSuccess {
-        call.respond(HttpStatusCode.OK, it)
-    }.onFailure {
-        log.warn("Feil ved henting av Payload.reference_id \"$referenceId\"", it)
-        call.respond(HttpStatusCode.InternalServerError, it)
+        else -> { // Teknisk feil:
+            call.respond(HttpStatusCode.InternalServerError, request)
+        }
     }
 }
 
