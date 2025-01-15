@@ -15,7 +15,8 @@ import org.apache.kafka.common.Uuid
 data class PayloadRequest private constructor(val referenceId: String, val contentId: String? = null) {
     companion object {
         operator fun invoke(
-            referenceId: String, contentId: String? = null
+            referenceId: String,
+            contentId: String? = null
         ): Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> = either {
             zipOrAccumulate(
                 { // Validering av referenceId:

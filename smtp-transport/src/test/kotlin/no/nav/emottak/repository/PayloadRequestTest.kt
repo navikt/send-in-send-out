@@ -7,8 +7,8 @@ import org.apache.kafka.common.Uuid
 import org.junit.jupiter.api.BeforeAll
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class PayloadRequestTest {
 

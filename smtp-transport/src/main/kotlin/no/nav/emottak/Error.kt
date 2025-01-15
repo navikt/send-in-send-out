@@ -14,10 +14,10 @@ data class PayloadDoesNotExist(
 
 sealed interface PayloadRequestValidationError : Error
 
-data object EmptyReferenceId: PayloadRequestValidationError {
+data object EmptyReferenceId : PayloadRequestValidationError {
     override fun toString() = "ReferenceId cannot be empty"
 }
-data object EmptyContentId: PayloadRequestValidationError{
+data object EmptyContentId : PayloadRequestValidationError {
     override fun toString() = "ContentId cannot be empty"
 }
 
