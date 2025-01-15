@@ -13,14 +13,19 @@ data class PayloadDoesNotExist(
 ) : Error
 
 sealed interface PayloadRequestValidationError : Error
-data object EmptyReferenceId: PayloadRequestValidationError
-data object EmptyContentId: PayloadRequestValidationError
+
+data object EmptyReferenceId: PayloadRequestValidationError {
+    override fun toString() = "ReferenceId cannot be empty"
+}
+data object EmptyContentId: PayloadRequestValidationError{
+    override fun toString() = "ContentId cannot be empty"
+}
 
 sealed interface NotValidUUID : PayloadRequestValidationError
-data class InvalidReferenceId(val referenceId: String) : NotValidUUID
-data class InvalidContentId(val contentId: String) : NotValidUUID
 
-fun EmptyReferenceId.toString() = "ReferenceId cannot be empty"
-fun EmptyContentId.toString() = "ContentId cannot be empty"
-fun InvalidReferenceId.toString() = "ReferenceId is not a valid UUID: '$referenceId'"
-fun InvalidContentId.toString() = "ContentId is not a valid UUID: '$contentId'"
+data class InvalidReferenceId(val referenceId: String) : NotValidUUID {
+    override fun toString() = "ReferenceId is not a valid UUID: '$referenceId'"
+}
+data class InvalidContentId(val contentId: String) : NotValidUUID {
+    override fun toString() = "ContentId is not a valid UUID: '$contentId'"
+}

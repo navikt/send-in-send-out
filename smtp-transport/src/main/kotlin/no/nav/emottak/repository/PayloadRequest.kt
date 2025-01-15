@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
 import no.nav.emottak.EmptyContentId
 import no.nav.emottak.EmptyReferenceId
@@ -20,13 +19,13 @@ data class PayloadRequest private constructor(val referenceId: String, val conte
         ): Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> = either {
             zipOrAccumulate(
                 { // Validering av referenceId:
-                    ensure(referenceId.isNotEmpty()) { EmptyReferenceId }
-                    ensureNotNull(Uuid.fromString(referenceId)) { InvalidReferenceId(referenceId) }
+                    ensure(referenceId.isNotBlank()) { EmptyReferenceId }
+                    ensure(referenceId.isValidUuid()) { InvalidReferenceId(referenceId) }
                 },
                 { // Validering av contentId hvis den ikke er null:
                     if (contentId != null) {
-                        ensure(contentId.isNotEmpty()) { EmptyContentId }
-                        ensureNotNull(Uuid.fromString(contentId)) { InvalidContentId(contentId) } // TODO: Er contentId også UUID?
+                        ensure(contentId.isNotBlank()) { EmptyContentId }
+                        ensure(contentId.isValidUuid()) { InvalidContentId(contentId) } // TODO: Er contentId også UUID?
                     }
                 }
             ) { _, _ -> Unit }
@@ -35,3 +34,9 @@ data class PayloadRequest private constructor(val referenceId: String, val conte
     }
 }
 
+fun String.isValidUuid(): Boolean {
+    try {
+        Uuid.fromString(this)
+    } catch (ex: IllegalArgumentException) { return false }
+    return true
+}
