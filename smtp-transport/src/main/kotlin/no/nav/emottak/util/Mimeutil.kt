@@ -18,10 +18,17 @@ fun EmailMsg.toSignalMessage(messageId: UUID): SignalMessage = SignalMessage(
 fun EmailMsg.toPayloadMessage(messageId: UUID): PayloadMessage = PayloadMessage(
     messageId,
     getEnvelope(),
-    parts.drop(1).map { it.toPayload(messageId) }
+    getPayloads(messageId)
 )
 
-private fun EmailMsg.getEnvelope() = parts.first().bytes
+private fun EmailMsg.getEnvelope() = parts
+    .first()
+    .bytes
+
+private fun EmailMsg.getPayloads(messageId: UUID) = parts
+    // drop the envelope
+    .drop(1)
+    .map { it.toPayload(messageId) }
 
 private fun Part.getContentId() = "${headers[CONTENT_ID]}"
 
