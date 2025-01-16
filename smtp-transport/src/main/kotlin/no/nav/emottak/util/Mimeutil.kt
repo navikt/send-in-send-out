@@ -35,7 +35,7 @@ private fun Part.getContentId() = "${headers[CONTENT_ID]}"
 private fun Part.getContentType() = "${headers[CONTENT_TYPE]}"
 
 private fun Part.toPayload(referenceId: UUID) = Payload(
-    referenceId.toString(),
+    referenceId,
     getContentId(),
     getContentType(),
     bytes
