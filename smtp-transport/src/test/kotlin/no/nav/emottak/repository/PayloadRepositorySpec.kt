@@ -9,9 +9,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.emottak.PayloadAlreadyExist
 import no.nav.emottak.PayloadDoesNotExist
+import no.nav.emottak.model.Payload
 import no.nav.emottak.payloadDatabase
 import no.nav.emottak.runMigrations
-import no.nav.emottak.util.Payload
 
 class PayloadRepositorySpec : StringSpec(
     {
