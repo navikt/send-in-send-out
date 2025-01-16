@@ -12,13 +12,14 @@ import kotlinx.coroutines.flow.onEach
 import no.nav.emottak.Dependencies
 import no.nav.emottak.configuration.Config
 import no.nav.emottak.log
+import no.nav.emottak.model.PayloadMessage
+import no.nav.emottak.model.SignalMessage
 import no.nav.emottak.publisher.MailPublisher
 import no.nav.emottak.repository.PayloadRepository
 import no.nav.emottak.smtp.EmailMsg
 import no.nav.emottak.smtp.MailReader
 import no.nav.emottak.util.toPayloadMessage
 import no.nav.emottak.util.toSignalMessage
-import java.util.UUID
 import java.util.UUID.randomUUID
 
 class MailProcessor(
@@ -52,13 +53,12 @@ class MailProcessor(
     private suspend fun processMessage(emailMsg: EmailMsg) {
         val messageId = randomUUID()
         when (emailMsg.multipart) {
-            true -> publishPayloadMessage(emailMsg, messageId)
-            false -> publishSignalMessage(emailMsg, messageId)
+            true -> publishPayloadMessage(emailMsg.toPayloadMessage(messageId))
+            false -> publishSignalMessage(emailMsg.toSignalMessage(messageId))
         }
     }
 
-    private suspend fun publishPayloadMessage(emailMsg: EmailMsg, messageId: UUID) {
-        val payloadMessage = emailMsg.toPayloadMessage(messageId)
+    private suspend fun publishPayloadMessage(payloadMessage: PayloadMessage) {
         with(payloadRepository) {
             fold(
                 block = { insert(payloadMessage.payloads) },
@@ -68,8 +68,6 @@ class MailProcessor(
         }
     }
 
-    private suspend fun publishSignalMessage(emailMsg: EmailMsg, messageId: UUID) {
-        val signalMessage = emailMsg.toSignalMessage(messageId)
+    private suspend fun publishSignalMessage(signalMessage: SignalMessage) =
         mailPublisher.publishSignalMessage(signalMessage)
-    }
 }
