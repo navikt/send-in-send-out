@@ -3,8 +3,8 @@ package no.nav.emottak.repository
 import arrow.core.Either
 import arrow.core.NonEmptyList
 import no.nav.emottak.PayloadRequestValidationError
-import org.apache.kafka.common.Uuid
 import org.junit.jupiter.api.BeforeAll
+import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -19,8 +19,8 @@ class PayloadRequestTest {
         @JvmStatic
         @BeforeAll
         fun setUpAll() {
-            uuid1 = Uuid.randomUuid().toString()
-            uuid2 = Uuid.randomUuid().toString()
+            uuid1 = UUID.randomUUID().toString()
+            uuid2 = UUID.randomUUID().toString()
         }
     }
 
@@ -67,9 +67,8 @@ class PayloadRequestTest {
         assertTrue(request.isLeft())
         val list: NonEmptyList<PayloadRequestValidationError>? = request.leftOrNull()
         assertNotNull(list)
-        assertTrue(list.size == 2)
+        assertTrue(list.size == 1)
         assertEquals("ReferenceId is not a valid UUID: 'referenceId'", list[0].toString())
-        assertEquals("ContentId is not a valid UUID: 'contentId'", list[1].toString())
     }
 
     @Test
@@ -87,11 +86,7 @@ class PayloadRequestTest {
     fun `Både referenceId og contentId - contentId ugyldig UUID`() {
         val request: Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> =
             PayloadRequest(uuid1, "contentId")
-        assertTrue(request.isLeft())
-        val list: NonEmptyList<PayloadRequestValidationError>? = request.leftOrNull()
-        assertNotNull(list)
-        assertTrue(list.size == 1)
-        assertEquals("ContentId is not a valid UUID: 'contentId'", list[0].toString())
+        assertTrue(request.isRight()) // ContentId trenger ikke være UUID
     }
 
     @Test
