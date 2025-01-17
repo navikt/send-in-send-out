@@ -20,7 +20,10 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
         withContext(IO) { payloads.map { payload -> insertPayload(payload) } }
 
     suspend fun Raise<PayloadDoesNotExist>.retrieve(referenceId: UUID): List<Payload> =
-        withContext(IO) { retrievePayloads(referenceId) }
+        withContext(IO) { retrieveWithoutContext(referenceId) }
+
+    fun Raise<PayloadDoesNotExist>.retrieveWithoutContext(referenceId: UUID): List<Payload> =
+        retrievePayloads(referenceId)
 
     suspend fun Raise<PayloadDoesNotExist>.retrieve(referenceId: UUID, contentId: String): Payload =
         withContext(IO) { retrievePayload(referenceId, contentId) }
@@ -76,44 +79,5 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
             } else {
                 throw e
             }
-        }
-
-    /*
-    suspend fun Raise<NotFoundException>.getPayload(referenceId: String): Payload =
-        withContext(IO) {
-            payloadQueries.transactionWithResult {
-                catch({
-                    val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
-                        reference_id = referenceId,
-                    ).executeAsOneOrNull()
-                    Payload(
-                        referenceId = payload!!.reference_id,
-                        contentId = payload.content_id,
-                        contentType = payload.content_type,
-                        content = payload.content
-                        // TODO: Trenger vi feltene direction og/eller created_at?
-                    )
-                }) { _: SQLException ->
-                    raise(
-                        NotFoundException("Fant ikke payload.reference_id $referenceId")
-                    )
-                }
-            }
-        }
-    */
-
-    // TODO: Skal denne egentlig være suspend?
-    fun getPayload(referenceId: String): Payload =
-        payloadQueries.transactionWithResult {
-            val payload: no.nav.emottak.smtp.Payload? = payloadQueries.getPayload(
-                reference_id = referenceId
-            ).executeAsOneOrNull()
-            if (payload != null) Payload(
-                referenceId = payload.reference_id,
-                contentId = payload.content_id,
-                contentType = payload.content_type,
-                content = payload.content
-                // TODO: Trenger vi feltene direction og/eller created_at?
-            ) else throw NotFoundException()
         }
 }
