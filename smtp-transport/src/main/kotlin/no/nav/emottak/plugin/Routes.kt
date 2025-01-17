@@ -45,7 +45,7 @@ fun Route.registerHealthEndpoints(registry: PrometheusMeterRegistry) {
 }
 
 fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository): Route = get("/payload/{$REFERENCE_ID}") {
-    val request: Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> = PayloadRequest(REFERENCE_ID)
+    val request: Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> = PayloadRequest(call.parameters[REFERENCE_ID])
     when (request) {
         is Either.Left -> { // Valideringsfeil:
             val msg = request.value.joinToString()
@@ -53,11 +53,12 @@ fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository):
             throw BadRequestException(msg)
         }
         is Either.Right -> { // OK request:
+            val referenceId = request.value.referenceId
             // timed(registry, "getPayloads") { // TODO: timed() er ikke en coroutine-body, how to fix?
-            when (val result = with(db) { either { retrieve(REFERENCE_ID) } }) {
+            when (val result = with(db) { either { retrieve(referenceId) } }) {
                 is Either.Right -> call.respond(HttpStatusCode.OK, result.value)
                 is Either.Left -> {
-                    log.warn("Did not find Payload.reference_id '$REFERENCE_ID'")
+                    log.warn("Did not find Payload.reference_id '$referenceId'")
                     call.respond(HttpStatusCode.NotFound, result.value)
                 }
             }

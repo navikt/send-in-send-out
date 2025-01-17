@@ -10,18 +10,18 @@ CREATE TABLE payload
 
 INSERT INTO payload (reference_id, content_id, content_type, content)
 VALUES (
-	'123',
-	'a',
+	'99819a74-3f1d-453b-b1d3-735d900cfc5d',
+	'f7aeef95-afca-4355-b6f7-1692e58c61cc',
 	'text/xml',
 	'<?xml version="1.0" encoding="utf-8"?><dummy>xml 1</dummy>'
 	), (
-    '200',
-    'b',
+    'df68056e-5cba-4351-9085-c37b925b8ddd',
+    'tKV9FS_cSMy7IsQ41SHIUQ',
     'text/xml',
     '<?xml version="1.0" encoding="utf-8"?><dummy>xml 2</dummy>'
     ), (
-    '200',
-    'c',
+    'df68056e-5cba-4351-9085-c37b925b8ddd',
+    'test',
     'text/xml',
     '<?xml version="1.0" encoding="utf-8"?><dummy>xml 3</dummy>'
     )

@@ -5,9 +5,10 @@ import com.zaxxer.hikari.HikariDataSource
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
-import io.ktor.client.request.header
+import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.testing.ApplicationTestBuilder
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.testcontainers.containers.PostgreSQLContainer
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 
 class SmtpTransportIntegrationTest {
 
@@ -63,22 +65,67 @@ class SmtpTransportIntegrationTest {
                 json()
             }
         }
-        val httpResponse: HttpResponse = httpClient.get("/payload/123") {
-            header(
-                "Authorization",
-                "Bearer ${getToken().serialize()}"
-            )
+        val httpResponse: HttpResponse = httpClient.get("/payload/99819a74-3f1d-453b-b1d3-735d900cfc5d") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            }
         }
         assertEquals(HttpStatusCode.OK, httpResponse.status)
-        println("Response: ${httpResponse.bodyAsText()}")
-
         val payloads: List<Payload> = httpResponse.body()
         assertEquals(1, payloads.size)
 
-        // TODO: Validere flere felter
+        assertEquals("99819a74-3f1d-453b-b1d3-735d900cfc5d", payloads[0].referenceId)
+        assertEquals("f7aeef95-afca-4355-b6f7-1692e58c61cc", payloads[0].contentId)
+        assertEquals("text/xml", payloads[0].contentType)
+        assertEquals("<?xml version=\"1.0\" encoding=\"utf-8\"?><dummy>xml 1</dummy>", payloads[0].content.decodeToString())
     }
 
-    // TODO: Lage flere tester
+    @Test
+    fun `Hent payload - flere treff`() = smtpTransportTestApp {
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val httpResponse: HttpResponse = httpClient.get("/payload/df68056e-5cba-4351-9085-c37b925b8ddd") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            }
+        }
+        assertEquals(HttpStatusCode.OK, httpResponse.status)
+        val payloads: List<Payload> = httpResponse.body()
+        assertEquals(2, payloads.size)
+
+        assertEquals("df68056e-5cba-4351-9085-c37b925b8ddd", payloads[0].referenceId)
+        assert(listOf("tKV9FS_cSMy7IsQ41SHIUQ", "test").contains(payloads[0].contentId))
+        assert(listOf("tKV9FS_cSMy7IsQ41SHIUQ", "test").contains(payloads[1].contentId))
+        assertNotEquals(payloads[0].contentId, payloads[1].contentId)
+        assertEquals("text/xml", payloads[0].contentType)
+        assertEquals("text/xml", payloads[1].contentType)
+        assert(
+            listOf(
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?><dummy>xml 2</dummy>",
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?><dummy>xml 3</dummy>"
+            ).contains(payloads[0].content.decodeToString())
+        )
+        assertNotEquals(payloads[0].content.decodeToString(), payloads[1].content.decodeToString())
+    }
+
+    @Test
+    fun `Hent payload - ingen treff`() = smtpTransportTestApp {
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val httpResponse: HttpResponse = httpClient.get("/payload/f7aeef95-afca-4355-b6f7-1692e58c61cc") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            }
+        }
+        assertEquals(HttpStatusCode.NotFound, httpResponse.status)
+        println(httpResponse.bodyAsText())
+    }
 
     private fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server.issueToken(
         issuerId = AZURE_AD_AUTH,
