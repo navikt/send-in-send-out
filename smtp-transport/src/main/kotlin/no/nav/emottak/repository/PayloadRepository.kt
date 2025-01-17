@@ -19,7 +19,10 @@ class PayloadRepository(payloadDatabase: PayloadDatabase) {
         withContext(IO) { payloads.map { payload -> insertPayload(payload) } }
 
     suspend fun Raise<PayloadDoesNotExist>.retrieve(referenceId: String): List<Payload> =
-        withContext(IO) { retrievePayloads(referenceId) }
+        withContext(IO) { retrieveWithoutContext(referenceId) }
+
+    fun Raise<PayloadDoesNotExist>.retrieveWithoutContext(referenceId: String): List<Payload> =
+        retrievePayloads(referenceId)
 
     suspend fun Raise<PayloadDoesNotExist>.retrieve(referenceId: String, contentId: String): Payload =
         withContext(IO) { retrievePayload(referenceId, contentId) }

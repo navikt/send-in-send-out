@@ -15,6 +15,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.micrometer.core.instrument.Timer.ResourceSample
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.emottak.AZURE_AD_AUTH
 import no.nav.emottak.PayloadRequestValidationError
 import no.nav.emottak.log
@@ -54,15 +56,18 @@ fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository):
         }
         is Either.Right -> { // OK request:
             val referenceId = request.value.referenceId
-            // timed(registry, "getPayloads") { // TODO: timed() er ikke en coroutine-body, how to fix?
-            when (val result = with(db) { either { retrieve(referenceId) } }) {
+            val result = withContext(Dispatchers.IO) {
+                timed(registry, "getPayloads") {
+                    with(db) { either { retrieveWithoutContext(referenceId) } }
+                }
+            }
+            when (result) {
                 is Either.Right -> call.respond(HttpStatusCode.OK, result.value)
                 is Either.Left -> {
                     log.warn("Did not find Payload.reference_id '$referenceId'")
                     call.respond(HttpStatusCode.NotFound, result.value)
                 }
             }
-            // }
         }
         else -> { // Teknisk feil:
             call.respond(HttpStatusCode.InternalServerError, request)
