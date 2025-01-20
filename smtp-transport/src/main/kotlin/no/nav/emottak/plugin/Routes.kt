@@ -7,7 +7,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
-import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -52,7 +51,7 @@ fun Route.getPayloads(registry: PrometheusMeterRegistry, db: PayloadRepository):
         is Either.Left -> { // Valideringsfeil:
             val msg = request.value.joinToString()
             log.warn("Validation failed:\n$msg")
-            throw BadRequestException(msg)
+            call.respond(HttpStatusCode.BadRequest, msg)
         }
         is Either.Right -> { // OK request:
             val referenceId = request.value.referenceId

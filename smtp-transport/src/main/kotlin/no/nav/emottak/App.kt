@@ -25,10 +25,9 @@ internal val log = LoggerFactory.getLogger("no.nav.emottak.smtp")
 
 fun main() = SuspendApp {
     log.info("smtp-transport starting")
-    val config = config()
     result {
         resourceScope {
-            val deps = initDependencies(config)
+            val deps = initDependencies(config())
             deps.migrationService.migrate()
             val payloadRepository = PayloadRepository(deps.payloadDatabase)
 
@@ -42,10 +41,10 @@ fun main() = SuspendApp {
                 )
             )
 
-            val mailPublisher = MailPublisher(config.kafka, deps.kafkaPublisher)
-            val mailProcessor = MailProcessor(config, deps, mailPublisher, payloadRepository)
+            val mailPublisher = MailPublisher(config().kafka, deps.kafkaPublisher)
+            val mailProcessor = MailProcessor(config(), deps, mailPublisher, payloadRepository)
 
-            scheduleProcessMessages(config.job, mailProcessor)
+            scheduleProcessMessages(config().job, mailProcessor)
 
             awaitCancellation()
         }
