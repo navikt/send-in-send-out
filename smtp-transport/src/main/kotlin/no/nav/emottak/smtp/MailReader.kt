@@ -11,8 +11,10 @@ import jakarta.mail.internet.MimeMultipart
 import net.logstash.logback.marker.LogstashMarker
 import net.logstash.logback.marker.Markers
 import no.nav.emottak.configuration.Mail
+import no.nav.emottak.log
 
 data class EmailMsg(
+    val multipart: Boolean,
     val headers: Map<String, String>,
     val parts: List<Part>
 )
@@ -111,7 +113,7 @@ class MailReader(
 
     private fun getInbox() = store.isConnected
         .let { connected -> if (!connected) store.connect() }
-        .run { store.getFolder("INBOX").apply { open(READ_WRITE) } }
+        .run { store.getFolder("INBOX").apply { if (!isOpen) open(READ_WRITE) } }
 
     private fun createHeaderMarker(xMailer: String?): LogstashMarker = Markers
         .appendEntries(
@@ -120,11 +122,13 @@ class MailReader(
 
     internal fun mapEmailMsg(message: MimeMessage): EmailMsg {
         val messageContent = message.content
-        val bodyparts: List<Part> = when (messageContent is MimeMultipart) {
-            true -> createMimeBodyParts(messageContent)
+        val multiPartMessage = messageContent is MimeMultipart
+        val bodyparts: List<Part> = when (multiPartMessage) {
+            true -> createMimeBodyParts(messageContent as MimeMultipart)
             else -> createEmptyMimeBodyParts(message)
         }
         return EmailMsg(
+            multiPartMessage,
             message.allHeaders
                 .toList()
                 .groupBy({ it.name }, { it.value })
@@ -136,7 +140,7 @@ class MailReader(
     private fun createEmptyMimeBodyParts(message: MimeMessage) = listOf(
         Part(
             emptyMap(),
-            message.rawInputStream.readAllBytes()
+            message.inputStream.readAllBytes()
         )
     )
 
@@ -154,7 +158,7 @@ class MailReader(
                 .toList()
                 .groupBy({ it.name }, { it.value })
                 .mapValues { it.value.joinToString(",") },
-            bodyPart.rawInputStream.readAllBytes()
+            bodyPart.inputStream.readAllBytes()
         )
     }
 }

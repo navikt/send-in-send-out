@@ -21,6 +21,10 @@ dependencyResolutionManagement {
             version("jsch", "0.2.16")
             version("cxf", "3.5.5")
             version("hoplite", "2.8.2")
+            version("kotlin-kafka", "0.4.0")
+            version("sqldelight", "2.0.2")
+            version("postgres", "42.7.4")
+            version("vault-jdbc", "1.3.10")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
             library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
@@ -30,20 +34,14 @@ dependencyResolutionManagement {
 
             library("bcpkix-jdk18on", "org.bouncycastle", "bcpkix-jdk18on").versionRef("bouncycastle")
             library("bcprov-jdk18on", "org.bouncycastle", "bcprov-jdk18on").versionRef("bouncycastle")
-//            library("bcpkix-jdk18on", "org.bouncycastle", "bcpkix-debug-jdk18on").versionRef("bouncycastle")
-//            library("bcprov-jdk18on", "org.bouncycastle", "bcprov-debug-jdk18on").versionRef("bouncycastle")
             library("apache-santuario", "org.apache.santuario:xmlsec:3.0.2")
-
-            library("exposed-core", "org.jetbrains.exposed", "exposed-core").versionRef("exposed")
-            library("exposed-dao", "org.jetbrains.exposed", "exposed-dao").versionRef("exposed")
-            library("exposed-java-time", "org.jetbrains.exposed", "exposed-java-time").versionRef("exposed")
-            library("exposed-jdbc", "org.jetbrains.exposed", "exposed-jdbc").versionRef("exposed")
-            library("exposed-json", "org.jetbrains.exposed", "exposed-json").versionRef("exposed")
 
             library("hoplite-core", "com.sksamuel.hoplite", "hoplite-core").versionRef("hoplite")
             library("hoplite-hocon", "com.sksamuel.hoplite", "hoplite-hocon").versionRef("hoplite")
 
             library("jsch", "com.github.mwiede", "jsch").versionRef("jsch")
+
+            library("kotlin-kafka", "io.github.nomisrev", "kotlin-kafka").versionRef("kotlin-kafka")
 
             library("ktor-server-core", "io.ktor", "ktor-server-core").versionRef("ktor")
             library("ktor-server-netty", "io.ktor", "ktor-server-netty").versionRef("ktor")
@@ -61,6 +59,15 @@ dependencyResolutionManagement {
             library("logback-classic", "ch.qos.logback:logback-classic:1.4.11")
             library("logback-logstash", "net.logstash.logback:logstash-logback-encoder:7.4")
 
+            library("sqldelight-jdbc-driver", "app.cash.sqldelight", "jdbc-driver").versionRef("sqldelight")
+            library("sqldelight-postgresql-dialect", "app.cash.sqldelight", "postgresql-dialect").versionRef("sqldelight")
+            library("sqldelight-coroutines-extensions", "app.cash.sqldelight", "coroutines-extensions").versionRef("sqldelight")
+            library("sqldelight-primitive-adapters", "app.cash.sqldelight", "primitive-adapters").versionRef("sqldelight")
+
+            library("postgresql", "org.postgresql", "postgresql").versionRef("postgres")
+
+            library("vault-jdbc", "no.nav", "vault-jdbc").versionRef("vault-jdbc")
+
             library("hikari", "com.zaxxer:HikariCP:5.0.1")
             library("labai-jsr305x-annotations", "com.github.labai:labai-jsr305x-annotations:0.0.2")
             library("jakarta.xml.bind-api", "jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
@@ -75,7 +82,6 @@ dependencyResolutionManagement {
             library("cxf-rt-ws-security", "org.apache.cxf", "cxf-rt-ws-security").versionRef("cxf")
             library("cxf-rt-features-logging", "org.apache.cxf", "cxf-rt-features-logging").versionRef("cxf")
             library("jakarta.xml.ws-api", "jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
-            library("ojdbc8", "com.oracle.ojdbc:ojdbc8:19.3.0.0")
 
             library("jakarta-mail-api", "jakarta.mail", "jakarta.mail-api").versionRef("jakarta-mail")
             library("eclipse-angus", "org.eclipse.angus", "jakarta.mail").versionRef("eclipse-angus")
@@ -84,7 +90,6 @@ dependencyResolutionManagement {
             bundle("cxf", listOf("cxf-rt-frontend-jaxws", "cxf-rt-transports-http", "cxf-rt-ws-security", "cxf-rt-features-logging", "jakarta.xml.ws-api"))
             bundle("jakarta-mail", listOf("jakarta-mail-api", "eclipse-angus"))
             bundle("bouncycastle", listOf("bcpkix-jdk18on", "bcprov-jdk18on"))
-            bundle("exposed", listOf("exposed-core", "exposed-dao", "exposed-java-time", "exposed-jdbc", "exposed-json"))
             bundle("logging", listOf("logback-classic", "logback-logstash"))
         }
 
@@ -96,6 +101,11 @@ dependencyResolutionManagement {
             version("xmlunit", "2.9.1")
             version("ktor-server-test", "2.3.4")
             version("kotest", "5.9.1")
+            version("testcontainers", "1.18.1")
+            version("kotest-extensions", "2.0.2")
+            version("postgres", "42.7.4")
+            version("turbine", "1.2.0")
+            version("arrow", "1.2.4")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
@@ -108,13 +118,23 @@ dependencyResolutionManagement {
             library("mockk-jvm", "io.mockk", "mockk-jvm").versionRef("mockk")
             library("mockk-dsl-jvm", "io.mockk", "mockk-dsl-jvm").versionRef("mockk")
 
-            library("postgresql", "org.testcontainers", "postgresql").versionRef("testPostgres")
-
             library("xmlunit-core", "org.xmlunit", "xmlunit-core").versionRef("xmlunit")
             library("xmlunit-matchers", "org.xmlunit", "xmlunit-matchers").versionRef("xmlunit")
 
             library("kotest-runner-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
             library("kotest-framework-datatest", "io.kotest", "kotest-framework-datatest").versionRef("kotest")
+            library("kotest-extensions-testcontainers", "io.kotest.extensions", "kotest-extensions-testcontainers").versionRef("kotest-extensions")
+            library("kotest-extensions-testcontainers-kafka", "io.kotest.extensions", "kotest-extensions-testcontainers-kafka").versionRef("kotest-extensions")
+
+            library("kotest-assertions-arrow", "io.kotest.extensions", "kotest-assertions-arrow").versionRef("arrow")
+
+            library("testcontainers", "org.testcontainers", "testcontainers").versionRef("testcontainers")
+            library("testcontainers-kafka", "org.testcontainers", "kafka").versionRef("testcontainers")
+            library("testcontainers-postgresql", "org.testcontainers", "postgresql").versionRef("testcontainers")
+
+            library("postgresql", "org.postgresql", "postgresql").versionRef("postgres")
+
+            library("turbine", "app.cash.turbine", "turbine").versionRef("turbine")
 
             bundle("kotest", listOf("kotest-runner-junit5", "kotest-framework-datatest"))
             bundle("mockk", listOf("mockk-jvm", "mockk-dsl-jvm"))

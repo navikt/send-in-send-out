@@ -3,10 +3,10 @@ kind: Topic
 metadata:
   labels:
     team: team-emottak
-  name: ebxml-payload-outgoing
+  name: smtp.in.ebxml.signal
   namespace: team-emottak
 spec:
-  pool: {{kafka-pool}}
+  pool: nav-prod
   config:
     cleanupPolicy: delete
     maxMessageBytes: 1048588
@@ -14,11 +14,17 @@ spec:
     partitions: 1
     replication: 3
     retentionBytes: -1
-    retentionHours: 168
+    retentionHours: 4380
     segmentHours: 168
   acl:
+    - access: write
+      application: smtp-transport
+      team: team-emottak
     - access: read
-      application: ebxml-processor
+      application: emottak-kafka-manager
+      team: team-emottak
+    - access: read
+      application: ebms-provider
       team: team-emottak
 
 ---
@@ -28,10 +34,10 @@ kind: Topic
 metadata:
   labels:
     team: team-emottak
-  name: ebxml-payload-deenveloped
+  name: smtp.in.ebxml.payload
   namespace: team-emottak
 spec:
-  pool: {{kafka-pool}}
+  pool: nav-prod
   config:
     cleanupPolicy: delete
     maxMessageBytes: 1048588
@@ -39,9 +45,15 @@ spec:
     partitions: 1
     replication: 3
     retentionBytes: -1
-    retentionHours: 168
+    retentionHours: 4380
     segmentHours: 168
   acl:
     - access: write
-      application: ebxml-processor
+      application: smtp-transport
+      team: team-emottak
+    - access: read
+      application: emottak-kafka-manager
+      team: team-emottak
+    - access: read
+      application: ebms-provider
       team: team-emottak

@@ -1,0 +1,22 @@
+-- no/nav/emottak/queries/Payload.sq
+
+insertPayload:
+INSERT INTO payload (
+    reference_id,
+    content_id,
+    content_type,
+    content
+)
+VALUES (
+:reference_id,
+:content_id,
+:content_type,
+:content
+)
+RETURNING reference_id, content_id;
+
+retrievePayloads:
+SELECT * FROM payload WHERE reference_id = ?;
+
+retrievePayload:
+SELECT * FROM payload WHERE reference_id = ? AND content_id = ?;
