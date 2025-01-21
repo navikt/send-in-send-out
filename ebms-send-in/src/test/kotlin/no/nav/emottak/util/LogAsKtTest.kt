@@ -13,8 +13,8 @@ import javax.xml.bind.annotation.XmlRootElement
 @XmlRootElement // for JAXB
 @Serializable // for Kotlinx
 data class Person(
-   var name: String = "",
-   var age: Int = 0
+    var name: String = "",
+    var age: Int = 0
 )
 
 class AsXLoggerTest {
@@ -43,7 +43,7 @@ class AsXLoggerTest {
         mockLogger.asXml(LogLevel.INFO, "Test XML", person)
 
         verify(exactly = 1) { mockLogger.info("{}: {}", "Test XML", any()) }
-        println(capturedXml.captured);
+        println(capturedXml.captured)
         assertTrue(capturedXml.captured.contains("<person>"))
         assertTrue(capturedXml.captured.contains("<name>Bob</name>"))
         assertTrue(capturedXml.captured.contains("<age>25</age>"))
