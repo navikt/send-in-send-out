@@ -1,13 +1,12 @@
 package no.nav.emottak.util
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import org.slf4j.Logger
 import java.io.StringWriter
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.JAXBException
 import javax.xml.bind.Marshaller
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
-import org.slf4j.Logger
-
 
 fun <T> Logger.asJson(
     logLevel: LogLevel = LogLevel.DEBUG,
@@ -27,7 +26,6 @@ fun <T> Logger.asJson(
         this.error("Failed to serialize object for logging: {}", e.message, e)
     }
 }
-
 
 fun <T> Logger.asXml(
     logLevel: LogLevel = LogLevel.DEBUG,
@@ -53,8 +51,6 @@ fun <T> Logger.asXml(
         this.error("Failed to serialize object to XML: {}", e.message, e)
     }
 }
-
-
 
 enum class LogLevel {
     INFO, DEBUG, WARN, ERROR

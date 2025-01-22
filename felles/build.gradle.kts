@@ -5,14 +5,30 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
 }
 
 tasks {
     register<Wrapper>("wrapper") {
-        gradleVersion="8.1.1"
+        gradleVersion = "8.1.1"
     }
     test {
         useJUnitPlatform()
+    }
+    ktlintFormat {
+        this.enabled = true
+    }
+    ktlintCheck {
+        dependsOn("ktlintFormat")
+    }
+    ktlint {
+        filter {
+            exclude { it.file.path.contains("/generated/") }
+            exclude { it.file.path.contains("\\generated\\") }
+        }
+    }
+    build {
+        dependsOn("ktlintCheck")
     }
 }
 
@@ -35,8 +51,7 @@ dependencies {
 
     api(libs.bundles.bouncycastle)
     testImplementation(testLibs.junit.jupiter.api)
-    testImplementation(testLibs.junit.jupiter.engine)
+    testRuntimeOnly(testLibs.junit.jupiter.engine)
 
-    runtimeOnly("org.postgresql:postgresql:42.6.0")
+    runtimeOnly("org.postgresql:postgresql:42.7.4")
 }
-
