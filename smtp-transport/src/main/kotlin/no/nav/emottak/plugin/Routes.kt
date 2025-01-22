@@ -42,7 +42,7 @@ fun Route.registerHealthEndpoints(registry: PrometheusMeterRegistry) {
     }
 }
 
-fun Route.getPayloads(db: PayloadRepository): Route = get("/payload/{$REFERENCE_ID}") {
+fun Route.getPayloads(payloadRepository: PayloadRepository): Route = get("/payload/{$REFERENCE_ID}") {
     val request: Either<NonEmptyList<PayloadRequestValidationError>, PayloadRequest> = PayloadRequest(call.parameters[REFERENCE_ID])
     when (request) {
         is Either.Left -> { // Valideringsfeil:
@@ -52,7 +52,7 @@ fun Route.getPayloads(db: PayloadRepository): Route = get("/payload/{$REFERENCE_
         }
         is Either.Right -> { // OK request:
             val referenceId = request.value.referenceId
-            val result = with(db) { either { retrieve(referenceId) } }
+            val result = with(payloadRepository) { either { retrieve(referenceId) } }
             when (result) {
                 is Either.Right -> call.respond(HttpStatusCode.OK, result.value)
                 is Either.Left -> {
