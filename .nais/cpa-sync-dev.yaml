@@ -54,3 +54,5 @@ spec:
   env:
     - name: NFS_HOST
       value: b27drvl011.preprod.local
+    - name: EMOTTAK_LOGGING_LEVEL
+      value: DEBUG
