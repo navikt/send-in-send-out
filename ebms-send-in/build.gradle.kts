@@ -21,25 +21,18 @@ tasks {
         }
         archiveFileName.set("app.jar")
     }
-}
-
-tasks.register<Wrapper>("wrapper") {
-    gradleVersion = "8.1.1"
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-tasks {
-
+    register<Wrapper>("wrapper") {
+        gradleVersion = "8.1.1"
+    }
+    test {
+        useJUnitPlatform()
+    }
     ktlintFormat {
         this.enabled = true
     }
     ktlintCheck {
         dependsOn("ktlintFormat")
     }
-
     build {
         dependsOn("ktlintCheck")
     }
