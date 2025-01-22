@@ -7,6 +7,7 @@ import org.gradle.kotlin.dsl.testLibs
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     application
     id("io.ktor.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
