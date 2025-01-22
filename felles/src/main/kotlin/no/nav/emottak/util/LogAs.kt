@@ -10,7 +10,7 @@ import org.slf4j.Logger
 
 
 fun <T> Logger.asJson(
-    logLevel: LogLevel = LogLevel.INFO,
+    logLevel: LogLevel = LogLevel.DEBUG,
     message: String,
     obj: T,
     serializer: KSerializer<T>
@@ -30,7 +30,7 @@ fun <T> Logger.asJson(
 
 
 fun <T> Logger.asXml(
-    logLevel: LogLevel = LogLevel.INFO,
+    logLevel: LogLevel = LogLevel.DEBUG,
     message: String,
     obj: T
 ) {

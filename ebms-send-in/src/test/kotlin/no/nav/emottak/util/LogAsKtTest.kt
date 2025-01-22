@@ -23,12 +23,12 @@ class AsXLoggerTest {
     fun `test asJson`() {
         val mockLogger = mockk<Logger>(relaxed = true)
         val capturedJson = slot<String>()
-        every { mockLogger.info("{}: {}", "Test JSON", capture(capturedJson)) } returns Unit
+        every { mockLogger.debug("{}: {}", "Test JSON", capture(capturedJson)) } returns Unit
 
         val person = Person("Alice", 30)
-        mockLogger.asJson(LogLevel.INFO, "Test JSON", person, Person.serializer())
+        mockLogger.asJson(LogLevel.DEBUG, "Test JSON", person, Person.serializer())
 
-        verify(exactly = 1) { mockLogger.info("{}: {}", "Test JSON", any()) }
+        verify(exactly = 1) { mockLogger.debug("{}: {}", "Test JSON", any()) }
         assertTrue(capturedJson.captured.contains("\"name\":\"Alice\""))
         assertTrue(capturedJson.captured.contains("\"age\":30"))
     }
@@ -37,12 +37,12 @@ class AsXLoggerTest {
     fun `test asXml`() {
         val mockLogger = mockk<Logger>(relaxed = true)
         val capturedXml = slot<String>()
-        every { mockLogger.info("{}: {}", "Test XML", capture(capturedXml)) } returns Unit
+        every { mockLogger.debug("{}: {}", "Test XML", capture(capturedXml)) } returns Unit
 
         val person = Person("Bob", 25)
-        mockLogger.asXml(LogLevel.INFO, "Test XML", person)
+        mockLogger.asXml(LogLevel.DEBUG, "Test XML", person)
 
-        verify(exactly = 1) { mockLogger.info("{}: {}", "Test XML", any()) }
+        verify(exactly = 1) { mockLogger.debug("{}: {}", "Test XML", any()) }
         println(capturedXml.captured)
         assertTrue(capturedXml.captured.contains("<person>"))
         assertTrue(capturedXml.captured.contains("<name>Bob</name>"))
