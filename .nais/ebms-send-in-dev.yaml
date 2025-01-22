@@ -68,3 +68,5 @@ spec:
       value: https://wasapp-q1.adeo.no/nav-frikort/tjenestereksterne
     - name: PASIENTLISTE_URL
       value: https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner
+    - name: EMOTTAK_LOGGING_LEVEL
+      value: DEBUG
