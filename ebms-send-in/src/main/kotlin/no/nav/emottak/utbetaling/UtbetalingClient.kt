@@ -25,8 +25,9 @@ import no.nav.emottak.util.getSecret
 import no.nav.emottak.util.toXMLGregorianCalendar
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.util.UUID
 import javax.xml.namespace.QName
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 object UtbetalingClient {
     val log = LoggerFactory.getLogger(UtbetalingClient::class.java)
@@ -131,6 +132,7 @@ fun receiverToSender(receiver: Receiver): Sender {
     return sender
 }
 
+@OptIn(ExperimentalUuidApi::class)
 fun msgHeadResponse(incomingMsgHead: MsgHead, sendInRequest: SendInRequest, fagmeldingResponse: Any): MsgHead {
     return incomingMsgHead.apply {
         msgInfo.apply {
@@ -139,7 +141,7 @@ fun msgHeadResponse(incomingMsgHead: MsgHead, sendInRequest: SendInRequest, fagm
                 v = "InntektInformasjon"
             }
             genDate = Instant.now().toXMLGregorianCalendar()
-            msgId = UUID.randomUUID().toString()
+            msgId = Uuid.random().toString()
             ack = CS().apply {
                 v = "N"
                 dn = "Nei"

@@ -104,10 +104,7 @@ dependencyResolutionManagement {
             version("testcontainers", "1.18.1")
             version("kotest-extensions", "2.0.2")
             version("postgres", "42.7.4")
-            version("turbine", "1.1.0") // Nedgradert fra 1.2.0 pga avhengigheten til
-            //                             kotlinx-coroutines-core-jvm:1.9.0 som gjør at SmtpTransportIntegrationTest.kt
-            //                             feiler med NoSuchMethodError for operasjon
-            //                             LockFreeLinkedListHead.addLast(kotlinx.coroutines.internal.LockFreeLinkedListNode)
+            version("turbine", "1.2.0")
             version("arrow", "1.2.4")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
