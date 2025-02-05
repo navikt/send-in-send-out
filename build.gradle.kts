@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("java-library")
@@ -15,7 +16,8 @@ tasks {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
-    kotlinOptions {
-        jvmTarget = "21"
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
+        freeCompilerArgs = listOf("-opt-in=kotlin.uuid.ExperimentalUuidApi")
     }
 }
