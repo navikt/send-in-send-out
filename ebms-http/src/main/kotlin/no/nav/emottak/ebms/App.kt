@@ -25,9 +25,9 @@ fun main() {
     if (getEnvVar("NAIS_CLUSTER_NAME", "local") != "prod-fss") {
         DecoroutinatorRuntime.load()
     }
-    embeddedServer(Netty, port = 8080, module = Application::ebmsProviderModule, configure = {
-        this.maxChunkSize = 100000
-    }).start(wait = true)
+    embeddedServer(Netty, port = 8080, module = Application::ebmsProviderModule)
+        .also { it.engineConfig.maxChunkSize = 100000 }
+        .start(wait = true)
 }
 
 fun Application.ebmsProviderModule() {

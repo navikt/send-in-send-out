@@ -44,7 +44,7 @@ dependencies {
     implementation(libs.jsch)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.server.auth.jvm)
-    implementation(libs.token.validation.ktor.v2)
+    implementation(libs.token.validation.ktor.v3)
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testRuntimeOnly(testLibs.junit.jupiter.engine)

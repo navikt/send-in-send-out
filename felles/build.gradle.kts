@@ -38,11 +38,11 @@ dependencies {
     implementation(libs.hikari)
     api("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
     implementation(libs.flyway.core)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.apache.santuario)
     implementation(libs.bundles.logging)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation("com.bettercloud:vault-java-driver:5.1.0")
 
     implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -52,6 +52,5 @@ dependencies {
     api(libs.bundles.bouncycastle)
     testImplementation(testLibs.junit.jupiter.api)
     testRuntimeOnly(testLibs.junit.jupiter.engine)
-
     runtimeOnly("org.postgresql:postgresql:42.7.4")
 }
