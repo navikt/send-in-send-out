@@ -72,7 +72,6 @@ jobs:
       id-token: write
     steps:
       - uses: "actions/checkout@v4"
-
       - name: "Deploy to DEV"
         uses: "nais/deploy/actions/deploy@v2"
         env:

@@ -4,7 +4,6 @@ import dev.reformator.stacktracedecoroutinator.runtime.DecoroutinatorRuntime
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.authenticate
@@ -40,8 +39,8 @@ import no.nav.emottak.util.birthDay
 import no.nav.emottak.util.createDocument
 import no.nav.emottak.util.isProdEnv
 import no.nav.emottak.util.marker
+import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.emottak.util.refParam
-import no.nav.security.token.support.v2.tokenValidationSupport
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 
@@ -53,9 +52,9 @@ fun main() {
     // database.migrate()
 
     System.setProperty("io.ktor.http.content.multipart.skipTempFile", "true")
-    embeddedServer(Netty, port = 8080, module = Application::ebmsSendInModule, configure = {
-        this.maxChunkSize = 100000
-    }).start(wait = true)
+    embeddedServer(Netty, port = 8080, module = Application::ebmsSendInModule)
+        .also { it.engineConfig.maxChunkSize = 100000 }
+        .start(wait = true)
 }
 
 fun <T> timed(meterRegistry: PrometheusMeterRegistry, metricName: String, process: ResourceSample.() -> T): T =

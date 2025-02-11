@@ -4,10 +4,10 @@ import io.ktor.http.Headers
 import net.logstash.logback.marker.LogstashMarker
 import net.logstash.logback.marker.Markers
 import no.nav.emottak.constants.LogIndex.ACTION
+import no.nav.emottak.constants.LogIndex.CONVERSATION_ID
 import no.nav.emottak.constants.LogIndex.CPA_ID
 import no.nav.emottak.constants.LogIndex.FROM_PARTY
 import no.nav.emottak.constants.LogIndex.FROM_ROLE
-import no.nav.emottak.constants.LogIndex.CONVERSATION_ID
 import no.nav.emottak.constants.LogIndex.MESSAGE_ID
 import no.nav.emottak.constants.LogIndex.SERVICE
 import no.nav.emottak.constants.LogIndex.TO_PARTY
@@ -28,7 +28,7 @@ fun Header.marker(): LogstashMarker = Markers.appendEntries(
         TO_ROLE to this.to.role,
         FROM_ROLE to this.from.role,
         TO_PARTY to "${this.to.partyId.firstOrNull()?.type ?: UKJENT_VERDI}:${this.to.partyId.firstOrNull()?.value ?: UKJENT_VERDI}",
-        FROM_PARTY to "${this.from.partyId.firstOrNull()?.type ?: UKJENT_VERDI}:${this.from.partyId.firstOrNull()?.value ?: UKJENT_VERDI}",
+        FROM_PARTY to "${this.from.partyId.firstOrNull()?.type ?: UKJENT_VERDI}:${this.from.partyId.firstOrNull()?.value ?: UKJENT_VERDI}"
     )
 )
 
@@ -54,7 +54,6 @@ fun MessageHeader.marker(loggableHeaderPairs: Map<String, String> = mapOf()): Lo
     ) + loggableHeaderPairs
 )
 
-
 fun Headers.marker(): LogstashMarker = Markers.appendEntries(
     this.retrieveLoggableHeaderPairs()
 )
@@ -65,6 +64,5 @@ fun Headers.retrieveLoggableHeaderPairs(): Map<String, String> {
         "messageId" to (this[SMTPHeaders.MESSAGE_ID] ?: this["X-Request-Id"] ?: "-")
     )
 }
-
 
 const val UKJENT_VERDI = "Ukjent" // Egentlig null

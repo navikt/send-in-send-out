@@ -5,14 +5,30 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
 }
 
 tasks {
     register<Wrapper>("wrapper") {
-        gradleVersion="8.1.1"
+        gradleVersion = "8.1.1"
     }
     test {
         useJUnitPlatform()
+    }
+    ktlintFormat {
+        this.enabled = true
+    }
+    ktlintCheck {
+        dependsOn("ktlintFormat")
+    }
+    ktlint {
+        filter {
+            exclude { it.file.path.contains("/generated/") }
+            exclude { it.file.path.contains("\\generated\\") }
+        }
+    }
+    build {
+        dependsOn("ktlintCheck")
     }
 }
 
@@ -22,16 +38,19 @@ dependencies {
     implementation(libs.hikari)
     api("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
     implementation(libs.flyway.core)
-    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.apache.santuario)
     implementation(libs.bundles.logging)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation("com.bettercloud:vault-java-driver:5.1.0")
+
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation("org.glassfish.jaxb:jaxb-runtime:2.3.3")
+    implementation("javax.activation:javax.activation-api:1.2.0")
+
     api(libs.bundles.bouncycastle)
     testImplementation(testLibs.junit.jupiter.api)
-    testImplementation(testLibs.junit.jupiter.engine)
-
-    runtimeOnly("org.postgresql:postgresql:42.6.0")
+    testRuntimeOnly(testLibs.junit.jupiter.engine)
+    runtimeOnly("org.postgresql:postgresql:42.7.4")
 }
-
