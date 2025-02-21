@@ -8,14 +8,18 @@ import no.nav.emottak.pasientliste.PasientlisteService
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class PasientlisteServiceTest {
 
     @Test
     fun `Should throw exception if SSN from certificate does not match SSN from message`() {
-        val sendIndRequest = validSendInPasientlisteRequest.value
+        val sendInRequest = validSendInPasientlisteRequest.value
         try {
-            PasientlisteService.pasientlisteForesporsel(sendIndRequest)
+            val responseRequestId = Uuid.random().toString()
+            PasientlisteService.pasientlisteForesporsel(sendInRequest, responseRequestId)
         } catch (exception: RuntimeException) {
             Assertions.assertEquals(exception.message, PasientlisteService.CONFLICT_SIGNING_SSN)
         }
@@ -33,6 +37,7 @@ class PasientlisteServiceTest {
                 unmarshal(String(it), EIFellesformat::class.java)
             }
         }
-        PasientlisteService.pasientlisteForesporsel(sendIndRequest.copy(signedOf = fnrFraFagmeldingen))
+        val responseRequestId = Uuid.random().toString()
+        PasientlisteService.pasientlisteForesporsel(sendIndRequest.copy(signedOf = fnrFraFagmeldingen), responseRequestId)
     }
 }

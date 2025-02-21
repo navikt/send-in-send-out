@@ -13,7 +13,8 @@ data class SendInRequest(
     val addressing: Addressing,
     val cpaId: String,
     val ebmsProcessing: EbmsProcessing,
-    val signedOf: String? = null
+    val signedOf: String? = null,
+    val requestId: String
 )
 
 @Serializable
@@ -21,7 +22,8 @@ data class SendInResponse(
     val messageId: String,
     val conversationId: String,
     val addressing: Addressing,
-    val payload: ByteArray
+    val payload: ByteArray,
+    val requestId: String
 )
 
 @Serializable

@@ -14,14 +14,14 @@ object PasientlisteService {
     const val CONFLICT_SIGNING_SSN = "Sender FNR og legen som har signert meldingen skall ikke vare forskjelige."
     private val log: Logger = LoggerFactory.getLogger("PasientlisteService")
 
-    fun pasientlisteForesporsel(request: SendInRequest): SendInResponse {
+    fun pasientlisteForesporsel(request: SendInRequest, responseRequestId: String): SendInResponse {
         return when (request.addressing.action) {
-            "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus" -> forwardRequest(request)
+            "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus" -> forwardRequest(request, responseRequestId)
             else -> throw NotImplementedError("Action: ${request.addressing.action} for service: ${request.addressing.service} is not implemented")
         }
     }
 
-    private fun forwardRequest(request: SendInRequest): SendInResponse {
+    private fun forwardRequest(request: SendInRequest, responseRequestId: String): SendInResponse {
         log.asJson(
             message = "Received SendInRequest",
             obj = request,
@@ -51,7 +51,8 @@ object PasientlisteService {
                 fellesformatResponse.mottakenhetBlokk.ebService,
                 fellesformatResponse.mottakenhetBlokk.ebAction
             ),
-            FellesFormatXmlMarshaller.marshalToByteArray(fellesformatResponse.appRec)
+            FellesFormatXmlMarshaller.marshalToByteArray(fellesformatResponse.appRec),
+            responseRequestId
         )
         log.asJson(
             message = "Sending SendInResponse",
