@@ -22,7 +22,7 @@ object PasientlisteValidator {
             log.error("Lege was not the signer of the request")
             throw SigningConflictException()
         }
-        log.debug("Validated that lege is also signer of the request")
+        log.debug("Successfully validated thatg lege is also signer of the request")
     }
 
     private fun getLegeFnr(fellesformatRequest: EIFellesformat): String? {
