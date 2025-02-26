@@ -40,6 +40,7 @@ tasks {
 
 dependencies {
     implementation(project(":felles"))
+    implementation("no.nav.emottak:emottak-utils:0.0.4")
     implementation("com.sun.xml.messaging.saaj:saaj-impl:3.0.2")
     implementation(libs.ebxml.processing.model)
     implementation(libs.bundles.prometheus)

@@ -32,8 +32,8 @@ import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
-import no.nav.emottak.util.isProdEnv
 import no.nav.emottak.util.marker
+import no.nav.emottak.utils.isProdEnv
 import no.nav.security.token.support.v3.tokenValidationSupport
 import org.slf4j.LoggerFactory
 import kotlin.uuid.ExperimentalUuidApi
