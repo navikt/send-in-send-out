@@ -15,14 +15,14 @@ object PasientlisteService {
 
     private val log: Logger = LoggerFactory.getLogger("PasientlisteService")
 
-    fun pasientlisteForesporsel(request: SendInRequest): SendInResponse {
+    fun pasientlisteForesporsel(request: SendInRequest, responseRequestId: String): SendInResponse {
         return when (request.addressing.action) {
-            "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus" -> forwardRequest(request)
+            "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus" -> forwardRequest(request, responseRequestId)
             else -> throw NotImplementedError("Action: ${request.addressing.action} for service: ${request.addressing.service} is not implemented")
         }
     }
 
-    private fun forwardRequest(request: SendInRequest): SendInResponse {
+    private fun forwardRequest(request: SendInRequest, responseRequestId: String): SendInResponse {
         log.asJson(LogLevel.DEBUG, "Received SendInRequest", request, SendInRequest.serializer())
 
         val fellesformatRequest = wrapMessageInEIFellesFormat(request)
@@ -40,7 +40,8 @@ object PasientlisteService {
                 fellesformatResponse.mottakenhetBlokk.ebService,
                 fellesformatResponse.mottakenhetBlokk.ebAction
             ),
-            FellesFormatXmlMarshaller.marshalToByteArray(fellesformatResponse.appRec)
+            FellesFormatXmlMarshaller.marshalToByteArray(fellesformatResponse.appRec),
+            responseRequestId
         )
         log.asJson(LogLevel.DEBUG, "Sending SendInResponse", sendInResponse, SendInResponse.serializer())
 
