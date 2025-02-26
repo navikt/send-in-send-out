@@ -33,6 +33,7 @@ tasks {
 }
 
 dependencies {
+    implementation("no.nav.emottak:emottak-utils:0.0.4")
     implementation(libs.ebxml.protokoll)
     implementation(libs.emottak.payload.xsd)
     implementation(libs.hikari)

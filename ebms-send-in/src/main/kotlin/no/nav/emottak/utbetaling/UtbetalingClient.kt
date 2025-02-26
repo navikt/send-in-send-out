@@ -20,9 +20,9 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingL
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.utbetaling.UtbetalingClient.UTBETAL_SOAP_ENDPOINT
-import no.nav.emottak.util.getEnvVar
-import no.nav.emottak.util.getSecret
 import no.nav.emottak.util.toXMLGregorianCalendar
+import no.nav.emottak.utils.getEnvVar
+import no.nav.emottak.utils.getSecret
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import javax.xml.namespace.QName

@@ -12,7 +12,7 @@ import jakarta.xml.soap.SOAPFault
 import no.nav.emottak.message.model.EbmsFail
 import no.nav.emottak.message.model.EbmsMessage
 import no.nav.emottak.message.model.EbmsProcessing
-import no.nav.emottak.util.getEnvVar
+import no.nav.emottak.utils.getEnvVar
 
 private val ebxmlProcessorEndpoint = getEnvVar("EBXML_PROCESSOR_URL", "http://cpa-repo.team-emottak.svc.nais.local")
 fun Route.postEbmsSync(): Route = post("/ebms/sync") {
