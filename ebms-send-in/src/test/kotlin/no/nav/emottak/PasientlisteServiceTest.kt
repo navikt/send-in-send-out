@@ -5,6 +5,7 @@ import io.mockk.mockkObject
 import no.nav.emottak.fellesformat.unmarshal
 import no.nav.emottak.pasientliste.PasientlisteClient
 import no.nav.emottak.pasientliste.PasientlisteService
+import no.nav.emottak.pasientliste.validator.PasientlisteValidator
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -21,7 +22,7 @@ class PasientlisteServiceTest {
             val responseRequestId = Uuid.random().toString()
             PasientlisteService.pasientlisteForesporsel(sendInRequest, responseRequestId)
         } catch (exception: RuntimeException) {
-            Assertions.assertEquals(exception.message, PasientlisteService.CONFLICT_SIGNING_SSN)
+            Assertions.assertEquals(exception.message, PasientlisteValidator.CONFLICT_SIGNING_SSN)
         }
     }
 

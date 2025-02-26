@@ -20,7 +20,8 @@ class XmlMarshaller {
             org.w3._2009.xmldsig11_.ObjectFactory::class.java,
             no.trygdeetaten.xml.eiff._1.ObjectFactory::class.java,
             no.kith.xmlstds.msghead._2006_05_24.ObjectFactory::class.java,
-            no.nav.tjeneste.ekstern.frikort.v1.types.ObjectFactory::class.java
+            no.nav.tjeneste.ekstern.frikort.v1.types.ObjectFactory::class.java,
+            no.kith.xmlstds.nav.pasientliste._2010_02_01.ObjectFactory::class.java
         )
         private val marshaller = jaxbContext.createMarshaller()
         private val unmarshaller = jaxbContext.createUnmarshaller()
