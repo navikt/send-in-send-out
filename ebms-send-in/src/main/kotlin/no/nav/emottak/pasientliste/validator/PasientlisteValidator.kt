@@ -14,7 +14,7 @@ object PasientlisteValidator {
 
     fun validateLegeIsAlsoSigner(
         fellesformatRequest: EIFellesformat,
-        signedOf: String?
+        signedOf: String
     ) {
         log.debug("Validating that the request is signed with the same SSN as the doctor (lege)")
         val fnrLege = getLegeFnr(fellesformatRequest)
@@ -22,14 +22,14 @@ object PasientlisteValidator {
             log.error("Lege was not the signer of the request")
             throw SigningConflictException()
         }
-        log.debug("Successfully validated thatg lege is also signer of the request")
+        log.debug("Successfully validated that lege is also signer of the request")
     }
 
-    private fun getLegeFnr(fellesformatRequest: EIFellesformat): String? {
+    private fun getLegeFnr(fellesformatRequest: EIFellesformat): String {
         try {
             val foresporsel =
                 fellesformatRequest.msgHead.document.first().refDoc.content.any.first() as PasientlisteForesporsel
-            return foresporsel.hentPasientliste?.fnrLege
+            return foresporsel.hentPasientliste?.fnrLege!!
         } catch (e: Exception) {
             log.error("Could not find FnrLege in HentPasientliste document", e)
             throw SigningConflictException()

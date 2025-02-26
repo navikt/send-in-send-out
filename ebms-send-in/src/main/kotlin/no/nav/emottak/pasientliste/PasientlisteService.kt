@@ -28,7 +28,7 @@ object PasientlisteService {
         val fellesformatRequest = wrapMessageInEIFellesFormat(request)
         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", fellesformatRequest)
 
-        PasientlisteValidator.validateLegeIsAlsoSigner(fellesformatRequest, request.signedOf)
+        PasientlisteValidator.validateLegeIsAlsoSigner(fellesformatRequest, request.signedOf!!)
 
         val fellesformatResponse = PasientlisteClient.sendRequest(fellesformatRequest)
         log.asXml(LogLevel.DEBUG, "Response from PasientlisteClient", fellesformatResponse)
