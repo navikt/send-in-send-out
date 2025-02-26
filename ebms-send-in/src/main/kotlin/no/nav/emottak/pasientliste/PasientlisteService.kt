@@ -4,6 +4,8 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.wrapMessageInEIFellesFormat
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.pasientliste.validator.PasientlisteValidator
+import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
 import org.slf4j.Logger
@@ -11,7 +13,6 @@ import org.slf4j.LoggerFactory
 
 object PasientlisteService {
 
-    const val CONFLICT_SIGNING_SSN = "Sender FNR og legen som har signert meldingen skall ikke vare forskjelige."
     private val log: Logger = LoggerFactory.getLogger("PasientlisteService")
 
     fun pasientlisteForesporsel(request: SendInRequest): SendInResponse {
@@ -22,27 +23,15 @@ object PasientlisteService {
     }
 
     private fun forwardRequest(request: SendInRequest): SendInResponse {
-        log.asJson(
-            message = "Received SendInRequest",
-            obj = request,
-            serializer = SendInRequest.serializer()
-        )
+        log.asJson(LogLevel.DEBUG, "Received SendInRequest", request, SendInRequest.serializer())
 
         val fellesformatRequest = wrapMessageInEIFellesFormat(request)
-        log.asXml(
-            message = "Wrapped message (fellesformatRequest)",
-            obj = fellesformatRequest
-        )
+        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", fellesformatRequest)
 
-        val senderFnr = fellesformatRequest.msgHead.msgInfo.sender.organisation.healthcareProfessional.ident.first().id
-        if (senderFnr != request.signedOf) {
-            throw RuntimeException(CONFLICT_SIGNING_SSN)
-        }
+        PasientlisteValidator.validateLegeIsAlsoSigner(fellesformatRequest, request.signedOf!!)
+
         val fellesformatResponse = PasientlisteClient.sendRequest(fellesformatRequest)
-        log.asXml(
-            message = "Response from PasientlisteClient",
-            obj = fellesformatResponse
-        )
+        log.asXml(LogLevel.DEBUG, "Response from PasientlisteClient", fellesformatResponse)
 
         val sendInResponse = SendInResponse(
             request.messageId,
@@ -53,11 +42,8 @@ object PasientlisteService {
             ),
             FellesFormatXmlMarshaller.marshalToByteArray(fellesformatResponse.appRec)
         )
-        log.asJson(
-            message = "Sending SendInResponse",
-            obj = sendInResponse,
-            serializer = SendInResponse.serializer()
-        )
+        log.asJson(LogLevel.DEBUG, "Sending SendInResponse", sendInResponse, SendInResponse.serializer())
+
         return sendInResponse
     }
 }
