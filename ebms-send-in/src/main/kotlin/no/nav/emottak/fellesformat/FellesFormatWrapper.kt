@@ -42,9 +42,11 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
         avsenderOrgNrFraDigSignatur = "TODO4"
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
-        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer")
+        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         meldingsType = "xml"
         partnerReferanse = sendInRequest.cpaId
     }
 
-private fun List<PartyId>.getIdentifikatorByType(type: String) = this.firstOrNull { it.type == type }?.value ?: "Ukjent"
+private fun List<PartyId>.getIdentifikatorByType(vararg types: String) = this.firstOrNull {
+    types.contains(it.type)
+}?.value ?: "Ukjent"
