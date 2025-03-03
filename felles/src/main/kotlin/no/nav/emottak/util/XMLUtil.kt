@@ -1,5 +1,11 @@
 package no.nav.emottak.util
 
+import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel
+import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.time.Instant
@@ -10,29 +16,21 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import org.w3c.dom.Document
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
 
 const val BIRTHDAY: Int = 6
 const val FNUMBER: Int = 11
 
-fun refParam(nodeList: NodeList, tagName: String): String {
-    for (count in 0 until nodeList.length) {
-        val elemNode = nodeList.item(count)
-        if (elemNode.nodeType == Node.ELEMENT_NODE) {
-            if (elemNode.nodeName.contains(tagName) ) {
-                return elemNode.textContent
-            }
-
-            val attr: String = refParam(elemNode.childNodes, tagName)
-            if (attr != "NA") {
-                return attr
-            }
+fun refParam(fellesformat: EIFellesformat): String {
+    val egenandelforesporsel = fellesformat.msgHead.document.first().refDoc.content.any.first()
+    return when (egenandelforesporsel) {
+        is EgenandelForesporselV2 -> {
+            egenandelforesporsel.harBorgerEgenandelfritak?.borgerFnr ?: egenandelforesporsel.harBorgerFrikort?.borgerFnr ?: "NA"
         }
+        is EgenandelForesporsel -> {
+            egenandelforesporsel.harBorgerEgenandelfritak?.borgerFnr ?: egenandelforesporsel.harBorgerFrikort?.borgerFnr ?: "NA"
+        }
+        else -> "NA"
     }
-    return "NA"
 }
 
 fun birthDay(fnr: String): String {

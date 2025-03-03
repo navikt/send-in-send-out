@@ -23,9 +23,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
-import no.nav.emottak.constants.LogIndex.DOCUMENT_EGENANDELFRIKORT_FNUMMER
-import no.nav.emottak.constants.LogIndex.DOCUMENT_INNTEKTFORESPORSEL_FNUMMER
-import no.nav.emottak.constants.LogIndex.DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.wrapMessageInEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
@@ -36,13 +33,11 @@ import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.birthDay
-import no.nav.emottak.util.createDocument
 import no.nav.emottak.util.isProdEnv
 import no.nav.emottak.util.marker
-import no.nav.security.token.support.v3.tokenValidationSupport
 import no.nav.emottak.util.refParam
+import no.nav.security.token.support.v3.tokenValidationSupport
 import org.slf4j.LoggerFactory
-import java.io.ByteArrayInputStream
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.ebms.App")
 
@@ -108,7 +103,8 @@ fun Application.ebmsSendInModule() {
                                             UtbetalingXmlMarshaller.marshalToByteArray(it)
                                         )
                                     }.also {
-                                        loggReferanseParameter(request, DOCUMENT_INNTEKTFORESPORSEL_FNUMMER)
+                                        val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                        log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                     }
                                 }
 
@@ -127,7 +123,8 @@ fun Application.ebmsSendInModule() {
                                         FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
                                     )
                                 }.also {
-                                    loggReferanseParameter(request, DOCUMENT_EGENANDELFRIKORT_FNUMMER)
+                                    val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                    log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                 }
                             }
 
@@ -153,7 +150,8 @@ fun Application.ebmsSendInModule() {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                 }
                                 PasientlisteService.pasientlisteForesporsel(request).also {
-                                    loggReferanseParameter(request, DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER)
+                                    val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                    log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                 }
                             }
                             else -> {
@@ -174,24 +172,5 @@ fun Application.ebmsSendInModule() {
             }
         }
         registerHealthEndpoints(appMicrometerRegistry)
-    }
-}
-
-private fun loggReferanseParameter(request: SendInRequest, tagName: String) {
-    try {
-        val document = createDocument(ByteArrayInputStream(request.payload))
-        log.info(
-            request.marker(),
-            "refParam ${
-            birthDay(
-                refParam(
-                    document.childNodes,
-                    tagName
-                )
-            )
-            }"
-        )
-    } catch (e: Exception) {
-        log.warn(request.marker(), "Failed to read refParam")
     }
 }
