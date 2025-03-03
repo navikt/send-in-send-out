@@ -10,26 +10,36 @@ import org.junit.jupiter.api.Test
 class FellesFormatWrapperTest {
 
     @Test
-    fun wrapMessageInPasientlisteForesporselEIFellesFormat() {
+    fun `Wrap Pasientlisteforesporsel in Fellesformat`() {
         val sendInRequest = validSendInPasientlisteRequest.value
         val fellesFormat = wrapMessageInEIFellesFormat(sendInRequest)
+        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.partnerReferanse, sendInRequest.cpaId)
         log.info(marshal(fellesFormat))
     }
 
     @Test
-    fun wrapMessageInHarBorgerFrikortREIFellesFormat() {
+    fun `Wrap HarBorgerFrikort in Fellesformat`() {
         val sendInRequest = validSendInHarBorgerFrikortRequest.value
         val fellesFormat = wrapMessageInEIFellesFormat(sendInRequest)
+        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.partnerReferanse, sendInRequest.cpaId)
         log.info(marshal(fellesFormat))
     }
 
     @Test
-    fun wrapMessageInInntektforesporselEIFellesFormat() {
+    fun `Wrap Inntektsforesporsel in Fellesformat`() {
         val sendInRequest = validSendInInntektforesporselRequest.value
         val fellesFormat = wrapMessageInEIFellesFormat(sendInRequest)
+        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.partnerReferanse, sendInRequest.cpaId)
         log.info(marshal(fellesFormat))
+    }
+
+    @Test
+    fun `Validate SSN from request is added to Fellesformat`() {
+        val sendInRequest = validSendInPasientlisteRequest.value
+        val fellesFormat = wrapMessageInEIFellesFormat(sendInRequest)
+        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.avsenderFnrFraDigSignatur, sendInRequest.signedOf)
     }
 }
