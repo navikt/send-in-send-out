@@ -40,6 +40,7 @@ tasks {
 
 dependencies {
     implementation(project(":felles"))
+    implementation("no.nav.emottak:emottak-utils:0.0.4")
     implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
     implementation(libs.bundles.cxf)
     implementation(libs.bundles.logging)

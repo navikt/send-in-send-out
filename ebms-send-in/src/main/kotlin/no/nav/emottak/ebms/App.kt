@@ -33,11 +33,13 @@ import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.birthDay
-import no.nav.emottak.util.isProdEnv
 import no.nav.emottak.util.marker
 import no.nav.emottak.util.refParam
+import no.nav.emottak.utils.isProdEnv
 import no.nav.security.token.support.v3.tokenValidationSupport
 import org.slf4j.LoggerFactory
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.ebms.App")
 
@@ -58,6 +60,7 @@ fun <T> timed(meterRegistry: PrometheusMeterRegistry, metricName: String, proces
             process(it)
         }
 
+@OptIn(ExperimentalUuidApi::class)
 fun Application.ebmsSendInModule() {
     install(ContentNegotiation) {
         json(
@@ -91,6 +94,8 @@ fun Application.ebmsSendInModule() {
                 }
                 runCatching {
                     log.info(request.marker(), "Payload ${request.payloadId} videresendes til fagsystem")
+                    // TODO: Logg til Event-db? Med request.requestId
+                    val responseRequestId = Uuid.random().toString()
                     withContext(Dispatchers.IO) {
                         when (request.addressing.service) {
                             "Inntektsforesporsel" ->
@@ -100,7 +105,8 @@ fun Application.ebmsSendInModule() {
                                             request.messageId,
                                             request.conversationId,
                                             request.addressing.replyTo(request.addressing.service, it.msgInfo.type.v),
-                                            UtbetalingXmlMarshaller.marshalToByteArray(it)
+                                            UtbetalingXmlMarshaller.marshalToByteArray(it),
+                                            responseRequestId
                                         )
                                     }.also {
                                         val refParam = refParam((wrapMessageInEIFellesFormat(request)))
@@ -120,7 +126,8 @@ fun Application.ebmsSendInModule() {
                                             it.eiFellesformat.mottakenhetBlokk.ebService,
                                             it.eiFellesformat.mottakenhetBlokk.ebAction
                                         ),
-                                        FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
+                                        FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead),
+                                        responseRequestId
                                     )
                                 }.also {
                                     val refParam = refParam((wrapMessageInEIFellesFormat(request)))
@@ -140,7 +147,8 @@ fun Application.ebmsSendInModule() {
                                             it.eiFellesformat.mottakenhetBlokk.ebService,
                                             it.eiFellesformat.mottakenhetBlokk.ebAction
                                         ),
-                                        FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead)
+                                        FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead),
+                                        responseRequestId
                                     )
                                 }
                             }
@@ -149,7 +157,7 @@ fun Application.ebmsSendInModule() {
                                 if (isProdEnv()) {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                 }
-                                PasientlisteService.pasientlisteForesporsel(request).also {
+                                PasientlisteService.pasientlisteForesporsel(request, responseRequestId).also {
                                     val refParam = refParam((wrapMessageInEIFellesFormat(request)))
                                     log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                 }
@@ -164,9 +172,12 @@ fun Application.ebmsSendInModule() {
                         request.marker(),
                         "Payload ${request.payloadId} videresending til fagsystem ferdig, svar mottatt og returnert"
                     )
+                    // TODO: Event-logging OK
                     call.respond(it)
                 }.onFailure {
                     log.error(request.marker(), "Payload ${request.payloadId} videresending feilet", it)
+                    // TODO: Event-logging Feil
+                    // TODO: Hvordan generere og returnere requestId ved feil? Det trengs ved Event-logging. Med unntak av NotImplementedError?
                     call.respond(HttpStatusCode.BadRequest, it.localizedMessage ?: it.cause?.message ?: it.javaClass.simpleName)
                 }
             }

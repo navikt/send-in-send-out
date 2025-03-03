@@ -3,9 +3,9 @@ package no.nav.emottak.frikort
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
-import no.nav.emottak.util.getEnvVar
-import no.nav.emottak.util.getSecret
-import no.nav.emottak.util.isProdEnv
+import no.nav.emottak.utils.getEnvVar
+import no.nav.emottak.utils.getSecret
+import no.nav.emottak.utils.isProdEnv
 import no.nav.tjeneste.ekstern.frikort.v1.FrikortV1Port
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringResponse

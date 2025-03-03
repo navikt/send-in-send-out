@@ -15,7 +15,10 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.utbetaling.msgHeadResponse
 import no.nav.emottak.utbetaling.unmarshal
 import org.junit.jupiter.api.Test
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class InntektsforesporselTest {
 
     @Test
@@ -56,7 +59,8 @@ class InntektsforesporselTest {
                 ),
                 "dummycpa",
                 EbmsProcessing(),
-                null
+                null,
+                requestId = Uuid.random().toString()
             ),
             finnUtbetalingListeFeil
         )
@@ -83,7 +87,8 @@ class InntektsforesporselTest {
                 ),
                 "dummycpa",
                 EbmsProcessing(),
-                null
+                null,
+                requestId = Uuid.random().toString()
             )
         )
     }

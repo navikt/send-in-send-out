@@ -11,8 +11,8 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
-import no.nav.emottak.util.getEnvVar
-import no.nav.emottak.util.isProdEnv
+import no.nav.emottak.utils.getEnvVar
+import no.nav.emottak.utils.isProdEnv
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import java.io.FileInputStream
 
