@@ -32,7 +32,9 @@ import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
+import no.nav.emottak.util.birthDay
 import no.nav.emottak.util.marker
+import no.nav.emottak.util.refParam
 import no.nav.emottak.utils.isProdEnv
 import no.nav.security.token.support.v3.tokenValidationSupport
 import org.slf4j.LoggerFactory
@@ -106,6 +108,9 @@ fun Application.ebmsSendInModule() {
                                             UtbetalingXmlMarshaller.marshalToByteArray(it),
                                             responseRequestId
                                         )
+                                    }.also {
+                                        val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                        log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                     }
                                 }
 
@@ -124,6 +129,9 @@ fun Application.ebmsSendInModule() {
                                         FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead),
                                         responseRequestId
                                     )
+                                }.also {
+                                    val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                    log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                 }
                             }
 
@@ -149,9 +157,11 @@ fun Application.ebmsSendInModule() {
                                 if (isProdEnv()) {
                                     throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                 }
-                                PasientlisteService.pasientlisteForesporsel(request, responseRequestId)
+                                PasientlisteService.pasientlisteForesporsel(request, responseRequestId).also {
+                                    val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                    log.info(request.marker(), "refParam ${birthDay(refParam)}")
+                                }
                             }
-
                             else -> {
                                 throw NotImplementedError("Service: ${request.addressing.service} is not implemented")
                             }
@@ -172,7 +182,6 @@ fun Application.ebmsSendInModule() {
                 }
             }
         }
-
         registerHealthEndpoints(appMicrometerRegistry)
     }
 }
