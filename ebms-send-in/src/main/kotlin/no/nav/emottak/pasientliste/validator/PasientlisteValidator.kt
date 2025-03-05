@@ -9,26 +9,21 @@ object PasientlisteValidator {
 
     private val log: Logger = LoggerFactory.getLogger(PasientlisteValidator::class.java)
 
-    const val CONFLICT_SIGNING_SSN =
-        "Sender FNR og legen som har signert meldingen skall ikke vare forskjelige."
+    const val CONFLICT_SIGNING_SSN = "Sender FNR og legen som har signert meldingen matcher ikke."
 
-    fun validateLegeIsAlsoSigner(
-        fellesformatRequest: EIFellesformat,
-        signedOf: String
-    ) {
-        log.debug("Validating that the request is signed with the same SSN as the doctor (lege)")
-        val fnrLege = getLegeFnr(fellesformatRequest)
-        if (fnrLege != signedOf) {
-            log.error("Lege was not the signer of the request")
-            throw SigningConflictException()
+    fun EIFellesformat.validateLegeIsAlsoSigner() {
+        when (this.getLegeFnr() == this.mottakenhetBlokk.avsenderFnrFraDigSignatur) {
+            true -> log.info("Successfully validated that lege is also signer of the request")
+            false -> {
+                log.error("Lege was not the signer of the request")
+                throw SigningConflictException()
+            }
         }
-        log.debug("Successfully validated that lege is also signer of the request")
     }
 
-    private fun getLegeFnr(fellesformatRequest: EIFellesformat): String {
+    private fun EIFellesformat.getLegeFnr(): String {
         try {
-            val foresporsel =
-                fellesformatRequest.msgHead.document.first().refDoc.content.any.first() as PasientlisteForesporsel
+            val foresporsel = this.msgHead.document.first().refDoc.content.any.first() as PasientlisteForesporsel
             return foresporsel.hentPasientliste?.fnrLege!!
         } catch (e: Exception) {
             log.error("Could not find FnrLege in HentPasientliste document", e)
