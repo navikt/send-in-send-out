@@ -1,6 +1,5 @@
 package no.nav.emottak.frikort
 
-import javax.xml.namespace.QName
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
@@ -11,6 +10,7 @@ import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.ObjectFactory
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import javax.xml.namespace.QName
 
 val frikortClient = frikortEndpoint()
 private val frikortObjectFactory = ObjectFactory()
