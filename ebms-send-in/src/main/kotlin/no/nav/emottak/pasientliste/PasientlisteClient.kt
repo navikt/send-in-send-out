@@ -8,12 +8,13 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import java.io.FileInputStream
 import kotlinx.coroutines.runBlocking
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.util.marker
 import no.nav.emottak.utils.getEnvVar
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
-import java.io.FileInputStream
 
 object PasientlisteClient {
     private val url = getEnvVar(
@@ -27,7 +28,7 @@ object PasientlisteClient {
         val marshalledFellesformat = FellesFormatXmlMarshaller.marshal(request)
         val httpClient = HttpClient(CIO)
 
-        log.debug("Sending in HentPasientliste request with body: $marshalledFellesformat")
+        log.debug(request.marker(), "Sending in HentPasientliste request with body: $marshalledFellesformat")
 
         val result = runBlocking {
             try {
@@ -37,14 +38,14 @@ object PasientlisteClient {
                     basicAuth(username.value, password.value)
                 }.bodyAsText()
             } catch (e: Exception) {
-                log.error("PasientlisteForesporsel error", e)
+                log.error(request.marker(), "PasientlisteForesporsel error", e)
                 throw e
             } finally {
                 httpClient.close()
             }
         }
 
-        log.debug("PasientlisteForesporsel result: {}", result)
+        log.debug(request.marker(), "PasientlisteForesporsel result: {}", result)
 
         return FellesFormatXmlMarshaller.unmarshal(result, EIFellesformat::class.java)
     }
