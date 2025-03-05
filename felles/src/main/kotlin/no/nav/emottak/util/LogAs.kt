@@ -1,13 +1,13 @@
 package no.nav.emottak.util
 
-import java.io.StringWriter
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.JAXBException
-import javax.xml.bind.Marshaller
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import org.slf4j.Logger
 import org.slf4j.Marker
+import java.io.StringWriter
+import javax.xml.bind.JAXBContext
+import javax.xml.bind.JAXBException
+import javax.xml.bind.Marshaller
 
 fun <T> Logger.asJson(
     logLevel: LogLevel = LogLevel.DEBUG,

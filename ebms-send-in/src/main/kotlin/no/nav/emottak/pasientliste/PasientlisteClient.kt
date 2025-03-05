@@ -8,13 +8,13 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import java.io.FileInputStream
 import kotlinx.coroutines.runBlocking
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.util.marker
 import no.nav.emottak.utils.getEnvVar
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import java.io.FileInputStream
 
 object PasientlisteClient {
     private val url = getEnvVar(
