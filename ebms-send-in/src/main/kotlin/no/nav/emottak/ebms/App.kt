@@ -158,7 +158,7 @@ fun Application.ebmsSendInModule() {
                                         throw NotImplementedError("PasientlisteForesporsel is used in prod. Feature is not ready. Aborting.")
                                     }
                                     with(sendInRequest.asEIFellesFormat()) {
-                                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this)
+                                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, sendInRequest.marker())
                                         PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
                                             SendInResponse(
                                                 messageId = sendInRequest.messageId,
@@ -170,7 +170,7 @@ fun Application.ebmsSendInModule() {
                                                 payload = FellesFormatXmlMarshaller.marshalToByteArray(fellesformatResponse.appRec),
                                                 requestId = Uuid.random().toString()
                                             ).also {
-                                                log.asJson(LogLevel.DEBUG, "Sending SendInResponse", it, SendInResponse.serializer())
+                                                log.asJson(LogLevel.DEBUG, "Sending SendInResponse", it, SendInResponse.serializer(), sendInRequest.marker())
                                             }
                                         }
                                     }
