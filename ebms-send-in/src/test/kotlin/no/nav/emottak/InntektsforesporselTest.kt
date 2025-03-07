@@ -43,25 +43,28 @@ class InntektsforesporselTest {
         val finnUtbetalingListeFeil = FinnUtbetalingListeFeil()
         finnUtbetalingListeFeil.finnUtbetalingListebrukerIkkeFunnet = brukerIkkeFunnetException.faultInfo
 
+        val sendInRequest = SendInRequest(
+            "my-message-id",
+            "my-conversation-id",
+            "my-payload-id",
+            msgHeadEksempel.toByteArray(),
+            Addressing(
+                Party(listOf(PartyId("org", "12345")), "mottaker"),
+                Party(listOf(PartyId("org", "67890")), "innsender"),
+                "Inntektsforesporsel",
+                "Inntektsforesporsel"
+            ),
+            "dummycpa",
+            EbmsProcessing(),
+            null,
+            requestId = Uuid.random().toString()
+        )
+
         val msgHeadRequest = UtbetalingXmlMarshaller.unmarshal(msgHeadEksempel, MsgHead::class.java)
         val msgHeadResponse = msgHeadResponse(
             msgHeadRequest,
-            SendInRequest(
-                "my-message-id",
-                "my-conversation-id",
-                "my-payload-id",
-                msgHeadEksempel.toByteArray(),
-                Addressing(
-                    Party(listOf(PartyId("org", "12345")), "mottaker"),
-                    Party(listOf(PartyId("org", "67890")), "innsender"),
-                    "Inntektsforesporsel",
-                    "Inntektsforesporsel"
-                ),
-                "dummycpa",
-                EbmsProcessing(),
-                null,
-                requestId = Uuid.random().toString()
-            ),
+            sendInRequest.messageId,
+            sendInRequest.conversationId,
             finnUtbetalingListeFeil
         )
 
@@ -73,24 +76,28 @@ class InntektsforesporselTest {
 
     // @Test
     fun testUtbetalClient() {
-        UtbetalingClient.behandleInntektsforesporsel(
-            SendInRequest(
-                "my-message-id",
-                "my-conversation-id",
-                "my-payload-id",
-                msgHeadEksempel.toByteArray(),
-                Addressing(
-                    Party(listOf(PartyId("org", "12345")), "mottaker"),
-                    Party(listOf(PartyId("org", "67890")), "innsender"),
-                    "Inntektsforesporsel",
-                    "Inntektsforesporsel"
-                ),
-                "dummycpa",
-                EbmsProcessing(),
-                null,
-                requestId = Uuid.random().toString()
+        SendInRequest(
+            "my-message-id",
+            "my-conversation-id",
+            "my-payload-id",
+            msgHeadEksempel.toByteArray(),
+            Addressing(
+                Party(listOf(PartyId("org", "12345")), "mottaker"),
+                Party(listOf(PartyId("org", "67890")), "innsender"),
+                "Inntektsforesporsel",
+                "Inntektsforesporsel"
+            ),
+            "dummycpa",
+            EbmsProcessing(),
+            null,
+            requestId = Uuid.random().toString()
+        ).let {
+            UtbetalingClient.behandleInntektsforesporsel(
+                it.messageId,
+                it.conversationId,
+                it.payload
             )
-        )
+        }
     }
 
     val msgHeadEksempel = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

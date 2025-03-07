@@ -10,10 +10,10 @@ import java.time.Instant
 
 private val fellesFormatFactory = ObjectFactory()
 
-fun wrapMessageInEIFellesFormat(sendInRequest: SendInRequest): EIFellesformat =
+fun SendInRequest.asEIFellesFormat(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
-        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(sendInRequest)
-        msgHead = unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(this@asEIFellesFormat)
+        msgHead = unmarshal(this@asEIFellesFormat.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }
 
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk =
