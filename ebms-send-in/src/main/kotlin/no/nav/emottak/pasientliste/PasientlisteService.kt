@@ -4,12 +4,13 @@ import no.nav.emottak.pasientliste.validator.PasientlisteValidator.validateLegeI
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asXml
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import no.nav.emottak.util.marker
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 object PasientlisteService {
 
-    private val log: Logger = LoggerFactory.getLogger("PasientlisteService")
+    private val log: Logger = LoggerFactory.getLogger(PasientlisteService::class.java)
 
     fun pasientlisteForesporsel(fellesformatRequest: EIFellesformat): EIFellesformat =
         when (fellesformatRequest.mottakenhetBlokk.ebAction) {
@@ -25,6 +26,6 @@ object PasientlisteService {
 
     private fun forwardRequest(fellesformatRequest: EIFellesformat) =
         PasientlisteClient.sendRequest(fellesformatRequest).also {
-            log.asXml(LogLevel.DEBUG, "Response from PasientlisteClient", it)
+            log.asXml(LogLevel.DEBUG, "Response from PasientlisteClient", it, fellesformatRequest.marker())
         }
 }
