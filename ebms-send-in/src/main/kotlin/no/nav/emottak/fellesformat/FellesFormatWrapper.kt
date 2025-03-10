@@ -32,7 +32,7 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
         orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         meldingsType = "xml"
-        partnerReferanse = sendInRequest.cpaId
+        partnerReferanse = sendInRequest.partnerId.toString()
     }
 
 private fun List<PartyId>.getIdentifikatorByType(vararg types: String) = this.firstOrNull {
