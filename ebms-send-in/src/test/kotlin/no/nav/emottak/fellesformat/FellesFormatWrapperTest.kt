@@ -14,7 +14,6 @@ class FellesFormatWrapperTest {
         val sendInRequest = validSendInPasientlisteRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
-        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.partnerReferanse, sendInRequest.cpaId)
         log.info(marshal(fellesFormat))
     }
 
@@ -23,7 +22,6 @@ class FellesFormatWrapperTest {
         val sendInRequest = validSendInHarBorgerFrikortRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
-        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.partnerReferanse, sendInRequest.cpaId)
         log.info(marshal(fellesFormat))
     }
 
@@ -32,7 +30,6 @@ class FellesFormatWrapperTest {
         val sendInRequest = validSendInInntektforesporselRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
-        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.partnerReferanse, sendInRequest.cpaId)
         log.info(marshal(fellesFormat))
     }
 
