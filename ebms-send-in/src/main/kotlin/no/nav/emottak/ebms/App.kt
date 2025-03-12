@@ -109,7 +109,7 @@ fun Application.ebmsSendInModule() {
                                             responseRequestId
                                         )
                                     }.also {
-                                        val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                        val refParam = refParam(wrapMessageInEIFellesFormat(request)) // TODO: Respons er aktulell her
                                         log.info(request.marker(), "refParam ${birthDay(refParam)}")
                                     }
                                 }
@@ -149,7 +149,10 @@ fun Application.ebmsSendInModule() {
                                         ),
                                         FellesFormatXmlMarshaller.marshalToByteArray(it.eiFellesformat.msgHead),
                                         responseRequestId
-                                    )
+                                    ).also {
+                                        val refParam = refParam((wrapMessageInEIFellesFormat(request)))
+                                        log.info(request.marker(), "refParam $refParam")
+                                    }
                                 }
                             }
 

@@ -2,6 +2,10 @@ package no.nav.emottak.util
 
 import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2
+import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel
+import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2
+import no.kith.xmlstds.nav.pasientliste._2010_02_01.PasientlisteForesporsel
+import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -21,13 +25,26 @@ const val BIRTHDAY: Int = 6
 const val FNUMBER: Int = 11
 
 fun refParam(fellesformat: EIFellesformat): String {
-    val egenandelforesporsel = fellesformat.msgHead.document.first().refDoc.content.any.first()
-    return when (egenandelforesporsel) {
+    val foresporsel = fellesformat.msgHead.document.first().refDoc.content.any.first()
+
+    return when (foresporsel) {
         is EgenandelForesporselV2 -> {
-            egenandelforesporsel.harBorgerEgenandelfritak?.borgerFnr ?: egenandelforesporsel.harBorgerFrikort?.borgerFnr ?: "NA"
+            foresporsel.harBorgerEgenandelfritak?.borgerFnr ?: foresporsel.harBorgerFrikort?.borgerFnr ?: "NA"
         }
         is EgenandelForesporsel -> {
-            egenandelforesporsel.harBorgerEgenandelfritak?.borgerFnr ?: egenandelforesporsel.harBorgerFrikort?.borgerFnr ?: "NA"
+            foresporsel.harBorgerEgenandelfritak?.borgerFnr ?: foresporsel.harBorgerFrikort?.borgerFnr ?: "NA"
+        }
+        is EgenandelMengdeForesporselV2 -> {
+            foresporsel.harBorgerFrikort?.size.toString() ?: "NA"
+        }
+        is EgenandelMengdeForesporsel -> {
+            foresporsel.harBorgerFrikort?.size.toString() ?: "NA"
+        }
+        is PasientlisteForesporsel -> {
+            foresporsel.hentPasientliste?.fnrLege ?: "NA"
+        }
+        is FinnUtbetalingListe -> {
+            foresporsel.request.bruker?.brukerId ?: "NA"
         }
         else -> "NA"
     }
