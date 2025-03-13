@@ -2,10 +2,11 @@ package no.nav.emottak.ebms.plugin
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.micrometer.core.instrument.MeterRegistry
+import io.ktor.server.metrics.micrometer.MicrometerMetrics
+import io.micrometer.prometheus.PrometheusMeterRegistry
 
-fun Application.configureMetrics(registry: MeterRegistry) {
-    install(io.ktor.server.metrics.micrometer.MicrometerMetrics) {
-        this.registry = registry
+fun Application.configureMetrics(prometheusMeterRegistry: PrometheusMeterRegistry) {
+    install(MicrometerMetrics) {
+        this.registry = prometheusMeterRegistry
     }
 }

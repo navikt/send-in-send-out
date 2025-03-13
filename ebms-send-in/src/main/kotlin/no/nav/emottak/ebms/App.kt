@@ -49,12 +49,12 @@ suspend fun ResourceScope.setupServer() {
     )
 }
 
-internal fun Application.ebmsSendInModule(meterRegistry: PrometheusMeterRegistry) {
-    configureMetrics(meterRegistry)
+internal fun Application.ebmsSendInModule(prometheusMeterRegistry: PrometheusMeterRegistry) {
+    configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(meterRegistry)
+    configureRoutes(prometheusMeterRegistry)
 }
 
 private fun logError(t: Throwable) = log.error("Shutdown ebms-send-in due to: ${t.stackTraceToString()}")

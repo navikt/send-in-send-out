@@ -7,7 +7,7 @@ import io.ktor.server.routing.get
 import io.micrometer.prometheus.PrometheusMeterRegistry
 
 fun Routing.healthcheckRoutes(
-    meterRegistry: PrometheusMeterRegistry
+    prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     get("/internal/health/liveness") {
         call.respondText("I'm alive! :)")
@@ -16,6 +16,6 @@ fun Routing.healthcheckRoutes(
         call.respondText("I'm ready! :)")
     }
     get("/prometheus") {
-        call.respond(meterRegistry.scrape())
+        call.respond(prometheusMeterRegistry.scrape())
     }
 }

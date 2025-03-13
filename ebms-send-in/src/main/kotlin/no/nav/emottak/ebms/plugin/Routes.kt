@@ -6,9 +6,9 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.emottak.ebms.fagmeldingRoutes
 import no.nav.emottak.ebms.healthcheckRoutes
 
-fun Application.configureRoutes(meterRegistry: PrometheusMeterRegistry) {
+fun Application.configureRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
     routing {
-        fagmeldingRoutes(meterRegistry)
-        healthcheckRoutes(meterRegistry)
+        fagmeldingRoutes(prometheusMeterRegistry)
+        healthcheckRoutes(prometheusMeterRegistry)
     }
 }

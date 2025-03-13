@@ -8,7 +8,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
-import io.micrometer.core.instrument.MeterRegistry
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
@@ -16,7 +16,7 @@ import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.util.marker
 
-fun Route.fagmeldingRoutes(meterRegistry: MeterRegistry) {
+fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
             val sendInRequest = try {
@@ -31,7 +31,7 @@ fun Route.fagmeldingRoutes(meterRegistry: MeterRegistry) {
 
             val result: Either<Throwable, SendInResponse> = either {
                 withContext(Dispatchers.IO) {
-                    FagmeldingService.processRequest(sendInRequest, meterRegistry).bind()
+                    FagmeldingService.processRequest(sendInRequest, prometheusMeterRegistry).bind()
                 }
             }
 
