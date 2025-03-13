@@ -28,10 +28,7 @@ fun main() = SuspendApp {
             awaitCancellation()
         }
     }.onFailure { error ->
-        when (error) {
-            is CancellationException -> {}
-            else -> logError(error)
-        }
+        if (error !is CancellationException) logError(error)
     }
 }
 
