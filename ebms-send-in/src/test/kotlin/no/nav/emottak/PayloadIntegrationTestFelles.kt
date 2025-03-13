@@ -1,9 +1,10 @@
 package no.nav.emottak
 
 import com.nimbusds.jwt.SignedJWT
-import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.ebms.ebmsSendInModule
@@ -46,7 +47,10 @@ abstract class PayloadIntegrationTestFelles(
         }
     }
 
-    protected fun <T> ebmsSendInTestApp(mockResponsePath: String? = null, testBlock: suspend ApplicationTestBuilder.() -> T) = testApplication {
+    protected fun <T> ebmsSendInTestApp(
+        mockResponsePath: String? = null,
+        testBlock: suspend ApplicationTestBuilder.() -> T
+    ) = testApplication {
         wsSoapMock!!.enqueue(
             MockResponse().setBody(
                 String(
@@ -54,7 +58,11 @@ abstract class PayloadIntegrationTestFelles(
                 )
             )
         )
-        application(Application::ebmsSendInModule)
+        val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+
+        application {
+            ebmsSendInModule(meterRegistry)
+        }
         testBlock()
     }
 

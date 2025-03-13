@@ -2,7 +2,7 @@ package no.nav.emottak.ebms
 
 import arrow.core.Either
 import arrow.core.raise.either
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.core.instrument.MeterRegistry
 import no.nav.emottak.ebms.SupportedService.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
@@ -29,11 +29,11 @@ object FagmeldingService {
     @OptIn(ExperimentalUuidApi::class)
     fun processRequest(
         sendInRequest: SendInRequest,
-        micrometerRegistry: PrometheusMeterRegistry
+        meterRegistry: MeterRegistry
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedService.Inntektsforesporsel ->
-                timed(micrometerRegistry, "Inntektsforesporsel") {
+                timed(meterRegistry, "Inntektsforesporsel") {
                     Either.catch {
                         UtbetalingClient.behandleInntektsforesporsel(
                             sendInRequest.messageId,
@@ -55,7 +55,7 @@ object FagmeldingService {
                 }
 
             SupportedService.HarBorgerEgenandelFritak, SupportedService.HarBorgerFrikort ->
-                timed(micrometerRegistry, "frikort-sporing") {
+                timed(meterRegistry, "frikort-sporing") {
                     with(sendInRequest.asEIFellesFormat()) {
                         frikortsporring(this).let { response ->
                             SendInResponse(
@@ -75,7 +75,7 @@ object FagmeldingService {
                 }
 
             SupportedService.HarBorgerFrikortMengde ->
-                timed(micrometerRegistry, "frikortMengde-sporing") {
+                timed(meterRegistry, "frikortMengde-sporing") {
                     with(sendInRequest.asEIFellesFormat()) {
                         frikortsporringMengde(this).let { response ->
                             SendInResponse(
@@ -95,7 +95,7 @@ object FagmeldingService {
                 }
 
             SupportedService.PasientlisteForesporsel ->
-                timed(micrometerRegistry, "PasientlisteForesporsel") {
+                timed(meterRegistry, "PasientlisteForesporsel") {
                     if (isProdEnv()) {
                         throw NotImplementedError(
                             "PasientlisteForesporsel is used in prod. Feature is not ready. Aborting."
