@@ -11,7 +11,7 @@ dependencyResolutionManagement {
 
     versionCatalogs {
         create("libs") {
-            version("arrow", "1.2.4")
+            version("arrow", "2.0.1")
             version("suspendapp", "0.5.0")
             version("bouncycastle", "1.76")
             version("exposed", "0.47.0")
@@ -28,6 +28,8 @@ dependencyResolutionManagement {
             version("vault-jdbc", "1.3.10")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
+            library("arrow-functions", "io.arrow-kt", "arrow-functions").versionRef("arrow")
+
             library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
             library("arrow-resilience", "io.arrow-kt", "arrow-resilience").versionRef("arrow")
             library("arrow-suspendapp", "io.arrow-kt", "suspendapp").versionRef("suspendapp")
@@ -109,7 +111,7 @@ dependencyResolutionManagement {
             version("kotest-extensions", "2.0.2")
             version("postgres", "42.7.4")
             version("turbine", "1.2.0")
-            version("arrow", "1.2.4")
+            version("arrow", "2.0.1")
 
             library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
