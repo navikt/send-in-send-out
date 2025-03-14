@@ -11,4 +11,10 @@ object LogIndex {
     const val CPA_ID = "cpaId"
     const val ACTION = "action"
     const val X_MAILER = "systemkilde"
+    const val DOCUMENT_PASIENTLISTEFORESPORSEL_FNUMMER = "FnrLege"
+    const val DOCUMENT_INNTEKTFORESPORSEL_FNUMMER = "brukerId"
+    const val DOCUMENT_EGENANDELFRIKORT_FNUMMER = "BorgerFnr"
+    const val DOCUMENT_HARBORGERFRIKORT_SERVICE = "HarBorgerFrikort"
+    const val DOCUMENT_INNTEKTFORESPORSEL_SERVICE = "Inntektsforesporsel"
+    const val DOCUMENT_PASIENTLISTEFORESPORSEL_SERVICE = "PasientisteForesporsel"
 }
