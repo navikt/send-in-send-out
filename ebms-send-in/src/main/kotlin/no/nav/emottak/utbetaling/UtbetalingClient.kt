@@ -18,7 +18,6 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingL
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeUgyldigDato
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeUgyldigKombinasjonBrukerIdOgBrukertype
 import no.nav.emottak.cxf.ServiceBuilder
-import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.utbetaling.UtbetalingClient.UTBETAL_SOAP_ENDPOINT
 import no.nav.emottak.util.toXMLGregorianCalendar
 import no.nav.emottak.utils.getEnvVar
@@ -43,9 +42,8 @@ object UtbetalingClient {
         }
     val UTBETAL_SOAP_ENDPOINT = "$RESOLVED_UTBETAL_URL/Utbetaling"
 
-    fun behandleInntektsforesporsel(sendInRequest: SendInRequest): MsgHead {
-        val msgHeadRequest =
-            UtbetalingXmlMarshaller.unmarshal(sendInRequest.payload.toString(Charsets.UTF_8), MsgHead::class.java)
+    fun behandleInntektsforesporsel(parentMessageId: String, conversationId: String, payload: ByteArray): MsgHead {
+        val msgHeadRequest = UtbetalingXmlMarshaller.unmarshal(payload.toString(Charsets.UTF_8), MsgHead::class.java)
         val orgnr = msgHeadRequest.msgInfo.sender.organisation.ident.firstOrNull { it.typeId.v == "ENH" }?.id
 
         val melding = msgHeadRequest.document.map { it.refDoc.content.any }
@@ -75,7 +73,7 @@ object UtbetalingClient {
 
                 else -> throw IllegalStateException("Ukjent meldingstype. Classname: " + melding.javaClass.name)
             }
-            return msgHeadResponse(msgHeadRequest, sendInRequest, response)
+            return msgHeadResponse(msgHeadRequest, parentMessageId, conversationId, response)
         } catch (utbetalError: Throwable) {
             log.info("Handling inntektsforesporsel error: " + utbetalError.message)
             val feil = FinnUtbetalingListeFeil()
@@ -93,7 +91,7 @@ object UtbetalingClient {
                 else ->
                     throw utbetalError.also { log.error("Ukjent feiltype: " + it.message, it) }
             }
-            return msgHeadResponse(msgHeadRequest, sendInRequest, feil)
+            return msgHeadResponse(msgHeadRequest, parentMessageId, conversationId, feil)
         }
     }
 
@@ -133,7 +131,7 @@ fun receiverToSender(receiver: Receiver): Sender {
 }
 
 @OptIn(ExperimentalUuidApi::class)
-fun msgHeadResponse(incomingMsgHead: MsgHead, sendInRequest: SendInRequest, fagmeldingResponse: Any): MsgHead {
+fun msgHeadResponse(incomingMsgHead: MsgHead, parentMessageId: String, conversationId: String, fagmeldingResponse: Any): MsgHead {
     return incomingMsgHead.apply {
         msgInfo.apply {
             type = CS().apply {
@@ -151,8 +149,8 @@ fun msgHeadResponse(incomingMsgHead: MsgHead, sendInRequest: SendInRequest, fagm
             sender = newSender
             receiver = newReceiver
             conversationRef = ConversationRef().apply {
-                refToParent = sendInRequest.messageId
-                refToConversation = sendInRequest.conversationId
+                refToParent = parentMessageId
+                refToConversation = conversationId
             }
         }
         document.clear()
@@ -172,6 +170,6 @@ fun msgHeadResponse(incomingMsgHead: MsgHead, sendInRequest: SendInRequest, fagm
                 }
             }
         )
-        signature = null // TODO? (Dette er ikke "send-in" sin jobb, blir gjort senere)
+        signature = null
     }
 }

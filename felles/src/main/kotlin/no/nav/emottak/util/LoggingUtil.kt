@@ -16,6 +16,7 @@ import no.nav.emottak.constants.LogIndex.X_MAILER
 import no.nav.emottak.constants.SMTPHeaders
 import no.nav.emottak.melding.model.Header
 import no.nav.emottak.melding.model.SendInRequest
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.oasis_open.committees.ebxml_msg.schema.msg_header_2_0.MessageHeader
 
 fun Header.marker(): LogstashMarker = Markers.appendEntries(
@@ -38,6 +39,13 @@ fun SendInRequest.marker(loggableHeaderPairs: Map<String, String> = mapOf()): Lo
         CONVERSATION_ID to this.conversationId,
         CPA_ID to this.cpaId
     ) + loggableHeaderPairs
+)
+
+fun EIFellesformat.marker(): LogstashMarker = Markers.appendEntries(
+    mapOf(
+        MESSAGE_ID to this.mottakenhetBlokk.mottaksId,
+        CONVERSATION_ID to this.mottakenhetBlokk.ebXMLSamtaleId
+    )
 )
 
 fun MessageHeader.marker(loggableHeaderPairs: Map<String, String> = mapOf()): LogstashMarker = Markers.appendEntries(

@@ -11,13 +11,16 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.util.marker
 import no.nav.emottak.utils.getEnvVar
-import no.nav.emottak.utils.isProdEnv
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import java.io.FileInputStream
 
 object PasientlisteClient {
-    private val url = getEnvVar("PASIENTLISTE_URL", "https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner")
+    private val url = getEnvVar(
+        "PASIENTLISTE_URL",
+        "https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner"
+    )
     private val username = lazy { String(FileInputStream("/secret/serviceuser/username").readAllBytes()) }
     private val password = lazy { String(FileInputStream("/secret/serviceuser/password").readAllBytes()) }
 
@@ -25,9 +28,7 @@ object PasientlisteClient {
         val marshalledFellesformat = FellesFormatXmlMarshaller.marshal(request)
         val httpClient = HttpClient(CIO)
 
-        if (!isProdEnv()) {
-            log.info("Sending in HentPasientliste request with body: $marshalledFellesformat")
-        }
+        log.debug(request.marker(), "Sending in HentPasientliste request with body: $marshalledFellesformat")
 
         val result = runBlocking {
             try {
@@ -37,16 +38,14 @@ object PasientlisteClient {
                     basicAuth(username.value, password.value)
                 }.bodyAsText()
             } catch (e: Exception) {
-                log.error("PasientlisteForesporsel error", e)
+                log.error(request.marker(), "PasientlisteForesporsel error", e)
                 throw e
             } finally {
                 httpClient.close()
             }
         }
 
-        if (!isProdEnv()) {
-            log.info("PasientlisteForesporsel result: {}", result)
-        }
+        log.debug(request.marker(), "PasientlisteForesporsel result: {}", result)
 
         return FellesFormatXmlMarshaller.unmarshal(result, EIFellesformat::class.java)
     }

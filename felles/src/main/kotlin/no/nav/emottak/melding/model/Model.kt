@@ -14,7 +14,8 @@ data class SendInRequest(
     val cpaId: String,
     val ebmsProcessing: EbmsProcessing,
     val signedOf: String? = null,
-    val requestId: String
+    val requestId: String,
+    val partnerId: Long? = null
 )
 
 @Serializable
