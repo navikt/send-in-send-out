@@ -60,6 +60,7 @@ spec:
     inbound:
       rules:
         - application: ebms-provider
+        - application: ebms-async
         - application: azure-token-generator
           namespace: aura
           cluster: dev-gcp
