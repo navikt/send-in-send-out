@@ -28,7 +28,9 @@ fun main() = SuspendApp {
             awaitCancellation()
         }
     }.onFailure { error ->
-        if (error !is CancellationException) logError(error)
+        if (error !is CancellationException) {
+            log.error("Shutdown ebms-send-in due to: ${error.stackTraceToString()}")
+        }
     }
 }
 
@@ -52,5 +54,3 @@ internal fun Application.ebmsSendInModule(prometheusMeterRegistry: PrometheusMet
     configureCoroutineDebugger()
     configureRoutes(prometheusMeterRegistry)
 }
-
-private fun logError(t: Throwable) = log.error("Shutdown ebms-send-in due to: ${t.stackTraceToString()}")
