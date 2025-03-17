@@ -17,7 +17,9 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
+import no.nav.emottak.util.birthDay
 import no.nav.emottak.util.marker
+import no.nav.emottak.util.refParam
 import no.nav.emottak.utils.isProdEnv
 import org.slf4j.LoggerFactory
 import kotlin.uuid.ExperimentalUuidApi
@@ -51,6 +53,9 @@ object FagmeldingService {
                             payload = UtbetalingXmlMarshaller.marshalToByteArray(msgHeadResponse),
                             requestId = Uuid.random().toString()
                         )
+                    }.also {
+                        val refParam = refParam(sendInRequest.asEIFellesFormat())
+                        log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
                     }
                 }
 
@@ -71,6 +76,9 @@ object FagmeldingService {
                                 requestId = Uuid.random().toString()
                             )
                         }
+                    }.also {
+                        val refParam = refParam(sendInRequest.asEIFellesFormat())
+                        log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
                     }
                 }
 
@@ -91,6 +99,9 @@ object FagmeldingService {
                                 requestId = Uuid.random().toString()
                             )
                         }
+                    }.also {
+                        val refParam = refParam(sendInRequest.asEIFellesFormat())
+                        log.info(sendInRequest.marker(), "refParam $refParam")
                     }
                 }
 
@@ -121,6 +132,8 @@ object FagmeldingService {
                                 ),
                                 requestId = Uuid.random().toString()
                             ).also {
+                                val refParam = refParam(sendInRequest.asEIFellesFormat())
+                                log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
                                 log.asJson(
                                     LogLevel.DEBUG,
                                     "Sending SendInResponse",
