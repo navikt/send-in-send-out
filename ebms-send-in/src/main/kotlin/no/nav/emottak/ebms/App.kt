@@ -35,14 +35,14 @@ fun main() = SuspendApp {
 }
 
 suspend fun ResourceScope.setupServer() {
-    val server = config().server
+    val serverConfig = config().server
 
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     server(
         Netty,
-        port = server.port,
-        preWait = server.preWait,
+        port = serverConfig.port,
+        preWait = serverConfig.preWait,
         module = { ebmsSendInModule(prometheusMeterRegistry) }
     )
 }
