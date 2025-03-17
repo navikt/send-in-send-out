@@ -34,7 +34,6 @@ fun main() = SuspendApp {
 
 suspend fun ResourceScope.setupServer() {
     val server = config().server
-    System.setProperty("io.netty.maxChunkSize", server.maxChunkSize)
 
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 

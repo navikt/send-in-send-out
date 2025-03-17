@@ -8,6 +8,5 @@ data class Config(
 
 data class Server(
     val port: Int,
-    val preWait: Duration,
-    val maxChunkSize: String
+    val preWait: Duration
 )
