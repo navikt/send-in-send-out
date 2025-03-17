@@ -4,9 +4,7 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -55,4 +53,3 @@ fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
         }
     }
 }
-
