@@ -29,7 +29,7 @@ class FellesFormatWrapperTest {
         val refParam = refParam(sendInRequest)
         log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
         log.info(marshal(sendInRequest))
-        assertEquals("311260", "${birthDay(refParam)}")
+        assertEquals("123456", "${birthDay(refParam)}")
     }
 
     @Test
@@ -38,7 +38,7 @@ class FellesFormatWrapperTest {
         val refParam = refParam(sendInRequest)
         log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
         log.info(marshal(sendInRequest))
-        assertEquals("010976", "${birthDay(refParam)}")
+        assertEquals("123456", birthDay(refParam))
     }
 
     @Test
@@ -47,7 +47,7 @@ class FellesFormatWrapperTest {
         val refParam = refParam(sendInRequest)
         log.info(sendInRequest.marker(), "refParam $refParam")
         log.info(marshal(sendInRequest))
-        assertEquals("4", "$refParam")
+        assertEquals("2", refParam)
     }
 
     @Test
@@ -56,6 +56,6 @@ class FellesFormatWrapperTest {
         val refParam = refParam(sendInRequest)
         log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
         log.info(marshal(sendInRequest))
-        assertEquals("221100", "${birthDay(refParam)}")
+        assertEquals("******", birthDay(refParam))
     }
 }
