@@ -1,4 +1,4 @@
-package no.nav.emottak.ebms.routes
+package no.nav.emottak.ebms.route
 
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText

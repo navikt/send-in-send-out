@@ -1,11 +1,10 @@
 package no.nav.emottak.cxf
+
 import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.headers.Header
 import org.apache.cxf.jaxb.JAXBDataBinding
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.cxf.transport.http.HTTPConduit
-import org.apache.cxf.ws.addressing.WSAddressingFeature
-import org.apache.cxf.ws.security.SecurityConstants
 import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor
 import org.apache.wss4j.common.ConfigurationConstants
 import org.apache.wss4j.common.ext.WSPasswordCallback
@@ -51,43 +50,15 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
         return this
     }
 
-    fun withAddressing(): ServiceBuilder<T> {
-        factoryBean.features.add(WSAddressingFeature())
-        return this
-    }
-
-    fun withTimeout(): ServiceBuilder<T> {
-        factoryBean.features.add(TimeoutFeature(RECEIVE_TIMEOUT, CONNECTION_TIMEOUT))
-        return this
-    }
-
     fun get(): JaxWsProxyFactoryBean {
         return factoryBean
-    }
-
-    fun withProperties(): ServiceBuilder<T> {
-        val props: MutableMap<String, Any> = HashMap()
-        props["mtom-enabled"] = "true"
-        props[SecurityConstants.MUST_UNDERSTAND] = false
-        // Denne må settes for å unngå at CXF instansierer EhCache med en non-default konfigurasjon. Denne sørger
-        // for at vår konfigurasjon faktisk blir lastet.
-        //  props.put(SecurityConstants.CACHE_CONFIG_FILE, "ehcache.xml");
-        factoryBean.properties = props
-        return this
     }
 
     fun build(): PortTypeBuilder<T> {
         return PortTypeBuilder<T>(factoryBean.create(resultClass))
     }
 
-    fun asStandardService(): ServiceBuilder<T> {
-        return withAddressing()
-            .withLogging()
-            .withTimeout()
-            .withProperties()
-    }
-
-    inner class PortTypeBuilder<R> constructor(val portType: R) {
+    inner class PortTypeBuilder<R>(val portType: R) {
         fun withBasicSecurity(username: String, password: String): PortTypeBuilder<R> {
             val conduit: HTTPConduit = ClientProxy.getClient(portType).conduit as HTTPConduit
             conduit.authorization.userName = username
@@ -125,10 +96,5 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
         fun get(): R {
             return portType
         }
-    }
-
-    companion object {
-        const val RECEIVE_TIMEOUT = 30000
-        const val CONNECTION_TIMEOUT = 10000
     }
 }

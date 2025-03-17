@@ -1,4 +1,4 @@
-package no.nav.emottak.ebms.routes
+package no.nav.emottak.ebms.route
 
 import arrow.core.Either
 import arrow.core.getOrElse
