@@ -1,9 +1,10 @@
-package no.nav.emottak.ebms
+package no.nav.emottak.ebms.service
 
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.emottak.ebms.SupportedService.Companion.toSupportedService
+import no.nav.emottak.ebms.utils.SupportedServiceType
+import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
@@ -24,7 +25,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object FagmeldingService {
-    private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.FagmeldingService")
+    private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
     @OptIn(ExperimentalUuidApi::class)
     fun processRequest(
@@ -32,7 +33,7 @@ object FagmeldingService {
         meterRegistry: MeterRegistry
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
-            SupportedService.Inntektsforesporsel ->
+            SupportedServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
                     Either.catch {
                         UtbetalingClient.behandleInntektsforesporsel(
@@ -54,7 +55,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.HarBorgerEgenandelFritak, SupportedService.HarBorgerFrikort ->
+            SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
                     with(sendInRequest.asEIFellesFormat()) {
                         frikortsporring(this).let { response ->
@@ -74,7 +75,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.HarBorgerFrikortMengde ->
+            SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
                     with(sendInRequest.asEIFellesFormat()) {
                         frikortsporringMengde(this).let { response ->
@@ -94,7 +95,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.PasientlisteForesporsel ->
+            SupportedServiceType.PasientlisteForesporsel ->
                 timed(meterRegistry, "PasientlisteForesporsel") {
                     if (isProdEnv()) {
                         throw NotImplementedError(
@@ -133,7 +134,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.Unsupported ->
+            SupportedServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
