@@ -1,6 +1,6 @@
-package no.nav.emottak.ebms
+package no.nav.emottak.ebms.utils
 
-internal enum class SupportedService(val service: String) {
+internal enum class SupportedServiceType(val service: String) {
     HarBorgerEgenandelFritak("HarBorgerEgenandelFritak"),
     HarBorgerFrikort("HarBorgerFrikort"),
     HarBorgerFrikortMengde("HarBorgerFrikortMengde"),
@@ -9,11 +9,11 @@ internal enum class SupportedService(val service: String) {
     Unsupported("Unsupported");
 
     companion object {
-        fun String.toSupportedService(): SupportedService = try {
-            SupportedService.valueOf(this)
+        fun String.toSupportedService(): SupportedServiceType = try {
+            SupportedServiceType.valueOf(this)
         } catch (e: IllegalArgumentException) {
             Unsupported
         }
-        fun SupportedService.isSupportedService(): Boolean = this != Unsupported
+        fun SupportedServiceType.isSupportedService(): Boolean = this != Unsupported
     }
 }

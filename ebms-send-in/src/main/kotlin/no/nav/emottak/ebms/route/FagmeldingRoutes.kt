@@ -1,10 +1,10 @@
-package no.nav.emottak.ebms
+package no.nav.emottak.ebms.route
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import arrow.core.raise.either
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
-import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
@@ -12,6 +12,9 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
+import no.nav.emottak.ebms.log
+import no.nav.emottak.ebms.service.FagmeldingService
+import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.util.marker
@@ -19,11 +22,9 @@ import no.nav.emottak.util.marker
 fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
-            val sendInRequest = try {
-                call.receive(SendInRequest::class)
-            } catch (e: Exception) {
-                log.error("SendInRequest mapping error", e)
-                call.respond(HttpStatusCode.BadRequest, e.localizedMessage ?: "Mapping error")
+            val sendInRequest = call.receiveEither<SendInRequest>().getOrElse { error ->
+                log.error("SendInRequest mapping error", error)
+                call.respond(HttpStatusCode.BadRequest, error.localizedMessage ?: "Mapping error")
                 return@post
             }
 
