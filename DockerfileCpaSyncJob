@@ -1,0 +1,1 @@
+FROM ghcr.io/curl/curl-container/curl:master
