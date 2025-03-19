@@ -73,6 +73,7 @@ dependencies {
     implementation(libs.sqldelight.jdbc.driver)
     implementation(libs.sqldelight.primitive.adapters)
     implementation(libs.token.validation.ktor.v3)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation("javax.activation:activation:1.1.1")
     testImplementation(libs.apache.santuario)
