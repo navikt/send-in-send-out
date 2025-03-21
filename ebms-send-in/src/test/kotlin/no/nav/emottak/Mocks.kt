@@ -13,6 +13,11 @@ val validSendInPasientlisteRequest = lazy {
     mockSendInRequest("PasientisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "123456789")
 }
 
+val invalidPidSendInPasientlisteRequest = lazy {
+    val fagmelding = ClassLoader.getSystemResourceAsStream("hentpasientliste/hentpasientliste-payload-invalidPid.xml")
+    mockSendInRequest("PasientisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "11223312345")
+}
+
 val validSendInHarBorgerFrikortRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelForesporsel_HarBorgerFrikortRequest.xml")
     mockSendInRequest("HarBorgerFrikort", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789")
