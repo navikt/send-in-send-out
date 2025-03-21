@@ -25,7 +25,7 @@ object PasientlisteValidator {
     }
 
     fun EIFellesformat.validateSignerIsValidPid() {
-        when (PidValidator.isValidFodselsnummer(this.mottakenhetBlokk.avsenderFnrFraDigSignatur)) {
+        when (PidValidator.isValidPid(this.mottakenhetBlokk.avsenderFnrFraDigSignatur)) {
             true -> log.info(this.marker(), "Successfully validated that signer (lege) is a valid PID (FNR)")
             false -> {
                 log.error(this.marker(), "Signer (lege) was not a valid PID (FNR)")
