@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 class PidValidatorTest {
 
     @Test
-    fun `Should accept FNR`()  = assert(PidValidator.isValidFodselsnummer("13097248022"))
+    fun `Should accept FNR`() = assert(PidValidator.isValidFodselsnummer("13097248022"))
 
     @Test
     fun `Should accept DNR`() {
