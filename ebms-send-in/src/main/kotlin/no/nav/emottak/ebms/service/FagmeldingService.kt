@@ -18,7 +18,6 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
-import no.nav.emottak.util.marker
 import no.nav.emottak.utils.isProdEnv
 import org.slf4j.LoggerFactory
 import kotlin.uuid.ExperimentalUuidApi
@@ -103,12 +102,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.asXml(
-                            LogLevel.DEBUG,
-                            "Wrapped message (fellesformatRequest)",
-                            this,
-                            sendInRequest.marker()
-                        )
+                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this)
                         PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
                             SendInResponse(
                                 messageId = sendInRequest.messageId,
@@ -126,8 +120,7 @@ object FagmeldingService {
                                     LogLevel.DEBUG,
                                     "Sending SendInResponse",
                                     it,
-                                    SendInResponse.serializer(),
-                                    sendInRequest.marker()
+                                    SendInResponse.serializer()
                                 )
                             }
                         }
