@@ -3,7 +3,6 @@ package no.nav.emottak.frikort
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
-import no.nav.emottak.util.marker
 import no.nav.emottak.utils.getEnvVar
 import no.nav.emottak.utils.getSecret
 import no.nav.tjeneste.ekstern.frikort.v1.FrikortV1Port
@@ -31,7 +30,6 @@ fun frikortEndpoint(): FrikortV1Port =
 
 fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
     log.debug(
-        fellesformat.marker(),
         "Sending in frikortsporring request with body: " + FellesFormatXmlMarshaller.marshal(fellesformat)
     )
 
@@ -43,15 +41,13 @@ fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
 }
 
 fun frikortsporringMengde(fellesformat: EIFellesformat): FrikortsporringMengdeResponse {
-    val marker = fellesformat.marker()
     log.debug(
-        marker,
         "Sending in frikortsporringMengde request with body: " + FellesFormatXmlMarshaller.marshal(fellesformat)
     )
 
     return frikortEndpoint.frikortsporringMengde(
         frikortObjectFactory.createFrikortsporringMengdeRequest().also { it.eiFellesformat = fellesformat }
     ).also {
-        log.debug(marker, "Send in FrikortMengde response " + FellesFormatXmlMarshaller.marshal(it))
+        log.debug("Send in FrikortMengde response " + FellesFormatXmlMarshaller.marshal(it))
     }
 }
