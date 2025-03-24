@@ -6,13 +6,7 @@ abstract class PidValidator {
     companion object {
 
         fun isValidPid(pid: String): Boolean {
-            if (!is11Numbers(pid)) {
-                return false
-            }
-            if (!isValidFodselsdato(pid)) {
-                return false
-            }
-            return hasValidControlNumbers(pid)
+            return is11Numbers(pid) && isValidFodselsdato(pid) && hasValidControlNumbers(pid)
         }
 
         fun isValidFnr(fnr: String): Boolean {
