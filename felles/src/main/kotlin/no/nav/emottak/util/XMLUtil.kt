@@ -21,48 +21,6 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-const val BIRTHDAY: Int = 6
-const val FNUMBER: Int = 11
-
-fun refParamFrikort(foresporsel: Any): String {
-    return when (foresporsel) {
-        is EgenandelForesporselV2 -> {
-            foresporsel.harBorgerEgenandelfritak?.borgerFnr ?: foresporsel.harBorgerFrikort?.borgerFnr ?: "NA"
-        }
-        is EgenandelForesporsel -> {
-            foresporsel.harBorgerEgenandelfritak?.borgerFnr ?: foresporsel.harBorgerFrikort?.borgerFnr ?: "NA"
-        }
-        is EgenandelMengdeForesporselV2 -> {
-            foresporsel.harBorgerFrikort?.size.toString() ?: "NA"
-        }
-        is EgenandelMengdeForesporsel -> {
-            foresporsel.harBorgerFrikort?.size.toString() ?: "NA"
-        }
-        else -> "NA"
-    }
-}
-
-fun refParam(fellesformat: EIFellesformat): String {
-    val foresporsel = fellesformat.msgHead.document.first().refDoc.content.any.first()
-
-    return when (foresporsel) {
-        is PasientlisteForesporsel -> {
-            foresporsel.hentPasientliste?.fnrLege ?: "NA"
-        }
-        is FinnUtbetalingListe -> {
-            foresporsel.request.bruker?.brukerId ?: "NA"
-        }
-        else -> "NA"
-    }
-}
-
-fun birthDay(fnr: String): String {
-    if (fnr.length != FNUMBER) {
-        return "NA"
-    }
-    return fnr.substring(0, BIRTHDAY)
-}
-
 fun createDocument(inputstream: InputStream): Document {
     val dbf = DocumentBuilderFactory.newInstance()
     dbf.isNamespaceAware = true

@@ -143,7 +143,7 @@ object FagmeldingService {
                                 ),
                                 requestId = Uuid.random().toString()
                             ).also {
-                                val refParam = refParam(sendInRequest.asEIFellesFormat())
+                                val refParam = refParam(this)
                                 log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
                                 log.asJson(
                                     LogLevel.DEBUG,
