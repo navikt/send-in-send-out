@@ -1,6 +1,7 @@
 package no.nav.emottak.pasientliste
 
 import no.nav.emottak.pasientliste.validator.PasientlisteValidator.validateLegeIsAlsoSigner
+import no.nav.emottak.pasientliste.validator.PasientlisteValidator.validateSignerIsValidPid
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asXml
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -15,6 +16,7 @@ object PasientlisteService {
         when (fellesformatRequest.mottakenhetBlokk.ebAction) {
             "HentPasientliste", "StartAbonnement", "StoppAbonnement", "HentAbonnementStatus" -> {
                 fellesformatRequest.validateLegeIsAlsoSigner()
+                fellesformatRequest.validateSignerIsValidPid()
                 forwardRequest(fellesformatRequest)
             }
             else -> throw NotImplementedError(

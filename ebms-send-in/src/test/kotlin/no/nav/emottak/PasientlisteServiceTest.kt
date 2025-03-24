@@ -35,6 +35,15 @@ class PasientlisteServiceTest {
     }
 
     @Test
+    fun `Should throw exception when senderFnr (SSN) matches request's signedOf, but signedOf is not a valid PID`() {
+        try {
+            PasientlisteService.pasientlisteForesporsel(invalidPidSendInPasientlisteRequest.value.asEIFellesFormat())
+        } catch (exception: RuntimeException) {
+            Assertions.assertEquals(exception.message, PasientlisteValidator.CONFLICT_INVALID_FNR)
+        }
+    }
+
+    @Test
     fun `Should not throw exception when senderFnr (SSN) matches request's signedOf`() {
         val fellesformat = validSendInPasientlisteRequest.value.copy(
             signedOf = "17087000133"
