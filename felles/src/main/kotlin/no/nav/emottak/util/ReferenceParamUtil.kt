@@ -22,7 +22,7 @@ fun refParamFrikort(foresporsel: Any): String {
         is EgenandelMengdeForesporselV2 -> {
             foresporsel.harBorgerFrikort?.size.toString() ?: "NA"
         }
-       is EgenandelMengdeForesporsel -> {
+        is EgenandelMengdeForesporsel -> {
             foresporsel.harBorgerFrikort?.size.toString() ?: "NA"
         }
         else -> "NA"
