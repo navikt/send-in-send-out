@@ -28,20 +28,21 @@ fun main() = SuspendApp {
             awaitCancellation()
         }
     }.onFailure { error ->
-        if (error !is CancellationException) logError(error)
+        if (error !is CancellationException) {
+            log.error("Shutdown ebms-send-in due to: ${error.stackTraceToString()}")
+        }
     }
 }
 
 suspend fun ResourceScope.setupServer() {
-    val server = config().server
-    System.setProperty("io.netty.maxChunkSize", server.maxChunkSize)
+    val serverConfig = config().server
 
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     server(
         Netty,
-        port = server.port,
-        preWait = server.preWait,
+        port = serverConfig.port,
+        preWait = serverConfig.preWait,
         module = { ebmsSendInModule(prometheusMeterRegistry) }
     )
 }
@@ -53,5 +54,3 @@ internal fun Application.ebmsSendInModule(prometheusMeterRegistry: PrometheusMet
     configureCoroutineDebugger()
     configureRoutes(prometheusMeterRegistry)
 }
-
-private fun logError(t: Throwable) = log.error("Shutdown ebms-send-in due to: ${t.stackTraceToString()}")

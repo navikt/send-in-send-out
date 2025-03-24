@@ -3,14 +3,13 @@ package no.nav.emottak.ebms
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import no.kith.xmlstds.msghead._2006_05_24.MsgHead
-import no.nav.emottak.ebms.SupportedService.Companion.toSupportedService
+import no.nav.emottak.ebms.utils.SupportedServiceType
+import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
-import no.nav.emottak.frikort.unmarshal
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
@@ -29,7 +28,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object FagmeldingService {
-    private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.FagmeldingService")
+    private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
     @OptIn(ExperimentalUuidApi::class)
     fun processRequest(
@@ -37,7 +36,7 @@ object FagmeldingService {
         meterRegistry: MeterRegistry
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
-            SupportedService.Inntektsforesporsel ->
+            SupportedServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
                     Either.catch {
                         UtbetalingClient.behandleInntektsforesporsel(
@@ -62,7 +61,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.HarBorgerEgenandelFritak, SupportedService.HarBorgerFrikort ->
+            SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
                     with(sendInRequest.asEIFellesFormat()) {
                         frikortsporring(this).let { response ->
@@ -89,7 +88,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.HarBorgerFrikortMengde ->
+            SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
                     with(sendInRequest.asEIFellesFormat()) {
                         frikortsporringMengde(this).let { response ->
@@ -116,7 +115,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedService.PasientlisteForesporsel ->
+            SupportedServiceType.PasientlisteForesporsel ->
                 timed(meterRegistry, "PasientlisteForesporsel") {
                     if (isProdEnv()) {
                         throw NotImplementedError(
@@ -124,12 +123,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.asXml(
-                            LogLevel.DEBUG,
-                            "Wrapped message (fellesformatRequest)",
-                            this,
-                            sendInRequest.marker()
-                        )
+                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this)
                         PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
                             SendInResponse(
                                 messageId = sendInRequest.messageId,
@@ -149,15 +143,14 @@ object FagmeldingService {
                                     LogLevel.DEBUG,
                                     "Sending SendInResponse",
                                     it,
-                                    SendInResponse.serializer(),
-                                    sendInRequest.marker()
+                                    SendInResponse.serializer()
                                 )
                             }
                         }
                     }
                 }
 
-            SupportedService.Unsupported ->
+            SupportedServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
