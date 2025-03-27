@@ -40,7 +40,7 @@ tasks {
 
 dependencies {
     implementation(project(":felles"))
-    implementation("no.nav.emottak:emottak-utils:0.0.7")
+    implementation("no.nav.emottak:emottak-utils:0.1.0")
     implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
     implementation(libs.hoplite.core)
     implementation(libs.hoplite.hocon)
