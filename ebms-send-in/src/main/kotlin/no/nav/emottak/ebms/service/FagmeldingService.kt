@@ -8,6 +8,7 @@ import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedServi
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.frikort.FrikortXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.melding.model.SendInRequest
@@ -102,7 +103,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this)
+                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FrikortXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
                             SendInResponse(
                                 messageId = sendInRequest.messageId,
