@@ -3,7 +3,6 @@ package no.nav.emottak.ebms.service
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import no.kith.xmlstds.nav.pasientliste._2010_02_01.PasientlisteForesporsel
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
