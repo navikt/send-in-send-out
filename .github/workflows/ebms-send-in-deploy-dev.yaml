@@ -9,7 +9,6 @@ on:
       - dev/**
     paths:
       - ebms-send-in/**
-      - felles/**
       - .github/workflows/ebms-send-in-deploy-dev.yaml
 
 env:

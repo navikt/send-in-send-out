@@ -47,7 +47,7 @@ fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
                         )
                     },
                     { response ->
-                        log.debug("Payload ${sendInRequest.payloadId} forwarding complete, returning response")
+                        log.info("Payload ${sendInRequest.payloadId} forwarding complete, returning response")
                         call.respond(response)
                     }
                 )
