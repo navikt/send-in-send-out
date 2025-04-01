@@ -75,7 +75,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation("javax.activation:javax.activation-api:1.2.0")
+    implementation(("javax.activation:activation:1.1.1"))
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)
