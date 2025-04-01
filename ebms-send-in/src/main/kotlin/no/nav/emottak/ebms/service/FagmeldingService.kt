@@ -102,7 +102,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this)
+                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
                             SendInResponse(
                                 messageId = sendInRequest.messageId,
