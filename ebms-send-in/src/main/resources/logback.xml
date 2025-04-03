@@ -2,12 +2,11 @@
 <configuration>
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <providers>
-                <mdc>
-                    <fieldName/>
-                </mdc>
-                <arguments/>
-            </providers>
+            <provider class="net.logstash.logback.composite.loggingevent.MdcJsonProvider">
+                <fieldName/>
+            </provider>
+            <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider"/>
+
             <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
                 <valueMask>
                     <value>\d{11}</value>
