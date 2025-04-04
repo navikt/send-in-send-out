@@ -1,7 +1,7 @@
 package no.nav.emottak.ebms.plugin
 
 import io.ktor.server.application.Application
-import no.nav.emottak.utils.isProdEnv
+import no.nav.emottak.utils.environment.isProdEnv
 
 fun Application.configureCoroutineDebugger() {
     if (!isProdEnv()) {
