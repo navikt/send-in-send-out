@@ -1,4 +1,4 @@
-package no.nav.emottak.ebms.utils
+package no.nav.emottak.ebms.utils.extensions
 
 import arrow.core.Either
 import io.ktor.server.application.ApplicationCall
