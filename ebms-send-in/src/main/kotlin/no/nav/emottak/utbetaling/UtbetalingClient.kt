@@ -43,6 +43,7 @@ object UtbetalingClient {
     val UTBETAL_SOAP_ENDPOINT = "$RESOLVED_UTBETAL_URL/Utbetaling"
 
     fun behandleInntektsforesporsel(parentMessageId: String, conversationId: String, payload: ByteArray): MsgHead {
+        log.debug("Behandler Inntektsforespørsel: ${String(payload)}")
         val msgHeadRequest = UtbetalingXmlMarshaller.unmarshal(payload.toString(Charsets.UTF_8), MsgHead::class.java)
         val orgnr = msgHeadRequest.msgInfo.sender.organisation.ident.firstOrNull { it.typeId.v == "ENH" }?.id
 
