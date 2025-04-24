@@ -1,4 +1,4 @@
-package no.nav.emottak.ebms.utils
+package no.nav.emottak.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +49,7 @@ fun EventLoggingService.registerEvent(
     log.debug("Registering event: $eventType, $sendInResponse")
     try {
         val requestId = sendInResponse.requestId.parseOrGenerateUuid()
-        publishEvent(eventType, requestId, sendInResponse.messageId, eventData)
+        publishEvent(eventType, requestId, "", eventData)
     } catch (e: Exception) {
         log.error("Error while registering event: ${e.getErrorMessage()}", e)
     }

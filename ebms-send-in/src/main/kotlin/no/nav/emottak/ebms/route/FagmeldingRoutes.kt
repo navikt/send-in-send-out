@@ -18,7 +18,10 @@ import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.util.registerEvent
+import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.kafka.service.EventLoggingService
+import no.nav.emottak.utils.serialization.toEventDataJson
 
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
@@ -45,6 +48,11 @@ fun Route.fagmeldingRoutes(
                 result.fold(
                     { error ->
                         log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
+                        eventLoggingService.registerEvent(
+                            EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+                            sendInRequest,
+                            Exception(error).toEventDataJson()
+                        )
                         call.respond(
                             HttpStatusCode.BadRequest,
                             error.localizedMessage ?: error.javaClass.simpleName

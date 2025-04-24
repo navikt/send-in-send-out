@@ -5,7 +5,6 @@ import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
-import no.nav.emottak.ebms.utils.registerEvent
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
@@ -19,6 +18,7 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
+import no.nav.emottak.util.registerEvent
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.kafka.service.EventLoggingService
