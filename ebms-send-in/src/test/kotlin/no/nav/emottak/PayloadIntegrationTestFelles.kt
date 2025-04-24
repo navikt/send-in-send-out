@@ -1,14 +1,22 @@
 package no.nav.emottak
 
 import com.nimbusds.jwt.SignedJWT
+import com.sksamuel.hoplite.Masked
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import io.mockk.mockk
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.ebms.ebmsSendInModule
+import no.nav.emottak.kafka.KafkaTestContainer
+import no.nav.emottak.utils.config.Kafka
+import no.nav.emottak.utils.config.KeystoreLocation
+import no.nav.emottak.utils.config.KeystoreType
+import no.nav.emottak.utils.config.SecurityProtocol
+import no.nav.emottak.utils.config.TruststoreLocation
+import no.nav.emottak.utils.config.TruststoreType
+import no.nav.emottak.utils.kafka.client.EventPublisherClient
 import no.nav.emottak.utils.kafka.service.EventLoggingService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import okhttp3.mockwebserver.MockResponse
@@ -33,12 +41,18 @@ abstract class PayloadIntegrationTestFelles(
 
     companion object {
         protected lateinit var mockOAuth2Server: MockOAuth2Server
+        protected lateinit var kafkaTestConfig: Kafka
 
         @JvmStatic
         @BeforeAll
         fun setUpAll() {
             println("=== Initializing MockOAuth2Server ===")
             mockOAuth2Server = MockOAuth2Server().also { it.start(port = 3344) }
+
+            println("=== Initializing KafkaTestContainer ===")
+            KafkaTestContainer.start()
+            KafkaTestContainer.createTopic("test-topic")
+            kafkaTestConfig = buildKafkaTestConfig(KafkaTestContainer.kafkaContainer.bootstrapServers)
         }
 
         @JvmStatic
@@ -46,7 +60,23 @@ abstract class PayloadIntegrationTestFelles(
         fun tearDownAll() {
             println("=== Stopping MockOAuth2Server ===")
             mockOAuth2Server.shutdown()
+            println("=== Stopping KafkaTestContainer ===")
+            KafkaTestContainer.stop()
         }
+
+        private fun buildKafkaTestConfig(bootstrapServers: String) = Kafka(
+            bootstrapServers = bootstrapServers,
+            securityProtocol = SecurityProtocol("PLAINTEXT"),
+            keystoreType = KeystoreType(""),
+            keystoreLocation = KeystoreLocation(""),
+            keystorePassword = Masked(""),
+            truststoreType = TruststoreType(""),
+            truststoreLocation = TruststoreLocation(""),
+            truststorePassword = Masked(""),
+            groupId = "ebms-send-in",
+            topic = "test-topic",
+            eventLoggingProducerActive = true
+        )
     }
 
     protected fun <T> ebmsSendInTestApp(
@@ -61,7 +91,9 @@ abstract class PayloadIntegrationTestFelles(
             )
         )
         val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-        val eventLoggingService = mockk<EventLoggingService>(relaxed = true)
+
+        val kafkaPublisherClient = EventPublisherClient(kafkaTestConfig)
+        val eventLoggingService = EventLoggingService(kafkaPublisherClient)
 
         application {
             ebmsSendInModule(meterRegistry, eventLoggingService)

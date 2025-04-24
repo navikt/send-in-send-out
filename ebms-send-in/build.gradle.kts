@@ -84,6 +84,8 @@ dependencies {
     testImplementation(testLibs.mockk.dsl.jvm)
     testImplementation(testLibs.mockk.jvm)
     testRuntimeOnly(testLibs.junit.jupiter.engine)
+    testImplementation("org.apache.kafka:kafka-clients:3.5.1")
+    testImplementation("org.testcontainers:kafka:1.19.0")
 }
 
 application {
