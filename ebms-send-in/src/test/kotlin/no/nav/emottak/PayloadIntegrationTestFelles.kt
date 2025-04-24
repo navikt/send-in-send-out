@@ -5,9 +5,11 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.mockk.mockk
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.ebms.ebmsSendInModule
+import no.nav.emottak.utils.kafka.service.EventLoggingService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -59,9 +61,10 @@ abstract class PayloadIntegrationTestFelles(
             )
         )
         val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+        val eventLoggingService = mockk<EventLoggingService>(relaxed = true)
 
         application {
-            ebmsSendInModule(meterRegistry)
+            ebmsSendInModule(meterRegistry, eventLoggingService)
         }
         testBlock()
     }

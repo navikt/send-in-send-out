@@ -5,10 +5,14 @@ import io.ktor.server.routing.routing
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.emottak.ebms.route.fagmeldingRoutes
 import no.nav.emottak.ebms.route.healthcheckRoutes
+import no.nav.emottak.utils.kafka.service.EventLoggingService
 
-fun Application.configureRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
+fun Application.configureRoutes(
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    eventLoggingService: EventLoggingService
+) {
     routing {
-        fagmeldingRoutes(prometheusMeterRegistry)
+        fagmeldingRoutes(prometheusMeterRegistry, eventLoggingService)
         healthcheckRoutes(prometheusMeterRegistry)
     }
 }

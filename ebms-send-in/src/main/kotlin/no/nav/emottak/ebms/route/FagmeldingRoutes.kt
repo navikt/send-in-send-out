@@ -18,8 +18,12 @@ import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.utils.kafka.service.EventLoggingService
 
-fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
+fun Route.fagmeldingRoutes(
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    eventLoggingService: EventLoggingService
+) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
             val sendInRequest = call.receiveEither<SendInRequest>().getOrElse { error ->
@@ -35,7 +39,7 @@ fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
                 val result: Either<Throwable, SendInResponse> = either {
-                    FagmeldingService.processRequest(sendInRequest, prometheusMeterRegistry).bind()
+                    FagmeldingService.processRequest(sendInRequest, prometheusMeterRegistry, eventLoggingService).bind()
                 }
 
                 result.fold(

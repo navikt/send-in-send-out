@@ -26,7 +26,7 @@ dependencyResolutionManagement {
             version("sqldelight", "2.0.2")
             version("postgres", "42.7.4")
             version("vault-jdbc", "1.3.10")
-            version("emottak-utils", "0.2.0")
+            version("emottak-utils", "0.2.2")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
             library("arrow-functions", "io.arrow-kt", "arrow-functions").versionRef("arrow")

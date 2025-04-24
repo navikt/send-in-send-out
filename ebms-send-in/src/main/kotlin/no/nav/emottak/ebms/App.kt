@@ -17,6 +17,8 @@ import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
+import no.nav.emottak.utils.kafka.client.EventPublisherClient
+import no.nav.emottak.utils.kafka.service.EventLoggingService
 import org.slf4j.LoggerFactory
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.ebms.App")
@@ -39,18 +41,24 @@ suspend fun ResourceScope.setupServer() {
 
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
+    val kafkaPublisherClient = EventPublisherClient(config().kafka)
+    val eventLoggingService = EventLoggingService(kafkaPublisherClient)
+
     server(
         Netty,
         port = serverConfig.port,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventLoggingService) }
     )
 }
 
-internal fun Application.ebmsSendInModule(prometheusMeterRegistry: PrometheusMeterRegistry) {
+internal fun Application.ebmsSendInModule(
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    eventLoggingService: EventLoggingService
+) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry)
+    configureRoutes(prometheusMeterRegistry, eventLoggingService)
 }
