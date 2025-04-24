@@ -36,7 +36,6 @@ private fun EventLoggingService.publishEvent(
         log.debug("Event published successfully")
     } catch (e: Exception) {
         log.error("Error while publishing event: ${e.getErrorMessage()}", e)
-        return
     }
 }
 
