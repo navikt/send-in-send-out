@@ -56,41 +56,41 @@ object FagmeldingService {
 
             SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
-                    with(sendInRequest.asEIFellesFormat()) {
-                        frikortsporring(this).let { response ->
-                            SendInResponse(
-                                messageId = sendInRequest.messageId,
-                                conversationId = sendInRequest.conversationId,
-                                addressing = sendInRequest.addressing.replyTo(
-                                    response.eiFellesformat.mottakenhetBlokk.ebService,
-                                    response.eiFellesformat.mottakenhetBlokk.ebAction
-                                ),
-                                payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                                    response.eiFellesformat.msgHead
-                                ),
-                                requestId = Uuid.random().toString()
-                            )
-                        }
+                    Either.catch {
+                        frikortsporring(sendInRequest.asEIFellesFormat())
+                    }.bind().let { response ->
+                        SendInResponse(
+                            messageId = sendInRequest.messageId,
+                            conversationId = sendInRequest.conversationId,
+                            addressing = sendInRequest.addressing.replyTo(
+                                response.eiFellesformat.mottakenhetBlokk.ebService,
+                                response.eiFellesformat.mottakenhetBlokk.ebAction
+                            ),
+                            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+                                response.eiFellesformat.msgHead
+                            ),
+                            requestId = Uuid.random().toString()
+                        )
                     }
                 }
 
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
-                    with(sendInRequest.asEIFellesFormat()) {
-                        frikortsporringMengde(this).let { response ->
-                            SendInResponse(
-                                messageId = sendInRequest.messageId,
-                                conversationId = sendInRequest.conversationId,
-                                addressing = sendInRequest.addressing.replyTo(
-                                    response.eiFellesformat.mottakenhetBlokk.ebService,
-                                    response.eiFellesformat.mottakenhetBlokk.ebAction
-                                ),
-                                payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                                    response.eiFellesformat.msgHead
-                                ),
-                                requestId = Uuid.random().toString()
-                            )
-                        }
+                    Either.catch {
+                        frikortsporringMengde(sendInRequest.asEIFellesFormat())
+                    }.bind().let { response ->
+                        SendInResponse(
+                            messageId = sendInRequest.messageId,
+                            conversationId = sendInRequest.conversationId,
+                            addressing = sendInRequest.addressing.replyTo(
+                                response.eiFellesformat.mottakenhetBlokk.ebService,
+                                response.eiFellesformat.mottakenhetBlokk.ebAction
+                            ),
+                            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+                                response.eiFellesformat.msgHead
+                            ),
+                            requestId = Uuid.random().toString()
+                        )
                     }
                 }
 
