@@ -1,7 +1,6 @@
 package no.nav.emottak.util
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.emottak.ebms.log
 import no.nav.emottak.melding.model.SendInRequest
@@ -19,23 +18,24 @@ private fun EventLoggingService.publishEvent(
     eventType: EventType,
     requestId: Uuid,
     messageId: String,
-    eventData: String
+    eventData: String,
+    scope: CoroutineScope
 ) {
-    try {
-        val event = Event(
-            eventType = eventType,
-            requestId = requestId,
-            contentId = "",
-            messageId = messageId,
-            eventData = eventData
-        )
-        log.debug("Publishing event: $event")
-        CoroutineScope(Dispatchers.IO).launch {
-            this@publishEvent.logEvent(event)
+    val event = Event(
+        eventType = eventType,
+        requestId = requestId,
+        contentId = "",
+        messageId = messageId,
+        eventData = eventData
+    )
+    log.debug("Publishing event: $event")
+
+    scope.launch {
+        this@publishEvent.logEvent(event).onSuccess {
+            log.debug("Event published successfully")
+        }.onFailure { e ->
+            log.error("Error while publishing event: ${Exception(e).getErrorMessage()}", e)
         }
-        log.debug("Event published successfully")
-    } catch (e: Exception) {
-        log.error("Error while publishing event: ${e.getErrorMessage()}", e)
     }
 }
 
@@ -43,12 +43,13 @@ private fun EventLoggingService.publishEvent(
 fun EventLoggingService.registerEvent(
     eventType: EventType,
     sendInResponse: SendInResponse,
-    eventData: String = ""
+    eventData: String = "",
+    scope: CoroutineScope
 ) {
     log.debug("Registering event: $eventType, $sendInResponse")
     try {
         val requestId = sendInResponse.requestId.parseOrGenerateUuid()
-        publishEvent(eventType, requestId, "", eventData)
+        publishEvent(eventType, requestId, "", eventData, scope)
     } catch (e: Exception) {
         log.error("Error while registering event: ${e.getErrorMessage()}", e)
     }
@@ -58,12 +59,13 @@ fun EventLoggingService.registerEvent(
 fun EventLoggingService.registerEvent(
     eventType: EventType,
     sendInRequest: SendInRequest,
-    eventData: String = ""
+    eventData: String = "",
+    scope: CoroutineScope
 ) {
     log.debug("Registering event: $eventType, $SendInRequest")
     try {
         val requestId = sendInRequest.requestId.parseOrGenerateUuid()
-        publishEvent(eventType, requestId, sendInRequest.messageId, eventData)
+        publishEvent(eventType, requestId, sendInRequest.messageId, eventData, scope)
     } catch (e: Exception) {
         log.error("Error while registering event: ${e.getErrorMessage()}", e)
     }

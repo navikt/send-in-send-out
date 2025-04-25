@@ -76,6 +76,7 @@ dependencies {
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation(("javax.activation:activation:1.1.1"))
+    implementation("org.apache.kafka:kafka-clients:3.5.1")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)
@@ -84,7 +85,6 @@ dependencies {
     testImplementation(testLibs.mockk.dsl.jvm)
     testImplementation(testLibs.mockk.jvm)
     testRuntimeOnly(testLibs.junit.jupiter.engine)
-    testImplementation("org.apache.kafka:kafka-clients:3.5.1")
     testImplementation("org.testcontainers:kafka:1.19.0")
 }
 

@@ -9,6 +9,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
@@ -25,7 +26,8 @@ import no.nav.emottak.utils.serialization.toEventDataJson
 
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventLoggingService: EventLoggingService
+    eventLoggingService: EventLoggingService,
+    eventRegistrationScope: CoroutineScope
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
@@ -42,7 +44,12 @@ fun Route.fagmeldingRoutes(
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
                 val result: Either<Throwable, SendInResponse> = either {
-                    FagmeldingService.processRequest(sendInRequest, prometheusMeterRegistry, eventLoggingService).bind()
+                    FagmeldingService.processRequest(
+                        sendInRequest,
+                        prometheusMeterRegistry,
+                        eventLoggingService,
+                        eventRegistrationScope
+                    ).bind()
                 }
 
                 result.fold(
@@ -51,7 +58,8 @@ fun Route.fagmeldingRoutes(
                         eventLoggingService.registerEvent(
                             EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
                             sendInRequest,
-                            Exception(error).toEventDataJson()
+                            Exception(error).toEventDataJson(),
+                            eventRegistrationScope
                         )
                         call.respond(
                             HttpStatusCode.BadRequest,

@@ -3,6 +3,7 @@ package no.nav.emottak.ebms.service
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
+import kotlinx.coroutines.CoroutineScope
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -33,7 +34,8 @@ object FagmeldingService {
     suspend fun processRequest(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
-        eventLoggingService: EventLoggingService
+        eventLoggingService: EventLoggingService,
+        eventRegistrationScope: CoroutineScope
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
@@ -46,7 +48,8 @@ object FagmeldingService {
                         ).also {
                             eventLoggingService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest
+                                sendInRequest,
+                                scope = eventRegistrationScope
                             )
                         }
                     }.bind().let { msgHeadResponse ->
@@ -69,7 +72,8 @@ object FagmeldingService {
                         frikortsporring(this).also {
                             eventLoggingService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest
+                                sendInRequest,
+                                scope = eventRegistrationScope
                             )
                         }.let { response ->
                             SendInResponse(
@@ -94,7 +98,8 @@ object FagmeldingService {
                         frikortsporringMengde(this).also {
                             eventLoggingService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest
+                                sendInRequest,
+                                scope = eventRegistrationScope
                             )
                         }.let { response ->
                             SendInResponse(
@@ -125,7 +130,8 @@ object FagmeldingService {
                         PasientlisteService.pasientlisteForesporsel(this).also {
                             eventLoggingService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest
+                                sendInRequest,
+                                scope = eventRegistrationScope
                             )
                         }.let { fellesformatResponse ->
                             SendInResponse(
@@ -158,7 +164,8 @@ object FagmeldingService {
         }.also {
             eventLoggingService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-                it
+                it,
+                scope = eventRegistrationScope
             )
         }
     }
