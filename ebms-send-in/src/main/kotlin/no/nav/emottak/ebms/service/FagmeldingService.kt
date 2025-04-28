@@ -3,6 +3,7 @@ package no.nav.emottak.ebms.service
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
+import kotlinx.coroutines.CoroutineScope
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -18,7 +19,10 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
+import no.nav.emottak.util.registerEvent
 import no.nav.emottak.utils.environment.isProdEnv
+import no.nav.emottak.utils.kafka.model.EventType
+import no.nav.emottak.utils.kafka.service.EventLoggingService
 import org.slf4j.LoggerFactory
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -27,9 +31,11 @@ object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
     @OptIn(ExperimentalUuidApi::class)
-    fun processRequest(
+    suspend fun processRequest(
         sendInRequest: SendInRequest,
-        meterRegistry: MeterRegistry
+        meterRegistry: MeterRegistry,
+        eventLoggingService: EventLoggingService,
+        eventRegistrationScope: CoroutineScope
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
@@ -39,7 +45,13 @@ object FagmeldingService {
                             sendInRequest.messageId,
                             sendInRequest.conversationId,
                             sendInRequest.payload
-                        )
+                        ).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
+                            )
+                        }
                     }.bind().let { msgHeadResponse ->
                         SendInResponse(
                             messageId = sendInRequest.messageId,
@@ -57,7 +69,13 @@ object FagmeldingService {
             SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
                     Either.catch {
-                        frikortsporring(sendInRequest.asEIFellesFormat())
+                        frikortsporring(sendInRequest.asEIFellesFormat()).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
+                            )
+                        }
                     }.bind().let { response ->
                         SendInResponse(
                             messageId = sendInRequest.messageId,
@@ -77,7 +95,13 @@ object FagmeldingService {
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
                     Either.catch {
-                        frikortsporringMengde(sendInRequest.asEIFellesFormat())
+                        frikortsporringMengde(sendInRequest.asEIFellesFormat()).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
+                            )
+                        }
                     }.bind().let { response ->
                         SendInResponse(
                             messageId = sendInRequest.messageId,
@@ -103,7 +127,13 @@ object FagmeldingService {
                     }
                     with(sendInRequest.asEIFellesFormat()) {
                         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
-                        PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
+                        PasientlisteService.pasientlisteForesporsel(this).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
+                            )
+                        }.let { fellesformatResponse ->
                             SendInResponse(
                                 messageId = sendInRequest.messageId,
                                 conversationId = sendInRequest.conversationId,
@@ -131,6 +161,12 @@ object FagmeldingService {
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
+        }.also {
+            eventLoggingService.registerEvent(
+                EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
+                it,
+                scope = eventRegistrationScope
+            )
         }
     }
 }
