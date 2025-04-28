@@ -99,7 +99,7 @@ abstract class PayloadIntegrationTestFelles(
             val kafkaPublisherClient = EventPublisherClient(kafkaTestConfig)
             val eventLoggingService = EventLoggingService(kafkaPublisherClient)
 
-            val eventRegistrationScope = this.coroutineScope(Dispatchers.IO)
+            val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
             application {
                 ebmsSendInModule(meterRegistry, eventLoggingService, eventRegistrationScope)

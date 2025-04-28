@@ -47,7 +47,7 @@ suspend fun ResourceScope.setupServer() {
     val kafkaPublisherClient = EventPublisherClient(config().kafka)
     val eventLoggingService = EventLoggingService(kafkaPublisherClient)
 
-    val eventRegistrationScope = this.coroutineScope(Dispatchers.IO)
+    val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
     server(
         Netty,

@@ -57,7 +57,7 @@ spec:
         - kvPath: /serviceuser/data/prod/srvtokt
           mountPath: /secret/serviceuser
   kafka:
-    pool: nav-dev
+    pool: nav-prod
   accessPolicy:
     inbound:
       rules:
