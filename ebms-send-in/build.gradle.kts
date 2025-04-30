@@ -39,8 +39,7 @@ tasks {
 }
 
 dependencies {
-    implementation(project(":felles"))
-    implementation("no.nav.emottak:emottak-utils:0.0.4")
+    implementation(libs.emottak.utils)
     implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
     implementation(libs.hoplite.core)
     implementation(libs.hoplite.hocon)
@@ -74,8 +73,11 @@ dependencies {
     implementation(libs.sqldelight.primitive.adapters)
     implementation(libs.token.validation.ktor.v3)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
+    implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
+    implementation("javax.xml.bind:jaxb-api:2.3.1")
+    implementation(("javax.activation:activation:1.1.1"))
+    implementation("org.apache.kafka:kafka-clients:3.5.1")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
-    testImplementation("javax.activation:activation:1.1.1")
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)
     testImplementation(testLibs.ktor.server.test.host)
@@ -83,6 +85,7 @@ dependencies {
     testImplementation(testLibs.mockk.dsl.jvm)
     testImplementation(testLibs.mockk.jvm)
     testRuntimeOnly(testLibs.junit.jupiter.engine)
+    testImplementation("org.testcontainers:kafka:1.19.0")
 }
 
 application {

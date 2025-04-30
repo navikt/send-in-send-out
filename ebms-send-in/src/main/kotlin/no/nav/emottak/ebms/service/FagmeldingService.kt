@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import kotlinx.coroutines.CoroutineScope
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -20,6 +21,10 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
+import no.nav.emottak.util.registerEvent
+import no.nav.emottak.utils.environment.isProdEnv
+import no.nav.emottak.utils.kafka.model.EventType
+import no.nav.emottak.utils.kafka.service.EventLoggingService
 import no.nav.emottak.util.birthDay
 import no.nav.emottak.util.marker
 import no.nav.emottak.util.refParam
@@ -33,9 +38,11 @@ object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
     @OptIn(ExperimentalUuidApi::class)
-    fun processRequest(
+    suspend fun processRequest(
         sendInRequest: SendInRequest,
-        meterRegistry: MeterRegistry
+        meterRegistry: MeterRegistry,
+        eventLoggingService: EventLoggingService,
+        eventRegistrationScope: CoroutineScope
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
@@ -45,7 +52,13 @@ object FagmeldingService {
                             sendInRequest.messageId,
                             sendInRequest.conversationId,
                             sendInRequest.payload
-                        )
+                        ).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
+                            )
+                        }
                     }.bind().let { msgHeadResponse ->
                         SendInResponse(
                             messageId = sendInRequest.messageId,
@@ -65,55 +78,67 @@ object FagmeldingService {
 
             SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
-                    with(sendInRequest.asEIFellesFormat()) {
-                        frikortsporring(this).let { response ->
-                            SendInResponse(
-                                messageId = sendInRequest.messageId,
-                                conversationId = sendInRequest.conversationId,
-                                addressing = sendInRequest.addressing.replyTo(
-                                    response.eiFellesformat.mottakenhetBlokk.ebService,
-                                    response.eiFellesformat.mottakenhetBlokk.ebAction
-                                ),
-                                payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                                    response.eiFellesformat.msgHead
-                                ),
-                                requestId = Uuid.random().toString()
+                    Either.catch {
+                        frikortsporring(sendInRequest.asEIFellesFormat()).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
                             )
-                        }
-                    }.also {
-                        val payload = sendInRequest.payload
-                        val msgHead = unmarshal(String(payload), MsgHead::class.java)
+                        }.also {
+                            val payload = sendInRequest.payload
+                            val msgHead = unmarshal(String(payload), MsgHead::class.java)
 
-                        val action = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-                        val refParam = refParamFrikort(action)
-                        log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
+                            val action = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+                            val refParam = refParamFrikort(action)
+                            log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
+                        }
+                    }.bind().let { response ->
+                        SendInResponse(
+                            messageId = sendInRequest.messageId,
+                            conversationId = sendInRequest.conversationId,
+                            addressing = sendInRequest.addressing.replyTo(
+                                response.eiFellesformat.mottakenhetBlokk.ebService,
+                                response.eiFellesformat.mottakenhetBlokk.ebAction
+                            ),
+                            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+                                response.eiFellesformat.msgHead
+                            ),
+                            requestId = Uuid.random().toString()
+                        )
                     }
                 }
 
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
-                    with(sendInRequest.asEIFellesFormat()) {
-                        frikortsporringMengde(this).let { response ->
-                            SendInResponse(
-                                messageId = sendInRequest.messageId,
-                                conversationId = sendInRequest.conversationId,
-                                addressing = sendInRequest.addressing.replyTo(
-                                    response.eiFellesformat.mottakenhetBlokk.ebService,
-                                    response.eiFellesformat.mottakenhetBlokk.ebAction
-                                ),
-                                payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                                    response.eiFellesformat.msgHead
-                                ),
-                                requestId = Uuid.random().toString()
+                    Either.catch {
+                        frikortsporringMengde(sendInRequest.asEIFellesFormat()).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
                             )
-                        }
-                    }.also {
-                        val payload = sendInRequest.payload
-                        val msgHead = unmarshal(String(payload), MsgHead::class.java)
+                        }.also {
+                            val payload = sendInRequest.payload
+                            val msgHead = unmarshal(String(payload), MsgHead::class.java)
 
-                        val action = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-                        val refParam = refParamFrikort(action)
-                        log.info(sendInRequest.marker(), "refParam $refParam")
+                            val action = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+                            val refParam = refParamFrikort(action)
+                            log.info(sendInRequest.marker(), "refParam $refParam")
+                        }
+                    }.bind().let { response ->
+                        SendInResponse(
+                            messageId = sendInRequest.messageId,
+                            conversationId = sendInRequest.conversationId,
+                            addressing = sendInRequest.addressing.replyTo(
+                                response.eiFellesformat.mottakenhetBlokk.ebService,
+                                response.eiFellesformat.mottakenhetBlokk.ebAction
+                            ),
+                            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+                                response.eiFellesformat.msgHead
+                            ),
+                            requestId = Uuid.random().toString()
+                        )
                     }
                 }
 
@@ -125,8 +150,14 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this)
-                        PasientlisteService.pasientlisteForesporsel(this).let { fellesformatResponse ->
+                        log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
+                        PasientlisteService.pasientlisteForesporsel(this).also {
+                            eventLoggingService.registerEvent(
+                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                sendInRequest,
+                                scope = eventRegistrationScope
+                            )
+                        }.let { fellesformatResponse ->
                             SendInResponse(
                                 messageId = sendInRequest.messageId,
                                 conversationId = sendInRequest.conversationId,
@@ -156,6 +187,12 @@ object FagmeldingService {
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
+        }.also {
+            eventLoggingService.registerEvent(
+                EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
+                it,
+                scope = eventRegistrationScope
+            )
         }
     }
 }

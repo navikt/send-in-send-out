@@ -26,6 +26,7 @@ dependencyResolutionManagement {
             version("sqldelight", "2.0.2")
             version("postgres", "42.7.4")
             version("vault-jdbc", "1.3.10")
+            version("emottak-utils", "0.2.2")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
             library("arrow-functions", "io.arrow-kt", "arrow-functions").versionRef("arrow")
@@ -76,6 +77,7 @@ dependencyResolutionManagement {
             library("ebxml-protokoll", "no.nav.emottak:ebxml-protokoll:0.0.6")
             library("ebxml-processing-model", "no.nav.emottak:ebxml-processing-model:2024102305ad1b37a7c4ec36bc77ef91f5ff67098389922f")
             library("emottak-payload-xsd", "no.nav.emottak:emottak-payload-xsd:0.0.9")
+            library("emottak-utils", "no.nav.emottak", "emottak-utils").versionRef("emottak-utils")
             library("hikari", "com.zaxxer:HikariCP:5.0.1")
             library("labai-jsr305x-annotations", "com.github.labai:labai-jsr305x-annotations:0.0.2")
             library("jakarta.xml.bind-api", "jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
@@ -194,4 +196,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "send-in-send-out"
-include("felles", "ebms-send-in", "cpa-sync")
+include("ebms-send-in", "cpa-sync")
