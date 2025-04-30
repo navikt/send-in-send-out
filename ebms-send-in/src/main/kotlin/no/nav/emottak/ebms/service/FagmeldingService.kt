@@ -3,14 +3,12 @@ package no.nav.emottak.ebms
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import kotlinx.coroutines.CoroutineScope
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
-import no.nav.emottak.fellesformat.unmarshal
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.melding.model.SendInRequest
@@ -21,15 +19,11 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
+import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.util.registerEvent
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.kafka.service.EventLoggingService
-import no.nav.emottak.util.birthDay
-import no.nav.emottak.util.marker
-import no.nav.emottak.util.refParam
-import no.nav.emottak.util.refParamFrikort
-import no.nav.emottak.utils.isProdEnv
 import org.slf4j.LoggerFactory
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -70,28 +64,21 @@ object FagmeldingService {
                             payload = UtbetalingXmlMarshaller.marshalToByteArray(msgHeadResponse),
                             requestId = Uuid.random().toString()
                         )
-                    }.also {
-                        val refParam = refParam(sendInRequest.asEIFellesFormat())
-                        log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
                     }
                 }
 
             SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
                     Either.catch {
-                        frikortsporring(sendInRequest.asEIFellesFormat()).also {
-                            eventLoggingService.registerEvent(
-                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest,
-                                scope = eventRegistrationScope
-                            )
-                        }.also {
-                            val payload = sendInRequest.payload
-                            val msgHead = unmarshal(String(payload), MsgHead::class.java)
-
-                            val action = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-                            val refParam = refParamFrikort(action)
-                            log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
+                        with(sendInRequest.asEIFellesFormat()) {
+                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            frikortsporring(this).also {
+                                eventLoggingService.registerEvent(
+                                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                    sendInRequest,
+                                    scope = eventRegistrationScope
+                                )
+                            }
                         }
                     }.bind().let { response ->
                         SendInResponse(
@@ -112,19 +99,15 @@ object FagmeldingService {
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
                     Either.catch {
-                        frikortsporringMengde(sendInRequest.asEIFellesFormat()).also {
-                            eventLoggingService.registerEvent(
-                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest,
-                                scope = eventRegistrationScope
-                            )
-                        }.also {
-                            val payload = sendInRequest.payload
-                            val msgHead = unmarshal(String(payload), MsgHead::class.java)
-
-                            val action = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-                            val refParam = refParamFrikort(action)
-                            log.info(sendInRequest.marker(), "refParam $refParam")
+                        with(sendInRequest.asEIFellesFormat()) {
+                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            frikortsporringMengde(this).also {
+                                eventLoggingService.registerEvent(
+                                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                    sendInRequest,
+                                    scope = eventRegistrationScope
+                                )
+                            }
                         }
                     }.bind().let { response ->
                         SendInResponse(
@@ -150,6 +133,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
+                        log.info("Refparam: ${this.extractReferenceParameter()}")
                         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).also {
                             eventLoggingService.registerEvent(
@@ -170,8 +154,6 @@ object FagmeldingService {
                                 ),
                                 requestId = Uuid.random().toString()
                             ).also {
-                                val refParam = refParam(this)
-                                log.info(sendInRequest.marker(), "refParam ${birthDay(refParam)}")
                                 log.asJson(
                                     LogLevel.DEBUG,
                                     "Sending SendInResponse",

@@ -21,6 +21,7 @@ fun frikortEndpoint(): FrikortV1Port =
         .withWsdl("classpath:frikort_v1.wsdl")
         .withServiceName(QName("http://nav.no/tjeneste/ekstern/frikort/v1", "Frikort_v1Service"))
         .withEndpointName(QName("http://nav.no/tjeneste/ekstern/frikort/v1", "Frikort_v1Port"))
+        .withFrikortContextClasses()
         .build()
         .withBasicSecurity(
             getSecret("/secret/serviceuser/username", "testUsername"),
