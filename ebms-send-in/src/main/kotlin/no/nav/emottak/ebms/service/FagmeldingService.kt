@@ -1,4 +1,4 @@
-package no.nav.emottak.ebms
+package no.nav.emottak.ebms.service
 
 import arrow.core.Either
 import arrow.core.raise.either

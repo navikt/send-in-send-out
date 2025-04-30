@@ -14,8 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
-import no.nav.emottak.ebms.FagmeldingService
 import no.nav.emottak.ebms.log
+import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
