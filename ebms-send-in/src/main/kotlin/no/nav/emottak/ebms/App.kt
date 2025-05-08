@@ -45,7 +45,7 @@ suspend fun ResourceScope.setupServer() {
     val prometheusMeterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     val kafkaPublisherClient = EventPublisherClient(config().kafka)
-    val eventLoggingService = EventLoggingService(kafkaPublisherClient)
+    val eventLoggingService = EventLoggingService(config().eventLogging, kafkaPublisherClient)
 
     val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
