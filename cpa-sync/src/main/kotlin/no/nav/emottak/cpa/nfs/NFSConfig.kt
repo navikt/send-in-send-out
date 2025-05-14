@@ -1,6 +1,6 @@
 package no.nav.emottak.cpa.nfs
 
-import no.nav.emottak.cpa.getEnvVar
+import no.nav.emottak.utils.environment.getEnvVar
 
 class NFSConfig {
 
