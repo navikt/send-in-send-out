@@ -44,9 +44,10 @@ abstract class PayloadIntegrationTestFelles(
     }
 
     companion object {
+        private const val TEST_TOPIC = "test-topic"
         protected lateinit var mockOAuth2Server: MockOAuth2Server
         protected lateinit var kafkaTestConfig: Kafka
-        protected lateinit var eventLoggingConfig: EventLogging
+        protected lateinit var eventLoggingTestConfig: EventLogging
 
         @JvmStatic
         @BeforeAll
@@ -56,9 +57,9 @@ abstract class PayloadIntegrationTestFelles(
 
             println("=== Initializing KafkaTestContainer ===")
             KafkaTestContainer.start()
-            KafkaTestContainer.createTopic("test-topic")
+            KafkaTestContainer.createTopic(TEST_TOPIC)
             kafkaTestConfig = buildKafkaTestConfig(KafkaTestContainer.kafkaContainer.bootstrapServers)
-            eventLoggingConfig = buildEventLoggingConfig()
+            eventLoggingTestConfig = buildEventLoggingTestConfig(TEST_TOPIC)
         }
 
         @JvmStatic
@@ -82,9 +83,9 @@ abstract class PayloadIntegrationTestFelles(
             groupId = "ebms-send-in"
         )
 
-        private fun buildEventLoggingConfig() = EventLogging(
-            eventTopic = "team-emottak.event.log",
-            messageDetailsTopic = "team-emottak.ebms.message.details",
+        private fun buildEventLoggingTestConfig(topic: String) = EventLogging(
+            eventTopic = topic,
+            messageDetailsTopic = topic,
             eventLoggingProducerActive = false
         )
     }
@@ -104,7 +105,7 @@ abstract class PayloadIntegrationTestFelles(
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
             val kafkaPublisherClient = EventPublisherClient(kafkaTestConfig)
-            val eventLoggingService = EventLoggingService(eventLoggingConfig, kafkaPublisherClient)
+            val eventLoggingService = EventLoggingService(eventLoggingTestConfig, kafkaPublisherClient)
 
             val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
