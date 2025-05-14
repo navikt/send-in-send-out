@@ -12,6 +12,7 @@ import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.ebms.ebmsSendInModule
 import no.nav.emottak.kafka.KafkaTestContainer
+import no.nav.emottak.utils.config.EventLogging
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.KeystoreLocation
 import no.nav.emottak.utils.config.KeystoreType
@@ -45,6 +46,7 @@ abstract class PayloadIntegrationTestFelles(
     companion object {
         protected lateinit var mockOAuth2Server: MockOAuth2Server
         protected lateinit var kafkaTestConfig: Kafka
+        protected lateinit var eventLoggingConfig: EventLogging
 
         @JvmStatic
         @BeforeAll
@@ -56,6 +58,7 @@ abstract class PayloadIntegrationTestFelles(
             KafkaTestContainer.start()
             KafkaTestContainer.createTopic("test-topic")
             kafkaTestConfig = buildKafkaTestConfig(KafkaTestContainer.kafkaContainer.bootstrapServers)
+            eventLoggingConfig = buildEventLoggingConfig()
         }
 
         @JvmStatic
@@ -76,9 +79,13 @@ abstract class PayloadIntegrationTestFelles(
             truststoreType = TruststoreType(""),
             truststoreLocation = TruststoreLocation(""),
             truststorePassword = Masked(""),
-            groupId = "ebms-send-in",
-            topic = "test-topic",
-            eventLoggingProducerActive = true
+            groupId = "ebms-send-in"
+        )
+
+        private fun buildEventLoggingConfig() = EventLogging(
+            eventTopic = "team-emottak.event.log",
+            messageDetailsTopic = "team-emottak.ebms.message.details",
+            eventLoggingProducerActive = false
         )
     }
 
@@ -97,7 +104,7 @@ abstract class PayloadIntegrationTestFelles(
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
             val kafkaPublisherClient = EventPublisherClient(kafkaTestConfig)
-            val eventLoggingService = EventLoggingService(kafkaPublisherClient)
+            val eventLoggingService = EventLoggingService(eventLoggingConfig, kafkaPublisherClient)
 
             val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
