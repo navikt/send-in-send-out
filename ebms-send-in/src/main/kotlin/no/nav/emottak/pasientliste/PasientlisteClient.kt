@@ -12,16 +12,17 @@ import kotlinx.coroutines.runBlocking
 import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.utils.environment.getEnvVar
+import no.nav.emottak.utils.environment.getSecret
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
-import java.io.FileInputStream
 
 object PasientlisteClient {
     private val url = getEnvVar(
         "PASIENTLISTE_URL",
         "https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner"
     )
-    private val username = lazy { String(FileInputStream("/secret/serviceuser/username").readAllBytes()) }
-    private val password = lazy { String(FileInputStream("/secret/serviceuser/password").readAllBytes()) }
+    private val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    private val username = lazy { getSecret("$secretPath/username", "testUsername") }
+    private val password = lazy { getSecret("$secretPath/password", "testPassword") }
 
     fun sendRequest(request: EIFellesformat): EIFellesformat {
         val marshalledFellesformat = FellesFormatXmlMarshaller.marshal(request)
