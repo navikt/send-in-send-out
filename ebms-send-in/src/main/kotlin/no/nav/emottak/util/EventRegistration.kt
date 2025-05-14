@@ -43,7 +43,7 @@ private fun EventLoggingService.publishEvent(
 fun EventLoggingService.registerEvent(
     eventType: EventType,
     sendInResponse: SendInResponse,
-    eventData: String = "",
+    eventData: String = "{}",
     scope: CoroutineScope
 ) {
     log.debug("Registering event: $eventType, $sendInResponse")
@@ -59,7 +59,7 @@ fun EventLoggingService.registerEvent(
 fun EventLoggingService.registerEvent(
     eventType: EventType,
     sendInRequest: SendInRequest,
-    eventData: String = "",
+    eventData: String = "{}",
     scope: CoroutineScope
 ) {
     log.debug("Registering event: $eventType, $SendInRequest")
