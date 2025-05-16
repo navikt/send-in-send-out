@@ -155,6 +155,8 @@ object FagmeldingService {
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
         }.also {
+            eventRegistrationService.registerEventMessageDetails(it)
+        }.also {
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
                 it
