@@ -22,13 +22,11 @@ import no.nav.emottak.util.asXml
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventType
 import org.slf4j.LoggerFactory
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
-    @OptIn(ExperimentalUuidApi::class)
     suspend fun processRequest(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,

@@ -13,7 +13,6 @@ import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.kafka.service.EventLoggingService
 import no.nav.emottak.utils.serialization.getErrorMessage
 import java.time.Instant
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 interface EventRegistrationService {
@@ -48,7 +47,6 @@ class EventRegistrationServiceImpl(
     private val scope: CoroutineScope
 ) : EventRegistrationService {
 
-    @OptIn(ExperimentalUuidApi::class)
     override fun registerEvent(
         eventType: EventType,
         sendInRequest: SendInRequest,
@@ -63,7 +61,6 @@ class EventRegistrationServiceImpl(
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     override fun registerEvent(
         eventType: EventType,
         sendInResponse: SendInResponse,
@@ -78,7 +75,6 @@ class EventRegistrationServiceImpl(
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     private fun publishEvent(
         eventType: EventType,
         requestId: Uuid,
@@ -103,7 +99,6 @@ class EventRegistrationServiceImpl(
         }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     override fun registerEventMessageDetails(sendInResponse: SendInResponse) {
         log.debug("Registering message with requestId: ${sendInResponse.requestId}")
 

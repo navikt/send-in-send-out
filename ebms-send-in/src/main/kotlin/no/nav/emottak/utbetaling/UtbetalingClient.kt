@@ -25,7 +25,6 @@ import no.nav.emottak.utils.environment.getSecret
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import javax.xml.namespace.QName
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object UtbetalingClient {
@@ -130,7 +129,6 @@ fun receiverToSender(receiver: Receiver): Sender {
     return sender
 }
 
-@OptIn(ExperimentalUuidApi::class)
 fun msgHeadResponse(incomingMsgHead: MsgHead, parentMessageId: String, conversationId: String, fagmeldingResponse: Any): MsgHead {
     return incomingMsgHead.apply {
         msgInfo.apply {
