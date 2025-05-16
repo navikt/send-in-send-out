@@ -28,7 +28,7 @@ interface EventRegistrationService {
         eventData: String = "{}"
     )
 
-    fun registerEventMessageDetails(sendInResponse: SendInResponse)
+    fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse)
 
     companion object {
         fun serializePartyId(partyIDs: List<PartyId>): String {
@@ -99,14 +99,14 @@ class EventRegistrationServiceImpl(
         }
     }
 
-    override fun registerEventMessageDetails(sendInResponse: SendInResponse) {
+    override fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
         log.debug("Registering message with requestId: ${sendInResponse.requestId}")
 
         val requestId = sendInResponse.requestId.parseOrGenerateUuid()
 
         val ebmsMessageDetails = EbmsMessageDetails(
             requestId = requestId,
-            cpaId = "",
+            cpaId = sendInRequest.cpaId,
             conversationId = sendInResponse.conversationId,
             messageId = "",
             refToMessageId = sendInResponse.messageId,
@@ -149,7 +149,7 @@ class EventRegistrationServiceFake : EventRegistrationService {
         log.debug("Registering event $eventType SendInResponse: $SendInResponse and eventData: $eventData")
     }
 
-    override fun registerEventMessageDetails(sendInResponse: SendInResponse) {
+    override fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
         log.debug("Registering message details for SendInResponse: $sendInResponse")
     }
 }
