@@ -9,7 +9,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
@@ -19,15 +18,13 @@ import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
-import no.nav.emottak.util.registerEvent
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.kafka.model.EventType
-import no.nav.emottak.utils.kafka.service.EventLoggingService
 import no.nav.emottak.utils.serialization.toEventDataJson
 
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventLoggingService: EventLoggingService,
-    eventRegistrationScope: CoroutineScope
+    eventRegistrationService: EventRegistrationService
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
@@ -47,19 +44,17 @@ fun Route.fagmeldingRoutes(
                     FagmeldingService.processRequest(
                         sendInRequest,
                         prometheusMeterRegistry,
-                        eventLoggingService,
-                        eventRegistrationScope
+                        eventRegistrationService
                     ).bind()
                 }
 
                 result.fold(
                     { error ->
                         log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
-                        eventLoggingService.registerEvent(
+                        eventRegistrationService.registerEvent(
                             EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
                             sendInRequest,
-                            Exception(error).toEventDataJson(),
-                            eventRegistrationScope
+                            Exception(error).toEventDataJson()
                         )
                         call.respond(
                             HttpStatusCode.BadRequest,

@@ -13,60 +13,95 @@ import no.nav.emottak.utils.serialization.getErrorMessage
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
-private fun EventLoggingService.publishEvent(
-    eventType: EventType,
-    requestId: Uuid,
-    messageId: String,
-    eventData: String,
-    scope: CoroutineScope
-) {
-    val event = Event(
-        eventType = eventType,
-        requestId = requestId,
-        contentId = "",
-        messageId = messageId,
-        eventData = eventData
+interface EventRegistrationService {
+    fun registerEvent(
+        eventType: EventType,
+        sendInRequest: SendInRequest,
+        eventData: String = "{}"
     )
-    log.debug("Publishing event: $event")
 
-    scope.launch {
-        this@publishEvent.logEvent(event).onSuccess {
-            log.debug("Event published successfully")
-        }.onFailure { e ->
-            log.error("Error while publishing event: ${Exception(e).getErrorMessage()}", e)
+    fun registerEvent(
+        eventType: EventType,
+        sendInResponse: SendInResponse,
+        eventData: String = "{}"
+    )
+}
+
+class EventRegistrationServiceImpl(
+    private val eventLoggingService: EventLoggingService,
+    private val scope: CoroutineScope
+) : EventRegistrationService {
+
+    @OptIn(ExperimentalUuidApi::class)
+    override fun registerEvent(
+        eventType: EventType,
+        sendInRequest: SendInRequest,
+        eventData: String
+    ) {
+        log.debug("Registering event: $eventType, $sendInRequest")
+        try {
+            val requestId = sendInRequest.requestId.parseOrGenerateUuid()
+            publishEvent(eventType, requestId, sendInRequest.messageId, eventData)
+        } catch (e: Exception) {
+            log.error("Error while registering event: ${e.getErrorMessage()}", e)
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    override fun registerEvent(
+        eventType: EventType,
+        sendInResponse: SendInResponse,
+        eventData: String
+    ) {
+        log.debug("Registering event: $eventType, $sendInResponse")
+        try {
+            val requestId = sendInResponse.requestId.parseOrGenerateUuid()
+            publishEvent(eventType, requestId, "", eventData)
+        } catch (e: Exception) {
+            log.error("Error while registering event: ${e.getErrorMessage()}", e)
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private fun publishEvent(
+        eventType: EventType,
+        requestId: Uuid,
+        messageId: String,
+        eventData: String
+    ) {
+        val event = Event(
+            eventType = eventType,
+            requestId = requestId,
+            contentId = "",
+            messageId = messageId,
+            eventData = eventData
+        )
+        log.debug("Publishing event: $event")
+
+        scope.launch {
+            eventLoggingService.logEvent(event).onSuccess {
+                log.debug("Event published successfully")
+            }.onFailure { e ->
+                log.error("Error while publishing event: ${Exception(e).getErrorMessage()}", e)
+            }
         }
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
-fun EventLoggingService.registerEvent(
-    eventType: EventType,
-    sendInResponse: SendInResponse,
-    eventData: String = "{}",
-    scope: CoroutineScope
-) {
-    log.debug("Registering event: $eventType, $sendInResponse")
-    try {
-        val requestId = sendInResponse.requestId.parseOrGenerateUuid()
-        publishEvent(eventType, requestId, "", eventData, scope)
-    } catch (e: Exception) {
-        log.error("Error while registering event: ${e.getErrorMessage()}", e)
+class EventRegistrationServiceFake : EventRegistrationService {
+    override fun registerEvent(
+        eventType: EventType,
+        sendInRequest: SendInRequest,
+        eventData: String
+    ) {
+        log.debug("Registering event $eventType SendInRequest: $sendInRequest and eventData: $eventData")
     }
-}
 
-@OptIn(ExperimentalUuidApi::class)
-fun EventLoggingService.registerEvent(
-    eventType: EventType,
-    sendInRequest: SendInRequest,
-    eventData: String = "{}",
-    scope: CoroutineScope
-) {
-    log.debug("Registering event: $eventType, $SendInRequest")
-    try {
-        val requestId = sendInRequest.requestId.parseOrGenerateUuid()
-        publishEvent(eventType, requestId, sendInRequest.messageId, eventData, scope)
-    } catch (e: Exception) {
-        log.error("Error while registering event: ${e.getErrorMessage()}", e)
+    override fun registerEvent(
+        eventType: EventType,
+        sendInResponse: SendInResponse,
+        eventData: String
+    ) {
+        log.debug("Registering event $eventType SendInResponse: $SendInResponse and eventData: $eventData")
     }
 }

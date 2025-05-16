@@ -10,7 +10,6 @@ import io.ktor.server.netty.Netty
 import io.ktor.utils.io.CancellationException
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.config
@@ -19,6 +18,8 @@ import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
+import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.EventRegistrationServiceImpl
 import no.nav.emottak.utils.coroutines.coroutineScope
 import no.nav.emottak.utils.kafka.client.EventPublisherClient
 import no.nav.emottak.utils.kafka.service.EventLoggingService
@@ -49,22 +50,23 @@ suspend fun ResourceScope.setupServer() {
 
     val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
+    val eventRegistrationService = EventRegistrationServiceImpl(eventLoggingService, eventRegistrationScope)
+
     server(
         Netty,
         port = serverConfig.port,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventLoggingService, eventRegistrationScope) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService) }
     )
 }
 
 internal fun Application.ebmsSendInModule(
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventLoggingService: EventLoggingService,
-    eventRegistrationScope: CoroutineScope
+    eventRegistrationService: EventRegistrationService
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry, eventLoggingService, eventRegistrationScope)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService)
 }
