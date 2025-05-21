@@ -73,3 +73,5 @@ spec:
       value: https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner
     - name: EMOTTAK_LOGGING_LEVEL
       value: DEBUG
+    - name: SERVICEUSER_SECRET_PATH
+      value: /secret/serviceuser

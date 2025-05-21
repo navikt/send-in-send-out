@@ -18,9 +18,10 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import no.nav.emottak.utils.environment.getEnvVar
 import java.net.InetSocketAddress
 import java.net.Proxy
-import java.net.URL
+import java.net.URI
 
 val URL_CPA_REPO_BASE = getEnvVar("URL_CPA_REPO", "http://cpa-repo.team-emottak.svc.nais.local")
 val URL_CPA_REPO_PUT = "$URL_CPA_REPO_BASE/cpa".also { log.info("CPA REPO PUT URL: [$it]") }
@@ -52,7 +53,7 @@ suspend fun getCpaRepoToken(): BearerTokens {
             if (httpProxyUrl.isNotBlank()) {
                 proxy = Proxy(
                     Proxy.Type.HTTP,
-                    InetSocketAddress(URL(httpProxyUrl).host, URL(httpProxyUrl).port)
+                    InetSocketAddress(URI.create(httpProxyUrl).host, URI.create(httpProxyUrl).port)
                 )
             }
         }
