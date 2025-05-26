@@ -19,6 +19,7 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
+import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.util.registerEvent
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventType
@@ -69,12 +70,15 @@ object FagmeldingService {
             SupportedServiceType.HarBorgerEgenandelFritak, SupportedServiceType.HarBorgerFrikort ->
                 timed(meterRegistry, "frikort-sporing") {
                     Either.catch {
-                        frikortsporring(sendInRequest.asEIFellesFormat()).also {
-                            eventLoggingService.registerEvent(
-                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest,
-                                scope = eventRegistrationScope
-                            )
+                        with(sendInRequest.asEIFellesFormat()) {
+                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            frikortsporring(this).also {
+                                eventLoggingService.registerEvent(
+                                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                    sendInRequest,
+                                    scope = eventRegistrationScope
+                                )
+                            }
                         }
                     }.bind().let { response ->
                         SendInResponse(
@@ -95,12 +99,15 @@ object FagmeldingService {
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
                     Either.catch {
-                        frikortsporringMengde(sendInRequest.asEIFellesFormat()).also {
-                            eventLoggingService.registerEvent(
-                                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest,
-                                scope = eventRegistrationScope
-                            )
+                        with(sendInRequest.asEIFellesFormat()) {
+                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            frikortsporringMengde(this).also {
+                                eventLoggingService.registerEvent(
+                                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                                    sendInRequest,
+                                    scope = eventRegistrationScope
+                                )
+                            }
                         }
                     }.bind().let { response ->
                         SendInResponse(
@@ -126,6 +133,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
+                        log.info("Refparam: ${this.extractReferenceParameter()}")
                         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).also {
                             eventLoggingService.registerEvent(
