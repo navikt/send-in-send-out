@@ -56,8 +56,8 @@ object UtbetalingClient {
                         inntektsforesporselService
                             .withOrgnrHeader(orgnr)
                             .withUserNameToken(
-                                SERVICEUSER_NAME,
-                                SERVICEUSER_PASSWORD
+                                SERVICEUSER_NAME.value,
+                                SERVICEUSER_PASSWORD.value
                             ).get().finnUtbetalingListe(melding.request)
                 }
 
@@ -66,8 +66,8 @@ object UtbetalingClient {
                         inntektsforesporselService
                             .withOrgnrHeader(orgnr)
                             .withUserNameToken(
-                                SERVICEUSER_NAME,
-                                SERVICEUSER_PASSWORD
+                                SERVICEUSER_NAME.value,
+                                SERVICEUSER_PASSWORD.value
                             ).get().finnBrukersUtbetalteYtelser(melding.request)
                 }
 
@@ -95,8 +95,9 @@ object UtbetalingClient {
         }
     }
 
-    private val SERVICEUSER_NAME = getSecret("/secret/serviceuser/username", "testUsername")
-    private val SERVICEUSER_PASSWORD = getSecret("/secret/serviceuser/password", "testPassword")
+    private val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    private val SERVICEUSER_NAME = lazy { getSecret("$secretPath/username", "testUsername") }
+    private val SERVICEUSER_PASSWORD = lazy { getSecret("$secretPath/password", "testPassword") }
 }
 
 val inntektsforesporselService =
