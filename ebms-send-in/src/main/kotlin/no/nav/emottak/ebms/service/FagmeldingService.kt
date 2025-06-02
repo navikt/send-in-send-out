@@ -3,6 +3,7 @@ package no.nav.emottak.ebms.service
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
+import kotlinx.serialization.json.Json
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -21,6 +22,7 @@ import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.environment.isProdEnv
+import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
@@ -65,7 +67,8 @@ object FagmeldingService {
                 timed(meterRegistry, "frikort-sporing") {
                     Either.catch {
                         with(sendInRequest.asEIFellesFormat()) {
-                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            extractReferenceParameter(sendInRequest, eventRegistrationService)
+
                             frikortsporring(this).also {
                                 eventRegistrationService.registerEvent(
                                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -93,7 +96,7 @@ object FagmeldingService {
                 timed(meterRegistry, "frikortMengde-sporing") {
                     Either.catch {
                         with(sendInRequest.asEIFellesFormat()) {
-                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            extractReferenceParameter(sendInRequest, eventRegistrationService)
                             frikortsporringMengde(this).also {
                                 eventRegistrationService.registerEvent(
                                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -125,7 +128,7 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.info("Refparam: ${this.extractReferenceParameter()}")
+                        extractReferenceParameter(sendInRequest, eventRegistrationService)
                         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).also {
                             eventRegistrationService.registerEvent(
@@ -166,6 +169,25 @@ object FagmeldingService {
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
                 it
+            )
+        }
+    }
+
+    private fun extractReferenceParameter(
+        sendInRequest: SendInRequest,
+        eventRegistrationService: EventRegistrationService
+    ) {
+        with(sendInRequest.asEIFellesFormat()) {
+            val referenceParameter = this.extractReferenceParameter()
+            log.info("Refparam: $referenceParameter")
+
+            val eventData = Json.encodeToString(
+                mapOf(EventDataType.REFERENCE to referenceParameter)
+            )
+            eventRegistrationService.registerEvent(
+                EventType.REFERENCE_RETRIEVED,
+                sendInRequest,
+                eventData
             )
         }
     }
