@@ -4,7 +4,7 @@ import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import com.jcraft.jsch.UserInfo
-import no.nav.emottak.cpa.getEnvVar
+import no.nav.emottak.utils.environment.getEnvVar
 import java.io.File
 import java.io.InputStream
 import java.util.Vector

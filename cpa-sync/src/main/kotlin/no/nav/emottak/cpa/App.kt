@@ -11,6 +11,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.routing.routing
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import no.nav.emottak.utils.environment.isProdEnv
 import org.slf4j.LoggerFactory
 
 fun main() {
@@ -31,7 +32,7 @@ fun Application.myApplicationModule() {
         registry = appMicrometerRegistry
     }
     routing {
-        if (getEnvVar("NAIS_CLUSTER_NAME") != "prod-fss") {
+        if (!isProdEnv()) {
             testAzureAuthToCpaRepo()
         }
         registerHealthEndpoints(appMicrometerRegistry)

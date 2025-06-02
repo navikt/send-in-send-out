@@ -66,3 +66,5 @@ spec:
   env:
     - name: FRIKORT_URL
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
+    - name: SERVICEUSER_SECRET_PATH
+      value: /secret/serviceuser
