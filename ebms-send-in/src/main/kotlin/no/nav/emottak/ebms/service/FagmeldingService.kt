@@ -3,7 +3,7 @@ package no.nav.emottak.ebms.service
 import arrow.core.Either
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.json.Json
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -16,27 +16,26 @@ import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
-import no.nav.emottak.util.registerEvent
+import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.environment.isProdEnv
+import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
-import no.nav.emottak.utils.kafka.service.EventLoggingService
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.slf4j.LoggerFactory
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
-    @OptIn(ExperimentalUuidApi::class)
     suspend fun processRequest(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
-        eventLoggingService: EventLoggingService,
-        eventRegistrationScope: CoroutineScope
+        eventRegistrationService: EventRegistrationService
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
@@ -47,10 +46,10 @@ object FagmeldingService {
                             sendInRequest.conversationId,
                             sendInRequest.payload
                         ).also {
-                            eventLoggingService.registerEvent(
+                            eventRegistrationService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest,
-                                scope = eventRegistrationScope
+                                sendInRequest.requestId.parseOrGenerateUuid(),
+                                sendInRequest.messageId
                             )
                         }
                     }.bind().let { msgHeadResponse ->
@@ -71,12 +70,13 @@ object FagmeldingService {
                 timed(meterRegistry, "frikort-sporing") {
                     Either.catch {
                         with(sendInRequest.asEIFellesFormat()) {
-                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
+
                             frikortsporring(this).also {
-                                eventLoggingService.registerEvent(
+                                eventRegistrationService.registerEvent(
                                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                    sendInRequest,
-                                    scope = eventRegistrationScope
+                                    sendInRequest.requestId.parseOrGenerateUuid(),
+                                    sendInRequest.messageId
                                 )
                             }
                         }
@@ -100,12 +100,12 @@ object FagmeldingService {
                 timed(meterRegistry, "frikortMengde-sporing") {
                     Either.catch {
                         with(sendInRequest.asEIFellesFormat()) {
-                            log.info("Refparam: ${this.extractReferenceParameter()}")
+                            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
                             frikortsporringMengde(this).also {
-                                eventLoggingService.registerEvent(
+                                eventRegistrationService.registerEvent(
                                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                    sendInRequest,
-                                    scope = eventRegistrationScope
+                                    sendInRequest.requestId.parseOrGenerateUuid(),
+                                    sendInRequest.messageId
                                 )
                             }
                         }
@@ -133,13 +133,13 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        log.info("Refparam: ${this.extractReferenceParameter()}")
+                        extractReferenceParameter(sendInRequest, this, eventRegistrationService)
                         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).also {
-                            eventLoggingService.registerEvent(
+                            eventRegistrationService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest,
-                                scope = eventRegistrationScope
+                                sendInRequest.requestId.parseOrGenerateUuid(),
+                                sendInRequest.messageId
                             )
                         }.let { fellesformatResponse ->
                             SendInResponse(
@@ -170,11 +170,32 @@ object FagmeldingService {
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
         }.also {
-            eventLoggingService.registerEvent(
+            eventRegistrationService.registerEventMessageDetails(sendInRequest, it)
+        }.also {
+            eventRegistrationService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-                it,
-                scope = eventRegistrationScope
+                it.requestId.parseOrGenerateUuid(),
+                ""
             )
         }
+    }
+
+    private fun extractReferenceParameter(
+        sendInRequest: SendInRequest,
+        fellesformat: EIFellesformat,
+        eventRegistrationService: EventRegistrationService
+    ) {
+        val referenceParameter = fellesformat.extractReferenceParameter()
+        log.info("Refparam: $referenceParameter")
+
+        val eventData = Json.encodeToString(
+            mapOf(EventDataType.REFERENCE to referenceParameter)
+        )
+        eventRegistrationService.registerEvent(
+            EventType.REFERENCE_RETRIEVED,
+            sendInRequest.requestId.parseOrGenerateUuid(),
+            sendInRequest.messageId,
+            eventData
+        )
     }
 }

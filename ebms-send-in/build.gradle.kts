@@ -38,6 +38,12 @@ tasks {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+    compilerOptions {
+        freeCompilerArgs = listOf("-opt-in=kotlin.uuid.ExperimentalUuidApi,com.sksamuel.hoplite.ExperimentalHoplite")
+    }
+}
+
 dependencies {
     implementation(libs.emottak.utils)
     implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
