@@ -18,13 +18,8 @@ import kotlin.uuid.Uuid
 interface EventRegistrationService {
     fun registerEvent(
         eventType: EventType,
-        sendInRequest: SendInRequest,
-        eventData: String = "{}"
-    )
-
-    fun registerEvent(
-        eventType: EventType,
-        sendInResponse: SendInResponse,
+        requestId: Uuid,
+        messageId: String,
         eventData: String = "{}"
     )
 
@@ -49,34 +44,6 @@ class EventRegistrationServiceImpl(
 
     override fun registerEvent(
         eventType: EventType,
-        sendInRequest: SendInRequest,
-        eventData: String
-    ) {
-        log.debug("Registering event: $eventType, $sendInRequest")
-        try {
-            val requestId = sendInRequest.requestId.parseOrGenerateUuid()
-            publishEvent(eventType, requestId, sendInRequest.messageId, eventData)
-        } catch (e: Exception) {
-            log.error("Error while registering event: ${e.getErrorMessage()}", e)
-        }
-    }
-
-    override fun registerEvent(
-        eventType: EventType,
-        sendInResponse: SendInResponse,
-        eventData: String
-    ) {
-        log.debug("Registering event: $eventType, $sendInResponse")
-        try {
-            val requestId = sendInResponse.requestId.parseOrGenerateUuid()
-            publishEvent(eventType, requestId, "", eventData)
-        } catch (e: Exception) {
-            log.error("Error while registering event: ${e.getErrorMessage()}", e)
-        }
-    }
-
-    private fun publishEvent(
-        eventType: EventType,
         requestId: Uuid,
         messageId: String,
         eventData: String
@@ -88,13 +55,13 @@ class EventRegistrationServiceImpl(
             messageId = messageId,
             eventData = eventData
         )
-        log.debug("Publishing event: $event")
+        log.debug("Registering event: $event")
 
         scope.launch {
             eventLoggingService.logEvent(event).onSuccess {
-                log.debug("Event published successfully")
+                log.debug("Event registered successfully")
             }.onFailure { e ->
-                log.error("Error while publishing event: ${Exception(e).getErrorMessage()}", e)
+                log.error("Error while registering event: ${Exception(e).getErrorMessage()}", e)
             }
         }
     }
@@ -135,18 +102,11 @@ class EventRegistrationServiceImpl(
 class EventRegistrationServiceFake : EventRegistrationService {
     override fun registerEvent(
         eventType: EventType,
-        sendInRequest: SendInRequest,
+        requestId: Uuid,
+        messageId: String,
         eventData: String
     ) {
-        log.debug("Registering event $eventType SendInRequest: $sendInRequest and eventData: $eventData")
-    }
-
-    override fun registerEvent(
-        eventType: EventType,
-        sendInResponse: SendInResponse,
-        eventData: String
-    ) {
-        log.debug("Registering event $eventType SendInResponse: $SendInResponse and eventData: $eventData")
+        log.debug("Registering event $eventType for requestId: $requestId, messageId: $messageId and eventData: $eventData")
     }
 
     override fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse) {

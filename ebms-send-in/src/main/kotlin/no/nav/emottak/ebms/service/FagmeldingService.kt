@@ -21,9 +21,11 @@ import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
+import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
 
@@ -46,7 +48,8 @@ object FagmeldingService {
                         ).also {
                             eventRegistrationService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest
+                                sendInRequest.requestId.parseOrGenerateUuid(),
+                                sendInRequest.messageId
                             )
                         }
                     }.bind().let { msgHeadResponse ->
@@ -67,12 +70,13 @@ object FagmeldingService {
                 timed(meterRegistry, "frikort-sporing") {
                     Either.catch {
                         with(sendInRequest.asEIFellesFormat()) {
-                            extractReferenceParameter(sendInRequest, eventRegistrationService)
+                            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
 
                             frikortsporring(this).also {
                                 eventRegistrationService.registerEvent(
                                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                    sendInRequest
+                                    sendInRequest.requestId.parseOrGenerateUuid(),
+                                    sendInRequest.messageId
                                 )
                             }
                         }
@@ -96,11 +100,12 @@ object FagmeldingService {
                 timed(meterRegistry, "frikortMengde-sporing") {
                     Either.catch {
                         with(sendInRequest.asEIFellesFormat()) {
-                            extractReferenceParameter(sendInRequest, eventRegistrationService)
+                            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
                             frikortsporringMengde(this).also {
                                 eventRegistrationService.registerEvent(
                                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                    sendInRequest
+                                    sendInRequest.requestId.parseOrGenerateUuid(),
+                                    sendInRequest.messageId
                                 )
                             }
                         }
@@ -128,12 +133,13 @@ object FagmeldingService {
                         )
                     }
                     with(sendInRequest.asEIFellesFormat()) {
-                        extractReferenceParameter(sendInRequest, eventRegistrationService)
+                        extractReferenceParameter(sendInRequest, this, eventRegistrationService)
                         log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
                         PasientlisteService.pasientlisteForesporsel(this).also {
                             eventRegistrationService.registerEvent(
                                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                                sendInRequest
+                                sendInRequest.requestId.parseOrGenerateUuid(),
+                                sendInRequest.messageId
                             )
                         }.let { fellesformatResponse ->
                             SendInResponse(
@@ -168,27 +174,28 @@ object FagmeldingService {
         }.also {
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-                it
+                it.requestId.parseOrGenerateUuid(),
+                ""
             )
         }
     }
 
     private fun extractReferenceParameter(
         sendInRequest: SendInRequest,
+        fellesformat: EIFellesformat,
         eventRegistrationService: EventRegistrationService
     ) {
-        with(sendInRequest.asEIFellesFormat()) {
-            val referenceParameter = this.extractReferenceParameter()
-            log.info("Refparam: $referenceParameter")
+        val referenceParameter = fellesformat.extractReferenceParameter()
+        log.info("Refparam: $referenceParameter")
 
-            val eventData = Json.encodeToString(
-                mapOf(EventDataType.REFERENCE to referenceParameter)
-            )
-            eventRegistrationService.registerEvent(
-                EventType.REFERENCE_RETRIEVED,
-                sendInRequest,
-                eventData
-            )
-        }
+        val eventData = Json.encodeToString(
+            mapOf(EventDataType.REFERENCE to referenceParameter)
+        )
+        eventRegistrationService.registerEvent(
+            EventType.REFERENCE_RETRIEVED,
+            sendInRequest.requestId.parseOrGenerateUuid(),
+            sendInRequest.messageId,
+            eventData
+        )
     }
 }

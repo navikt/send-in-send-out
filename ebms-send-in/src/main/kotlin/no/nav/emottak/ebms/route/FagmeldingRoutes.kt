@@ -19,6 +19,7 @@ import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.serialization.toEventDataJson
 
@@ -53,7 +54,8 @@ fun Route.fagmeldingRoutes(
                         log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
                         eventRegistrationService.registerEvent(
                             EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                            sendInRequest,
+                            sendInRequest.requestId.parseOrGenerateUuid(),
+                            sendInRequest.messageId,
                             Exception(error).toEventDataJson()
                         )
                         call.respond(
