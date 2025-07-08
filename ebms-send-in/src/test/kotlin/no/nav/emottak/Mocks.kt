@@ -5,7 +5,6 @@ import no.nav.emottak.melding.model.EbmsProcessing
 import no.nav.emottak.melding.model.Party
 import no.nav.emottak.melding.model.PartyId
 import no.nav.emottak.melding.model.SendInRequest
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 val validSendInPasientlisteRequest = lazy {
@@ -43,7 +42,6 @@ val validSendInInntektforesporselRequestWithENH = lazy {
     mockSendInRequest("Inntektsforesporsel", "Foresporsel", fagmelding.readAllBytes(), "123456789")
 }
 
-@OptIn(ExperimentalUuidApi::class)
 fun mockSendInRequest(service: String, action: String, payload: ByteArray, signedOf: String? = null) = SendInRequest(
     messageId = "321",
     conversationId = "321",

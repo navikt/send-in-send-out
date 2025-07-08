@@ -18,8 +18,15 @@ import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.melding.model.SendInRequest
 import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.utils.common.parseOrGenerateUuid
+import no.nav.emottak.utils.kafka.model.EventType
+import no.nav.emottak.utils.serialization.toEventDataJson
 
-fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
+fun Route.fagmeldingRoutes(
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    eventRegistrationService: EventRegistrationService
+) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
             val sendInRequest = call.receiveEither<SendInRequest>().getOrElse { error ->
@@ -35,12 +42,22 @@ fun Route.fagmeldingRoutes(prometheusMeterRegistry: PrometheusMeterRegistry) {
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
                 val result: Either<Throwable, SendInResponse> = either {
-                    FagmeldingService.processRequest(sendInRequest, prometheusMeterRegistry).bind()
+                    FagmeldingService.processRequest(
+                        sendInRequest,
+                        prometheusMeterRegistry,
+                        eventRegistrationService
+                    ).bind()
                 }
 
                 result.fold(
                     { error ->
                         log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
+                        eventRegistrationService.registerEvent(
+                            EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+                            sendInRequest.requestId.parseOrGenerateUuid(),
+                            sendInRequest.messageId,
+                            Exception(error).toEventDataJson()
+                        )
                         call.respond(
                             HttpStatusCode.BadRequest,
                             error.localizedMessage ?: error.javaClass.simpleName

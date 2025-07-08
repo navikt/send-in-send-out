@@ -15,10 +15,8 @@ import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.utbetaling.msgHeadResponse
 import no.nav.emottak.utbetaling.unmarshal
 import org.junit.jupiter.api.Test
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 class InntektsforesporselTest {
 
     @Test

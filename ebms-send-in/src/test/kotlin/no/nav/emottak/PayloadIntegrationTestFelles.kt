@@ -1,5 +1,6 @@
 package no.nav.emottak
 
+import arrow.fx.coroutines.resourceScope
 import com.nimbusds.jwt.SignedJWT
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
@@ -8,6 +9,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
 import no.nav.emottak.ebms.ebmsSendInModule
+import no.nav.emottak.util.EventRegistrationServiceFake
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -51,19 +53,23 @@ abstract class PayloadIntegrationTestFelles(
         mockResponsePath: String? = null,
         testBlock: suspend ApplicationTestBuilder.() -> T
     ) = testApplication {
-        wsSoapMock!!.enqueue(
-            MockResponse().setBody(
-                String(
-                    ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
+        resourceScope {
+            wsSoapMock!!.enqueue(
+                MockResponse().setBody(
+                    String(
+                        ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
+                    )
                 )
             )
-        )
-        val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
+            val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-        application {
-            ebmsSendInModule(meterRegistry)
+            val eventRegistrationService = EventRegistrationServiceFake()
+
+            application {
+                ebmsSendInModule(meterRegistry, eventRegistrationService)
+            }
+            testBlock()
         }
-        testBlock()
     }
 
     protected fun getToken(audience: String = AuthConfig.getScope()): SignedJWT = mockOAuth2Server.issueToken(

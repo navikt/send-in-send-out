@@ -25,7 +25,6 @@ import no.nav.emottak.utils.environment.getSecret
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import javax.xml.namespace.QName
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 object UtbetalingClient {
@@ -56,8 +55,8 @@ object UtbetalingClient {
                         inntektsforesporselService
                             .withOrgnrHeader(orgnr)
                             .withUserNameToken(
-                                SERVICEUSER_NAME,
-                                SERVICEUSER_PASSWORD
+                                SERVICEUSER_NAME.value,
+                                SERVICEUSER_PASSWORD.value
                             ).get().finnUtbetalingListe(melding.request)
                 }
 
@@ -66,8 +65,8 @@ object UtbetalingClient {
                         inntektsforesporselService
                             .withOrgnrHeader(orgnr)
                             .withUserNameToken(
-                                SERVICEUSER_NAME,
-                                SERVICEUSER_PASSWORD
+                                SERVICEUSER_NAME.value,
+                                SERVICEUSER_PASSWORD.value
                             ).get().finnBrukersUtbetalteYtelser(melding.request)
                 }
 
@@ -95,8 +94,9 @@ object UtbetalingClient {
         }
     }
 
-    private val SERVICEUSER_NAME = getSecret("/secret/serviceuser/username", "testUsername")
-    private val SERVICEUSER_PASSWORD = getSecret("/secret/serviceuser/password", "testPassword")
+    private val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    private val SERVICEUSER_NAME = lazy { getSecret("$secretPath/username", "testUsername") }
+    private val SERVICEUSER_PASSWORD = lazy { getSecret("$secretPath/password", "testPassword") }
 }
 
 val inntektsforesporselService =
@@ -130,7 +130,6 @@ fun receiverToSender(receiver: Receiver): Sender {
     return sender
 }
 
-@OptIn(ExperimentalUuidApi::class)
 fun msgHeadResponse(incomingMsgHead: MsgHead, parentMessageId: String, conversationId: String, fagmeldingResponse: Any): MsgHead {
     return incomingMsgHead.apply {
         msgInfo.apply {

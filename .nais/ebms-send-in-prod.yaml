@@ -56,6 +56,8 @@ spec:
     paths:
         - kvPath: /serviceuser/data/prod/srvtokt
           mountPath: /secret/serviceuser
+  kafka:
+    pool: nav-prod
   accessPolicy:
     inbound:
       rules:
@@ -64,3 +66,5 @@ spec:
   env:
     - name: FRIKORT_URL
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
+    - name: SERVICEUSER_SECRET_PATH
+      value: /secret/serviceuser
