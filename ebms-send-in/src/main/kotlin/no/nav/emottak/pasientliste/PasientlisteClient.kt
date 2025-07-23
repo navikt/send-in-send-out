@@ -28,7 +28,7 @@ object PasientlisteClient {
         val marshalledFellesformat = FellesFormatXmlMarshaller.marshal(request)
         val httpClient = HttpClient(CIO)
 
-        log.debug("Sending in HentPasientliste request with body: $marshalledFellesformat")
+        log.debug("Sending in ${request.mottakenhetBlokk.ebAction} request with body: $marshalledFellesformat")
 
         val result = runBlocking {
             try {
