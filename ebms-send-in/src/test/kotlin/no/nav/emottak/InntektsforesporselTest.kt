@@ -5,11 +5,11 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.feil.v1.ObjectFact
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeBrukerIkkeFunnet
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeFeil
-import no.nav.emottak.melding.model.Addressing
-import no.nav.emottak.melding.model.EbmsProcessing
-import no.nav.emottak.melding.model.Party
-import no.nav.emottak.melding.model.PartyId
-import no.nav.emottak.melding.model.SendInRequest
+import no.nav.emottak.utils.common.model.Addressing
+import no.nav.emottak.utils.common.model.EbmsProcessing
+import no.nav.emottak.utils.common.model.Party
+import no.nav.emottak.utils.common.model.PartyId
+import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.utbetaling.msgHeadResponse

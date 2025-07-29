@@ -13,7 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeFeil
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
-import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utbetaling.unmarshal
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

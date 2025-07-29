@@ -11,8 +11,8 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
-import no.nav.emottak.melding.model.SendInRequest
-import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.utils.common.model.SendInRequest
+import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
