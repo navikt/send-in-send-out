@@ -11,8 +11,6 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
-import no.nav.emottak.utils.common.model.SendInRequest
-import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
@@ -21,6 +19,8 @@ import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
+import no.nav.emottak.utils.common.model.SendInRequest
+import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventDataType

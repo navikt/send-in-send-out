@@ -1,9 +1,9 @@
 package no.nav.emottak.fellesformat
 
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.nav.emottak.util.toXMLGregorianCalendar
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
-import no.nav.emottak.util.toXMLGregorianCalendar
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import no.trygdeetaten.xml.eiff._1.ObjectFactory
 import java.time.Instant
