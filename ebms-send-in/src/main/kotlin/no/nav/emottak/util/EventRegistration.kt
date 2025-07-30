@@ -3,9 +3,9 @@ package no.nav.emottak.util
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import no.nav.emottak.ebms.log
-import no.nav.emottak.melding.model.PartyId
-import no.nav.emottak.melding.model.SendInRequest
-import no.nav.emottak.melding.model.SendInResponse
+import no.nav.emottak.utils.common.model.PartyId
+import no.nav.emottak.utils.common.model.SendInRequest
+import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EbmsMessageDetail
 import no.nav.emottak.utils.kafka.model.Event

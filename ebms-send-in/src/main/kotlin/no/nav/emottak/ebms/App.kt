@@ -54,7 +54,7 @@ suspend fun ResourceScope.setupServer() {
 
     server(
         Netty,
-        port = serverConfig.port,
+        port = serverConfig.port.value,
         preWait = serverConfig.preWait,
         module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService) }
     )
