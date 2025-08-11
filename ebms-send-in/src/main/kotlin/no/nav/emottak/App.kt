@@ -25,7 +25,7 @@ import no.nav.emottak.utils.kafka.client.EventPublisherClient
 import no.nav.emottak.utils.kafka.service.EventLoggingService
 import org.slf4j.LoggerFactory
 
-internal val log = LoggerFactory.getLogger("no.nav.emottak.ebms.App")
+internal val log = LoggerFactory.getLogger("no.nav.emottak.App")
 
 fun main() = SuspendApp {
     result {
