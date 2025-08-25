@@ -1,5 +1,10 @@
 package no.nav.emottak.frikort
 
+import com.nimbusds.jwt.SignedJWT
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
+import kotlinx.serialization.Serializable
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.log
@@ -15,6 +20,13 @@ import javax.xml.namespace.QName
 val frikortEndpoint = frikortEndpoint()
 private val frikortObjectFactory = ObjectFactory()
 
+@Serializable
+data class FrikortsporringRequest(
+    val eiFellesformat: String
+)
+
+val frikortHttpClient = getFrikortRepoAuthenticatedClient()
+
 fun frikortEndpoint(): FrikortV1Port =
     ServiceBuilder(FrikortV1Port::class.java)
         .withAddress(getEnvVar("FRIKORT_URL", "https://wasapp-local.adeo.no/nav-frikort/tjenestereksterne"))
@@ -28,6 +40,20 @@ fun frikortEndpoint(): FrikortV1Port =
             getSecret("/secret/serviceuser/password", "testPassword")
         )
         .get()
+
+suspend fun frikortsporringAuthenticatedClient() {
+    log.debug(
+        "Testing FrikortHttpClient"
+    )
+    val tokens = getFrikortRepoToken()
+    frikortHttpClient.get("$URL_FRIKORT_BASE/health") {
+        header("Authorization", "Bearer ${tokens.accessToken}")
+    }.apply {
+        val jwt = SignedJWT.parse(tokens.accessToken)
+        log.info("Frikort HTTP Client JWT claims: ${jwt.jwtClaimsSet.claims}")
+        log.info("Frikort HTTP Client response: ${this.status.value} ${this.bodyAsText()}")
+    }
+}
 
 fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
     log.debug(
