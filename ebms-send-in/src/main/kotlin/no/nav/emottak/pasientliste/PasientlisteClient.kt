@@ -10,7 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlinx.coroutines.runBlocking
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
-import no.nav.emottak.log
+import no.nav.emottak.ebms.log
 import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.getSecret
 import no.trygdeetaten.xml.eiff._1.EIFellesformat

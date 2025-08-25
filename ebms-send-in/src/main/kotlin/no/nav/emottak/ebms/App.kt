@@ -1,4 +1,4 @@
-package no.nav.emottak
+package no.nav.emottak.ebms
 
 import arrow.continuations.SuspendApp
 import arrow.continuations.ktor.server

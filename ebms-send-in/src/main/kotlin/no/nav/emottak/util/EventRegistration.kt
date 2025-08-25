@@ -2,7 +2,7 @@ package no.nav.emottak.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import no.nav.emottak.log
+import no.nav.emottak.ebms.log
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
