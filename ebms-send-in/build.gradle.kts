@@ -103,5 +103,5 @@ dependencies {
 }
 
 application {
-    mainClass.set("no.nav.emottak.ebms.AppKt")
+    mainClass.set("no.nav.emottak.AppKt")
 }

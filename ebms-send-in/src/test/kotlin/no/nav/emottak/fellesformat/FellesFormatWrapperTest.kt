@@ -1,6 +1,6 @@
-import no.nav.emottak.ebms.log
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.marshal
+import no.nav.emottak.log
 import no.nav.emottak.validSendInHarBorgerFrikortRequest
 import no.nav.emottak.validSendInInntektforesporselRequest
 import no.nav.emottak.validSendInPasientlisteRequest
