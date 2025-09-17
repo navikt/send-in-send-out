@@ -45,14 +45,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-core:3.1.3")
-    implementation("io.ktor:ktor-client-cio:3.1.3")
-    implementation("io.ktor:ktor-client-auth:3.1.3")
-    implementation("io.ktor:ktor-client-content-negotiation:3.1.3")
-    implementation("io.ktor:ktor-client-logging:3.1.3")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-
     implementation(libs.emottak.utils)
     implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
     implementation(libs.hoplite.core)
