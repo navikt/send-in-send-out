@@ -30,7 +30,6 @@ import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
-import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
@@ -305,10 +304,4 @@ object FagmeldingService {
     }
 }
 
-private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean {
-    return when {
-        getEnvVar("NAIS_CLUSTER_NAME", "local") == "dev-fss" -> true
-        config().frikortCpalist.contains(this.cpaId) -> true
-        else -> false
-    }
-}
+private fun SendInRequest.sendToRESTFrikortEndpoint() = config().cluster.isDev() || config().frikortCpalist.contains(this.cpaId)
