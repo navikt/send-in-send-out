@@ -1,6 +1,7 @@
 package no.nav.emottak.pasientliste.validator
 
 import no.kith.xmlstds.nav.pasientliste._2010_02_01.PasientlisteForesporsel
+import no.nav.emottak.pasientliste.PasientlisteXmlMarshaller
 import no.nav.emottak.util.PidValidator
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.slf4j.Logger
@@ -35,7 +36,11 @@ object PasientlisteValidator {
 
     private fun EIFellesformat.getLegeFnr(): String {
         try {
-            val foresporsel = this.msgHead.document.first().refDoc.content.any.first() as PasientlisteForesporsel
+            val foresporsel = this.msgHead.document.first().refDoc.content.any.first()
+                .let {
+                    if (it is PasientlisteForesporsel) return@let it
+                    return@let PasientlisteXmlMarshaller.toDomainObject(this.msgHead.document.first().refDoc.content.any.first())
+                } as PasientlisteForesporsel
             return foresporsel.hentPasientliste?.fnrLege!!
         } catch (e: Exception) {
             log.error("Could not find FnrLege in HentPasientliste document", e)
