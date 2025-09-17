@@ -15,6 +15,8 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import no.nav.emottak.melding.model.FrikortsporringRequest
@@ -109,6 +111,7 @@ suspend fun postHarBorgerFrikort(frikortsporringRequest: FrikortsporringRequest)
     val httpResponse = runCatching {
         frikortHttpClient.post(URL_FRIKORT_HAR_BORGER_FRIKORT) {
             setBody(frikortsporringRequest)
+            contentType(ContentType.Application.Json)
         }
     }.onFailure { throwable ->
         throw throwable
@@ -120,6 +123,7 @@ suspend fun postHarBorgerEgenandelfritak(frikortsporringRequest: Frikortsporring
     val httpResponse = runCatching {
         frikortHttpClient.post(URL_FRIKORT_HAR_BORGER_EGENANDELFRITAK) {
             setBody(frikortsporringRequest)
+            contentType(ContentType.Application.Json)
         }
     }.onFailure { throwable ->
         throw throwable
