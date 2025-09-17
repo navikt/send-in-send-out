@@ -21,7 +21,9 @@ class XmlMarshaller(jaxbContext: JAXBContext) {
     }
 
     fun toDomainObject(any: Any): Any {
-        return unmarshaller.unmarshal(any as Node)
+        return synchronized(unmarshallingMonitor) {
+            unmarshaller.unmarshal(any as Node)
+        }
     }
 
     fun marshalToByteArray(objekt: Any): ByteArray {
