@@ -16,7 +16,12 @@ fun EIFellesformat.extractReferenceParameter(): String {
 
     return when (foresporsel) {
         is PasientlisteForesporsel -> {
-            foresporsel.hentPasientliste?.fnrLege?.extractBirthDay() ?: "NA"
+            val fnrLege = foresporsel.hentPasientliste?.fnrLege
+                ?: foresporsel.startAbonnement?.fnrLege
+                ?: foresporsel.stoppAbonnement?.fnrLege
+                ?: foresporsel.hentAbonnementStatus?.fnrLege
+
+            fnrLege?.extractBirthDay() ?: "NA"
         }
         is FinnUtbetalingListe -> {
             foresporsel.request.bruker?.brukerId?.extractBirthDay() ?: "NA"

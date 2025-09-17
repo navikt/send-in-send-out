@@ -55,7 +55,7 @@ class EventRegistrationServiceImpl(
             messageId = messageId,
             eventData = eventData
         )
-        log.debug("Registering event: $event")
+        log.debug("Registering event: {}", event)
 
         scope.launch {
             eventLoggingService.logEvent(event).onSuccess {
@@ -83,11 +83,9 @@ class EventRegistrationServiceImpl(
             toRole = sendInResponse.addressing.to.role,
             service = sendInResponse.addressing.service,
             action = sendInResponse.addressing.action,
-            refParam = null,
-            sender = null,
             sentAt = Instant.now()
         )
-        log.debug("Publishing message details: $ebmsMessageDetail")
+        log.debug("Publishing message details: {}", ebmsMessageDetail)
 
         scope.launch {
             eventLoggingService.logMessageDetails(ebmsMessageDetail).onSuccess {
@@ -106,10 +104,16 @@ class EventRegistrationServiceFake : EventRegistrationService {
         messageId: String,
         eventData: String
     ) {
-        log.debug("Registering event $eventType for requestId: $requestId, messageId: $messageId and eventData: $eventData")
+        log.debug(
+            "Registering event {} for requestId: {}, messageId: {} and eventData: {}",
+            eventType,
+            requestId,
+            messageId,
+            eventData
+        )
     }
 
     override fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
-        log.debug("Registering message details for SendInResponse: $sendInResponse")
+        log.debug("Registering message details for SendInResponse: {}", sendInResponse)
     }
 }
