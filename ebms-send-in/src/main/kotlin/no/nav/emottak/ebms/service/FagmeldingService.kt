@@ -10,7 +10,8 @@ import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedServi
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
-import no.nav.emottak.frikort.frikortXmlMarshaller
+import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
+import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
@@ -159,7 +160,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = egenandelMengdeForesporselXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead
             ),
             requestId = Uuid.random().toString()
@@ -181,7 +182,7 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${frikortXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
@@ -189,7 +190,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = frikortXmlMarshaller.marshalToByteArray(
+            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead.toKithMsgHead()
             ),
             requestId = Uuid.random().toString()
@@ -211,7 +212,7 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${frikortXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
@@ -219,7 +220,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead.toKithMsgHead()
             ),
             requestId = Uuid.random().toString()
@@ -248,7 +249,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead
             ),
             requestId = Uuid.random().toString()
