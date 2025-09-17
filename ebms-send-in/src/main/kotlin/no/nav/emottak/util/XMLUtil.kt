@@ -3,9 +3,9 @@ package no.nav.emottak.util
 import java.time.Instant
 import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
 
-fun Instant.toXMLGregorianCalendar(): XMLGregorianCalendar =
-    DatatypeFactory.newInstance().newXMLGregorianCalendar(
-        GregorianCalendar().also { it.setTimeInMillis(this.toEpochMilli()) }
-    )
+fun Instant.toXMLGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    GregorianCalendar().apply { this.setTimeInMillis(this@toXMLGregorianCalendar.toEpochMilli()) }
+)
+
+fun String.toXmlGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(this)
