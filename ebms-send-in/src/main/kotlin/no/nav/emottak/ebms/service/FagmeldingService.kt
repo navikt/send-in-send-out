@@ -5,6 +5,7 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
+import no.nav.emottak.config.config
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -304,4 +305,10 @@ object FagmeldingService {
     }
 }
 
-private fun SendInRequest.sendToRESTFrikortEndpoint() = getEnvVar("NAIS_CLUSTER_NAME", "").isNotBlank()
+private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean {
+    return when {
+        getEnvVar("NAIS_CLUSTER_NAME", "local") == "dev-fss" -> true
+        config().frikortCpalist.contains(this.cpaId) -> true
+        else -> false
+    }
+}

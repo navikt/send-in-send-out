@@ -9,6 +9,7 @@ val config: () -> Config = {
         .addResourceSource("/application-personal.conf", optional = true)
         .addResourceSource("/kafka_common.conf")
         .addResourceSource("/application.conf")
+        .addResourceSource("/frikort_rest_cpalist.conf")
         .withExplicitSealedTypes()
         .build()
         .loadConfigOrThrow<Config>()

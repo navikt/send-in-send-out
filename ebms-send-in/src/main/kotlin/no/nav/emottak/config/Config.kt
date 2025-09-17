@@ -7,5 +7,6 @@ import no.nav.emottak.utils.config.Server
 data class Config(
     val server: Server,
     val kafka: Kafka,
-    val eventLogging: EventLogging
+    val eventLogging: EventLogging,
+    val frikortCpalist: List<String>
 )
