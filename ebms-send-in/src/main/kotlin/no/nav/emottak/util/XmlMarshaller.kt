@@ -1,5 +1,6 @@
 package no.nav.emottak.util
 
+import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
 import java.io.StringWriter
 import javax.xml.bind.JAXBContext
@@ -17,6 +18,10 @@ class XmlMarshaller(jaxbContext: JAXBContext) {
             marshaller.marshal(objekt, writer)
         }
         return writer.toString()
+    }
+
+    fun toDomainObject(any: Any): Any {
+        return unmarshaller.unmarshal(any as Node)
     }
 
     fun marshalToByteArray(objekt: Any): ByteArray {

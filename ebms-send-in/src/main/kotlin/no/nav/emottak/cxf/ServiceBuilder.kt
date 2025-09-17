@@ -50,18 +50,6 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
         return this
     }
 
-    fun withFrikortContextClasses(): ServiceBuilder<T> {
-        factoryBean.properties = (factoryBean.properties ?: mutableMapOf()).apply {
-            this["jaxb.additionalContextClasses"] = arrayOf(
-                no.kith.xmlstds.nav.egenandel._2016_06_10.ObjectFactory::class.java,
-                no.kith.xmlstds.nav.egenandel._2010_02_01.ObjectFactory::class.java,
-                no.kith.xmlstds.nav.egenandelmengde._2016_06_10.ObjectFactory::class.java,
-                no.kith.xmlstds.nav.egenandelmengde._2010_10_06.ObjectFactory::class.java
-            )
-        }
-        return this
-    }
-
     fun get(): JaxWsProxyFactoryBean {
         return factoryBean
     }
