@@ -181,7 +181,6 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Response from new frikort: ${frikortXmlMarshaller.marshal(response.eiFellesformat)}")
         log.debug("Marshalled response from new frikort: ${frikortXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
@@ -212,7 +211,6 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Response from new frikort: ${frikortXmlMarshaller.marshal(response.eiFellesformat)}")
         log.debug("Marshalled response from new frikort: ${frikortXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
