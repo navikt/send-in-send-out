@@ -35,28 +35,22 @@ private val frikortSporringClasses = listOf(
 val frikortSporringXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(
-            frikortSporringClasses +
+            commonClasses +
+                frikortSporringClasses +
                 egenandelForesporselClasses +
-                egenandelMengdeForesporselClasses +
-                commonClasses
+                egenandelMengdeForesporselClasses
             ).toTypedArray()
     )
 )
 
 val egenandelForesporselXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
-        *(
-            egenandelForesporselClasses +
-                commonClasses
-            ).toTypedArray()
+        *(commonClasses + egenandelForesporselClasses).toTypedArray()
     )
 )
 
 val egenandelMengdeForesporselXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
-        *(
-            egenandelMengdeForesporselClasses +
-                commonClasses
-            ).toTypedArray()
+        *(commonClasses + egenandelMengdeForesporselClasses).toTypedArray()
     )
 )
