@@ -2,6 +2,7 @@ package no.nav.emottak
 
 import arrow.fx.coroutines.resourceScope
 import com.nimbusds.jwt.SignedJWT
+import io.ktor.http.ContentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
@@ -50,6 +51,7 @@ abstract class PayloadIntegrationTestFelles(
 
     protected fun <T> ebmsSendInTestApp(
         mockResponsePath: String? = null,
+        mockResponseContentType: ContentType = ContentType.Application.Xml,
         testBlock: suspend ApplicationTestBuilder.() -> T
     ) = testApplication {
         resourceScope {
@@ -58,7 +60,7 @@ abstract class PayloadIntegrationTestFelles(
                     String(
                         ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
                     )
-                )
+                ).setHeader("Content-Type", mockResponseContentType)
             )
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 

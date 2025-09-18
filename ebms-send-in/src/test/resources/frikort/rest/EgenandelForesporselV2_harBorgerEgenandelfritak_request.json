@@ -1,0 +1,96 @@
+{
+  "eiFellesformat": {
+    "msgHead": {
+      "msgInfo": {
+        "type": {
+          "v": "EgenandelForesporselV2",
+          "dn": "Forespørsel om egenandel"
+        },
+        "migVersion": "v1.2 2006-05-24",
+        "conversationRef": {
+          "refToParent": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
+          "refToConversation": "5b895fd9-32d5-40d8-b08d-c185a3042a83"
+        },
+        "genDate": "2025-09-17T13:25:52.65Z",
+        "msgId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
+        "sender": {
+          "organization": {
+            "organizationName": "TEST A1 Kjelleparken",
+            "ident": [
+              {
+                "id": "920165982",
+                "typeId": {
+                  "v": "ENH",
+                  "dn": "Organisasjonsnummeret i Enhetsregister",
+                  "s": "2.16.578.1.12.4.1.1.9051"
+                }
+              },
+              {
+                "id": "8134153",
+                "typeId": {
+                  "v": "HER",
+                  "dn": "HER-id",
+                  "s": "2.16.578.1.12.4.1.1.9051"
+                }
+              }
+            ]
+          }
+        },
+        "receiver": {
+          "organization": {
+            "organizationName": "NAV",
+            "ident": [
+              {
+                "id": "889640782",
+                "typeId": {
+                  "v": "ENH",
+                  "dn": "Organisasjonsnummeret i Enhetsregister",
+                  "s": "2.16.578.1.12.4.1.1.9051"
+                }
+              },
+              {
+                "id": "79768",
+                "typeId": {
+                  "v": "HER",
+                  "dn": "Identifikator fra Helsetjenesteenhetsregisteret",
+                  "s": "2.16.578.1.12.4.1.1.9051"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "documents": [
+        {
+          "documentConnection": {
+            "v": "H",
+            "dn": "Hoveddokument"
+          },
+          "refDoc": {
+            "msgType": {
+              "v": "XML",
+              "dn": "XML-instans"
+            },
+            "content": {
+              "egenandelForesporselV2": {
+                "harBorgerEgenandelfritak": {
+                  "borgerFnr": "***********",
+                  "dato": "2025-09-17"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "mottakenhetBlokk": {
+      "ebAction": "EgenandelForesporsel",
+      "ebService": "HarBorgerEgenandelFritak",
+      "ebRole": "Utleverer",
+      "ebXMLSamtaleId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
+      "ediLoggId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
+      "mottaksId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
+      "partnerReferanse": "nav:qass:25367"
+    }
+  }
+}
