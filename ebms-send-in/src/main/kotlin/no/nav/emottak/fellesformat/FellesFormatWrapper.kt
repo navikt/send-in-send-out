@@ -1,6 +1,7 @@
 package no.nav.emottak.fellesformat
 
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.nav.emottak.frikort.frikortSporringXmlMarshaller
 import no.nav.emottak.util.toXMLGregorianCalendar
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -14,6 +15,12 @@ fun SendInRequest.asEIFellesFormat(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(this@asEIFellesFormat)
         msgHead = unmarshal(this@asEIFellesFormat.payload.toString(Charsets.UTF_8), MsgHead::class.java)
+    }
+
+fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
+    fellesFormatFactory.createEIFellesformat().apply {
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(this@asEIFellesFormatWithFrikort)
+        msgHead = frikortSporringXmlMarshaller.unmarshal(this@asEIFellesFormatWithFrikort.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }
 
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {

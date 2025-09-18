@@ -11,6 +11,7 @@ import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedServi
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
@@ -160,7 +161,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = egenandelMengdeForesporselXmlMarshaller.marshalToByteArray(
+            payload = FellesFormatXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead
             ),
             requestId = Uuid.random().toString()
@@ -171,7 +172,7 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        with(sendInRequest.asEIFellesFormat()) {
+        with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             postHarBorgerFrikort(this.asFrikortsporringRequest()).also {
                 eventRegistrationService.registerEvent(
@@ -201,7 +202,7 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        with(sendInRequest.asEIFellesFormat()) {
+        with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             postHarBorgerEgenandelfritak(this.asFrikortsporringRequest()).also {
                 eventRegistrationService.registerEvent(
@@ -249,7 +250,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
+            payload = FellesFormatXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead
             ),
             requestId = Uuid.random().toString()

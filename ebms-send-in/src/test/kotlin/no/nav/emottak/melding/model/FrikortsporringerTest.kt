@@ -1,6 +1,6 @@
 package no.nav.emottak.melding.model
 
-import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.melding.model.FrikortsporringRequest.Companion.asFrikortsporringRequest
 import no.nav.emottak.melding.model.MsgHead.Companion.toKithMsgHead
 import no.nav.emottak.validSendInHarBorgerFrikortRequest
@@ -13,7 +13,7 @@ class FrikortsporringerTest {
 
     @Test
     fun `Map from MsgHead to frikort model`() {
-        val fagmelding = validSendInHarBorgerFrikortRequest.value.asEIFellesFormat()
+        val fagmelding = validSendInHarBorgerFrikortRequest.value.asEIFellesFormatWithFrikort()
         val convertedFagmelding = fagmelding.asFrikortsporringRequest()
 
         assertTrue(fagmelding.msgHead.document.isNotEmpty())
@@ -32,7 +32,7 @@ class FrikortsporringerTest {
 
     @Test
     fun `Map from frikort model to MsgHead`() {
-        val fagmelding = validSendInHarBorgerFrikortRequest.value.asEIFellesFormat()
+        val fagmelding = validSendInHarBorgerFrikortRequest.value.asEIFellesFormatWithFrikort()
         val convertedFagmelding = fagmelding.asFrikortsporringRequest()
 
         val msgHead = convertedFagmelding.eiFellesformat.msgHead.toKithMsgHead()

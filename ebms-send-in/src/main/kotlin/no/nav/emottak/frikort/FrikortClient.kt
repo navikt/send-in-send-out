@@ -29,24 +29,24 @@ fun frikortEndpoint(): FrikortV1Port =
 
 fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
     log.debug(
-        "Sending in frikortsporring request with body: " + FrikortXmlMarshaller.marshal(fellesformat)
+        "Sending in frikortsporring request with body: " + frikortSporringXmlMarshaller.marshal(fellesformat)
     )
 
     return frikortEndpoint.frikortsporring(
         frikortObjectFactory.createFrikortsporringRequest().also { it.eiFellesformat = fellesformat }
     ).also {
-        log.debug("Send in Frikort response " + FrikortXmlMarshaller.marshal(it))
+        log.debug("Send in Frikort response " + frikortSporringXmlMarshaller.marshal(it))
     }
 }
 
 fun frikortsporringMengde(fellesformat: EIFellesformat): FrikortsporringMengdeResponse {
     log.debug(
-        "Sending in frikortsporringMengde request with body: " + FrikortXmlMarshaller.marshal(fellesformat)
+        "Sending in frikortsporringMengde request with body: " + frikortSporringXmlMarshaller.marshal(fellesformat)
     )
 
     return frikortEndpoint.frikortsporringMengde(
         frikortObjectFactory.createFrikortsporringMengdeRequest().also { it.eiFellesformat = fellesformat }
     ).also {
-        log.debug("Send in FrikortMengde response " + FrikortXmlMarshaller.marshal(it))
+        log.debug("Send in FrikortMengde response " + frikortSporringXmlMarshaller.marshal(it))
     }
 }
