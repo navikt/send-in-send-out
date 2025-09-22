@@ -1,5 +1,6 @@
 package no.nav.emottak.melding.model
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import no.kith.xmlstds.msghead._2006_05_24.Organisation
 import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelParamType
@@ -50,6 +51,7 @@ import no.nav.emottak.melding.model.Sender.Companion.fromKithSender
 import no.nav.emottak.melding.model.Sender.Companion.toKithSender
 import no.nav.emottak.melding.model.TjenestetypeKode.Companion.toKithTjenestetypeKode
 import no.nav.emottak.melding.model.TjenestetypeKode.Companion.toTjenestetypeKode
+import no.nav.emottak.util.toLocalDate
 import no.nav.emottak.util.toXmlGregorianCalendar
 import kotlin.String
 
@@ -436,7 +438,7 @@ data class EgenandelMengdeForesporselV2(
 @Serializable
 data class HarBorgerFrikortParamType(
     val borgerFnr: String,
-    val dato: String
+    val dato: LocalDate
 ) {
     companion object {
         fun HarBorgerFrikortParamType.toKithEgenandelParamType() = EgenandelParamType().apply {
@@ -446,7 +448,7 @@ data class HarBorgerFrikortParamType(
 
         fun EgenandelParamType.toFrikortHarBorgerFrikortParamType() = HarBorgerFrikortParamType(
             borgerFnr = this.borgerFnr,
-            dato = this.dato.toString()
+            dato = this.dato.toLocalDate()
         )
     }
 }
@@ -454,7 +456,7 @@ data class HarBorgerFrikortParamType(
 @Serializable
 data class HarBorgerFrikortParamTypeV2(
     val borgerFnr: String,
-    val dato: String,
+    val dato: LocalDate,
     val tjenestetypeKode: TjenestetypeKode
 ) {
     companion object {
@@ -466,7 +468,7 @@ data class HarBorgerFrikortParamTypeV2(
 
         fun FrikortParamType.toFrikortHarBorgerFrikortParamTypeV2() = HarBorgerFrikortParamTypeV2(
             borgerFnr = this.borgerFnr,
-            dato = this.dato.toString(),
+            dato = this.dato.toLocalDate(),
             tjenestetypeKode = this.tjenestetypeKode.toTjenestetypeKode()
         )
     }
@@ -475,7 +477,7 @@ data class HarBorgerFrikortParamTypeV2(
 @Serializable
 data class HarBorgerEgenandelfritakParamType(
     val borgerFnr: String,
-    val dato: String
+    val dato: LocalDate
 ) {
     companion object {
         fun HarBorgerEgenandelfritakParamType.toKithEgenandelfritakParamType() = EgenandelfritakParamType().apply {
@@ -490,12 +492,12 @@ data class HarBorgerEgenandelfritakParamType(
 
         fun EgenandelParamType.toFrikortHarBorgerEgenandelfritakParamType() = HarBorgerEgenandelfritakParamType(
             borgerFnr = this.borgerFnr,
-            dato = this.dato.toString()
+            dato = this.dato.toLocalDate()
         )
 
         fun EgenandelfritakParamType.toFrikortHarBorgerEgenandelfritakParamType() = HarBorgerEgenandelfritakParamType(
             borgerFnr = this.borgerFnr,
-            dato = this.dato.toString()
+            dato = this.dato.toLocalDate()
         )
     }
 }
@@ -552,20 +554,20 @@ data class FrikortsporringResponse(
 @Serializable
 data class HarBorgerFrikortMengdeParamType(
     val borgerFnr: String,
-    val dato: String
+    val dato: LocalDate
 )
 
 @Serializable
 data class HarBorgerFrikortMengdeParamTypeV2(
     val borgerFnr: String,
-    val dato: String,
+    val dato: LocalDate,
     val tjenestetypeKode: TjenestetypeKode
 )
 
 @Serializable
 data class HarBorgerFrikortSvar(
     val borgerFnr: String,
-    val dato: String,
+    val dato: LocalDate,
     val status: CS,
     val svarMelding: String
 )
@@ -573,7 +575,7 @@ data class HarBorgerFrikortSvar(
 @Serializable
 data class HarBorgerFrikortSvarV2(
     val borgerFnr: String,
-    val dato: String,
+    val dato: LocalDate,
     val tjenestetypeKode: TjenestetypeKode,
     val status: CS,
     val svarMelding: String

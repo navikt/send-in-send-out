@@ -1,5 +1,6 @@
 package no.nav.emottak.melding.model
 
+import kotlinx.datetime.LocalDate
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.melding.model.FrikortsporringRequest.Companion.asFrikortsporringRequest
 import no.nav.emottak.melding.model.MsgHead.Companion.toKithMsgHead
@@ -27,7 +28,7 @@ class FrikortsporringerTest {
 
         assertNotNull(convertedFagmelding.eiFellesformat.msgHead?.documents?.first()?.refDoc?.content?.egenandelForesporselV2)
         assertEquals("12345678910", convertedFagmelding.eiFellesformat.msgHead.documents?.first()?.refDoc?.content?.egenandelForesporselV2?.harBorgerFrikort?.borgerFnr)
-        assertEquals("2023-11-20", convertedFagmelding.eiFellesformat.msgHead.documents?.first()?.refDoc?.content?.egenandelForesporselV2?.harBorgerFrikort?.dato)
+        assertEquals(LocalDate.parse("2023-11-20"), convertedFagmelding.eiFellesformat.msgHead.documents?.first()?.refDoc?.content?.egenandelForesporselV2?.harBorgerFrikort?.dato)
     }
 
     @Test

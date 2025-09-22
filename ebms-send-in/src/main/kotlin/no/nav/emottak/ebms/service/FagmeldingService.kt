@@ -304,4 +304,4 @@ object FagmeldingService {
     }
 }
 
-private fun SendInRequest.sendToRESTFrikortEndpoint() = config().cluster.isDev() || config().frikortCpalist.contains(this.cpaId)
+private fun SendInRequest.sendToRESTFrikortEndpoint() = config().clusterName.isDev() || config().frikortCpalist.contains(this.cpaId)

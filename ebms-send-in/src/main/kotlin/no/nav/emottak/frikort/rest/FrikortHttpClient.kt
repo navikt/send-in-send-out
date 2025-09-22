@@ -10,57 +10,50 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import no.nav.emottak.config.AppScope
+import no.nav.emottak.config.AzureAuth
+import no.nav.emottak.config.config
 import no.nav.emottak.melding.model.FrikortsporringRequest
 import no.nav.emottak.melding.model.FrikortsporringResponse
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
-import no.nav.emottak.utils.environment.getEnvVar
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.RuntimeException
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.URI
 import kotlin.also
 
-val URL_FRIKORT_BASE = getEnvVar("FRIKORT_URL_REST", "http://frikorttjenester.teamfrikort/api/ekstern/frikortsporringer")
-val URL_FRIKORT_HAR_BORGER_FRIKORT = "$URL_FRIKORT_BASE/harborgerfrikort"
-val URL_FRIKORT_HAR_BORGER_EGENANDELFRITAK = "$URL_FRIKORT_BASE/harborgeregenandelfritak"
-
 val log: Logger = LoggerFactory.getLogger("no.nav.emottak.frikort.rest.FrikortHttpClient")
-
-const val AZURE_AD_AUTH = "AZURE_AD"
 
 val LENIENT_JSON_PARSER = Json {
     isLenient = true
 }
 
-val frikortHttpClient = getFrikortRepoAuthenticatedClient()
+val frikortHttpClient = httpClientAuthenticatedForFrikortTjenester()
 
-val FRIKORT_REPO_SCOPE = getEnvVar(
-    "FRIKORT_REPO_SCOPE",
-    "api://" + getEnvVar("NAIS_CLUSTER_NAME", "dev-fss") +
-        ".teamfrikort.frikorttjenester/.default"
-)
-
-suspend fun getFrikortRepoToken(): BearerTokens {
+suspend fun getFrikorttjenesterToken(azureAuth: AzureAuth, scope: AppScope): BearerTokens {
     val requestBody =
-        "client_id=" + getEnvVar("AZURE_APP_CLIENT_ID", "ebms-send-in") +
-            "&client_secret=" + getEnvVar("AZURE_APP_CLIENT_SECRET", "dummysecret") +
-            "&scope=" + FRIKORT_REPO_SCOPE +
-            "&grant_type=client_credentials"
+        "client_id=${azureAuth.azureAppClientId.value}" +
+            "&client_secret=${azureAuth.azureAppClientSecret.value}" +
+            "&scope=${scope.value}" +
+            "&grant_type=${azureAuth.azureGrantType.value}"
 
     return HttpClient(CIO) {
         engine {
-            val httpProxyUrl = getEnvVar("HTTP_PROXY", "")
+            val httpProxyUrl = azureAuth.azureHttpProxy.value
             if (httpProxyUrl.isNotBlank()) {
                 proxy = Proxy(
                     Proxy.Type.HTTP,
@@ -69,10 +62,7 @@ suspend fun getFrikortRepoToken(): BearerTokens {
             }
         }
     }.post(
-        getEnvVar(
-            "AZURE_OPENID_CONFIG_TOKEN_ENDPOINT",
-            "http://localhost:3344/$AZURE_AD_AUTH/token"
-        )
+        azureAuth.azureTokenEndpoint.value
     ) {
         headers {
             header("Content-Type", "application/x-www-form-urlencoded")
@@ -89,7 +79,7 @@ suspend fun getFrikortRepoToken(): BearerTokens {
         }
 }
 
-fun getFrikortRepoAuthenticatedClient(): HttpClient {
+fun httpClientAuthenticatedForFrikortTjenester(): HttpClient {
     return HttpClient(CIO) {
         install(HttpTimeout) {
             this.requestTimeoutMillis = 60000
@@ -97,15 +87,15 @@ fun getFrikortRepoAuthenticatedClient(): HttpClient {
         install(ContentNegotiation) {
             json()
         }
-        installFrikortRepoAuthentication()
+        installFrikorttjenesterAuthentication()
     }
 }
 
-fun HttpClientConfig<*>.installFrikortRepoAuthentication() {
+fun HttpClientConfig<*>.installFrikorttjenesterAuthentication() {
     install(Auth) {
         bearer {
             refreshTokens {
-                getFrikortRepoToken()
+                getFrikorttjenesterToken(config().azureAuth, config().frikorttjenester.scope)
             }
             sendWithoutRequest {
                 true
@@ -121,15 +111,14 @@ suspend fun postHarBorgerFrikort(frikortsporringRequest: FrikortsporringRequest)
         obj = frikortsporringRequest,
         serializer = FrikortsporringRequest.serializer()
     )
-    val httpResponse = runCatching {
-        frikortHttpClient.post(URL_FRIKORT_HAR_BORGER_FRIKORT) {
-            setBody(frikortsporringRequest)
-            contentType(ContentType.Application.Json)
-        }
-    }.onFailure { throwable ->
-        throw throwable
-    }.getOrThrow()
-    return httpResponse.body<FrikortsporringResponse>().also {
+    val httpResponse = frikortHttpClient.post(config().frikorttjenester.harBorgerFrikortEndpoint.value) {
+        setBody(frikortsporringRequest)
+        contentType(ContentType.Application.Json)
+    }
+    return when (httpResponse.status) {
+        HttpStatusCode.OK -> httpResponse.body<FrikortsporringResponse>()
+        else -> throw RuntimeException(httpResponse.bodyAsText())
+    }.also {
         log.asJson(
             LogLevel.DEBUG,
             message = "HarBorgerFrikort REST Json response",
@@ -146,15 +135,14 @@ suspend fun postHarBorgerEgenandelfritak(frikortsporringRequest: Frikortsporring
         obj = frikortsporringRequest,
         serializer = FrikortsporringRequest.serializer()
     )
-    val httpResponse = runCatching {
-        frikortHttpClient.post(URL_FRIKORT_HAR_BORGER_EGENANDELFRITAK) {
-            setBody(frikortsporringRequest)
-            contentType(ContentType.Application.Json)
-        }
-    }.onFailure { throwable ->
-        throw throwable
-    }.getOrThrow()
-    return httpResponse.body<FrikortsporringResponse>().also {
+    val httpResponse = frikortHttpClient.post(config().frikorttjenester.harBorgerEgenandelFritakEndpoint.value) {
+        setBody(frikortsporringRequest)
+        contentType(ContentType.Application.Json)
+    }
+    return when (httpResponse.status) {
+        HttpStatusCode.OK -> httpResponse.body<FrikortsporringResponse>()
+        else -> throw RuntimeException(httpResponse.bodyAsText())
+    }.also {
         log.asJson(
             LogLevel.DEBUG,
             message = "HarBorgerEgenandelfritak REST Json response",
