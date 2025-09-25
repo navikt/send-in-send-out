@@ -117,7 +117,10 @@ suspend fun postHarBorgerFrikort(frikortsporringRequest: FrikortsporringRequest)
     }
     return when (httpResponse.status) {
         HttpStatusCode.OK -> httpResponse.body<FrikortsporringResponse>()
-        else -> throw RuntimeException(httpResponse.bodyAsText())
+        else -> {
+            log.error("Frikort response: ${httpResponse.status} - ${httpResponse.bodyAsText()}")
+            throw RuntimeException(httpResponse.bodyAsText())
+        }
     }.also {
         log.asJson(
             LogLevel.DEBUG,
@@ -141,7 +144,10 @@ suspend fun postHarBorgerEgenandelfritak(frikortsporringRequest: Frikortsporring
     }
     return when (httpResponse.status) {
         HttpStatusCode.OK -> httpResponse.body<FrikortsporringResponse>()
-        else -> throw RuntimeException(httpResponse.bodyAsText())
+        else -> {
+            log.error("Frikort response: ${httpResponse.status} - ${httpResponse.bodyAsText()}")
+            throw RuntimeException(httpResponse.bodyAsText())
+        }
     }.also {
         log.asJson(
             LogLevel.DEBUG,
