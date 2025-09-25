@@ -2,8 +2,12 @@ name: "PROD: Build and deploy cpa-sync til PROD"
 on:
   workflow_call:
   workflow_dispatch:
+  push:
     branches:
       - main
+    paths:
+      - cpa-sync/**
+      - .github/workflows/cpa-sync-deploy-dev.yaml
 env:
   MODULE_NAME: "cpa-sync"
   NAIS_MANIFEST: "cpa-sync-prod.yaml"
