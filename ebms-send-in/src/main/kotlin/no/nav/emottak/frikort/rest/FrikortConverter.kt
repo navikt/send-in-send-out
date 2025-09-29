@@ -3,6 +3,9 @@ package no.nav.emottak.frikort.rest
 import no.helsedir.frikort.frikorttjenester.model.CS
 import no.helsedir.frikort.frikorttjenester.model.CV
 import no.helsedir.frikort.frikorttjenester.model.Content
+import no.helsedir.frikort.frikorttjenester.model.Document
+import no.helsedir.frikort.frikorttjenester.model.EIFellesformat
+import no.helsedir.frikort.frikorttjenester.model.EgenandelForesporsel
 import no.helsedir.frikort.frikorttjenester.model.FrikortsporringRequest
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerEgenandelfritakParamType
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortMengdeParamType
@@ -11,6 +14,7 @@ import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortParamType
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortParamTypeV2
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvar
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvarV2
+import no.helsedir.frikort.frikorttjenester.model.HealthcareProfessional
 import no.helsedir.frikort.frikorttjenester.model.Ident
 import no.helsedir.frikort.frikorttjenester.model.MottakenhetBlokk
 import no.helsedir.frikort.frikorttjenester.model.MsgHead
@@ -20,27 +24,12 @@ import no.helsedir.frikort.frikorttjenester.model.Receiver
 import no.helsedir.frikort.frikorttjenester.model.RefDoc
 import no.helsedir.frikort.frikorttjenester.model.Sender
 import no.helsedir.frikort.frikorttjenester.model.TjenestetypeKode
-import no.kith.xmlstds.msghead._2006_05_24.Document
-import no.kith.xmlstds.msghead._2006_05_24.HealthcareProfessional
-import no.kith.xmlstds.msghead._2006_05_24.Organisation
-import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel
-import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelParamType
-import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelSvar
-import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2
-import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
-import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelfritakParamType
-import no.kith.xmlstds.nav.egenandel._2016_06_10.FrikortParamType
-import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel
-import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeSvar
-import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2
-import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.util.toKotlinxInstant
 import no.nav.emottak.util.toLocalDate
-import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
-fun EIFellesformat.toFrikortsporringRequest() =
+fun no.trygdeetaten.xml.eiff._1.EIFellesformat.toFrikortsporringRequest() =
     FrikortsporringRequest(
-        no.helsedir.frikort.frikorttjenester.model.EIFellesformat(
+        EIFellesformat(
             msgHead = this@toFrikortsporringRequest.msgHead.toMsgHead(),
             mottakenhetBlokk = this@toFrikortsporringRequest.mottakenhetBlokk.toMottakenhetBlokk()
         )
@@ -51,7 +40,7 @@ private fun no.kith.xmlstds.msghead._2006_05_24.MsgHead.toMsgHead() = MsgHead(
     documents = this@toMsgHead.document.map { it.toDocument() }
 )
 
-private fun Document.toDocument() = no.helsedir.frikort.frikorttjenester.model.Document(
+private fun no.kith.xmlstds.msghead._2006_05_24.Document.toDocument() = Document(
     refDoc = RefDoc(
         msgType = this@toDocument.refDoc.msgType.toCS(),
         content = this@toDocument.refDoc.content.toContent(),
@@ -62,53 +51,53 @@ private fun Document.toDocument() = no.helsedir.frikort.frikorttjenester.model.D
 
 private fun no.kith.xmlstds.msghead._2006_05_24.RefDoc.Content.toContent(): Content {
     return when (val request = this@toContent.any.first()) {
-        is EgenandelForesporsel -> Content(
-            egenandelForesporsel = no.helsedir.frikort.frikorttjenester.model.EgenandelForesporsel(
+        is no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel -> Content(
+            egenandelForesporsel = EgenandelForesporsel(
                 harBorgerFrikort = request.harBorgerFrikort?.toHarBorgerFrikort(),
                 harBorgerEgenandelfritak = request.harBorgerEgenandelfritak?.toHarBorgerEgenandelFritak()
             )
         )
 
-        is EgenandelForesporselV2 -> Content(
+        is no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2 -> Content(
             egenandelForesporselV2 = no.helsedir.frikort.frikorttjenester.model.EgenandelForesporselV2(
                 harBorgerFrikort = request.harBorgerFrikort?.toHarBorgerFrikort(),
                 harBorgerEgenandelfritak = request.harBorgerEgenandelfritak?.toHarBorgerEgenandelFritak()
             )
         )
 
-        is EgenandelSvar -> Content(
+        is no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelSvar -> Content(
             egenandelSvar = no.helsedir.frikort.frikorttjenester.model.EgenandelSvar(
                 status = request.status.toCS(),
                 svarMelding = request.svarmelding
             )
         )
 
-        is EgenandelSvarV2 -> Content(
+        is no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2 -> Content(
             egenandelSvarV2 = no.helsedir.frikort.frikorttjenester.model.EgenandelSvarV2(
                 status = request.status.toCS(),
                 svarMelding = request.svarmelding
             )
         )
 
-        is EgenandelMengdeForesporsel -> Content(
+        is no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel -> Content(
             egenandelMengdeForesporsel = no.helsedir.frikort.frikorttjenester.model.EgenandelMengdeForesporsel(
                 harBorgerFrikort = request.harBorgerFrikort.map { it.toHarBorgerFrikortMengdeParamType() }
             )
         )
 
-        is EgenandelMengdeForesporselV2 -> Content(
+        is no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2 -> Content(
             egenandelMengdeForesporselV2 = no.helsedir.frikort.frikorttjenester.model.EgenandelMengdeForesporselV2(
                 harBorgerFrikort = request.harBorgerFrikort.map { it.toHarBorgerFrikortMengdeParamTypeV2() }
             )
         )
 
-        is EgenandelMengdeSvar -> Content(
+        is no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeSvar -> Content(
             egenandelMengdeSvar = no.helsedir.frikort.frikorttjenester.model.EgenandelMengdeSvar(
                 harBorgerFrikortSvar = request.harBorgerFrikortSvar.map { it.toHarBorgerFrikortSvar() }
             )
         )
 
-        is EgenandelMengdeSvarV2 -> Content(
+        is no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2 -> Content(
             egenandelMengdeSvarV2 = no.helsedir.frikort.frikorttjenester.model.EgenandelMengdeSvarV2(
                 harBorgerFrikortSvar = request.harBorgerFrikortSvar.map { it.toHarBorgerFrikortSvar() }
             )
@@ -129,35 +118,35 @@ private fun no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelParamType.t
         tjenestetypeKode = TjenestetypeKode.valueOf(this@toHarBorgerFrikortMengdeParamTypeV2.tjenestetypeKode.value())
     )
 
-private fun EgenandelParamType.toHarBorgerFrikort() = HarBorgerFrikortParamType(
+private fun no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelParamType.toHarBorgerFrikort() = HarBorgerFrikortParamType(
     borgerFnr = this@toHarBorgerFrikort.borgerFnr,
     dato = this@toHarBorgerFrikort.dato.toLocalDate()
 )
 
-private fun EgenandelParamType.toHarBorgerEgenandelFritak() = HarBorgerEgenandelfritakParamType(
+private fun no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelParamType.toHarBorgerEgenandelFritak() = HarBorgerEgenandelfritakParamType(
     borgerFnr = this@toHarBorgerEgenandelFritak.borgerFnr,
     dato = this@toHarBorgerEgenandelFritak.dato.toLocalDate()
 )
 
-private fun FrikortParamType.toHarBorgerFrikort() = HarBorgerFrikortParamTypeV2(
+private fun no.kith.xmlstds.nav.egenandel._2016_06_10.FrikortParamType.toHarBorgerFrikort() = HarBorgerFrikortParamTypeV2(
     borgerFnr = this@toHarBorgerFrikort.borgerFnr,
     dato = this@toHarBorgerFrikort.dato.toLocalDate(),
     tjenestetypeKode = TjenestetypeKode.valueOf(this@toHarBorgerFrikort.tjenestetypeKode.value())
 )
 
-private fun EgenandelfritakParamType.toHarBorgerEgenandelFritak() = HarBorgerEgenandelfritakParamType(
+private fun no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelfritakParamType.toHarBorgerEgenandelFritak() = HarBorgerEgenandelfritakParamType(
     borgerFnr = this@toHarBorgerEgenandelFritak.borgerFnr,
     dato = this@toHarBorgerEgenandelFritak.dato.toLocalDate()
 )
 
-private fun EgenandelMengdeSvar.HarBorgerFrikortSvar.toHarBorgerFrikortSvar() = HarBorgerFrikortSvar(
+private fun no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeSvar.HarBorgerFrikortSvar.toHarBorgerFrikortSvar() = HarBorgerFrikortSvar(
     borgerFnr = this@toHarBorgerFrikortSvar.borgerFnr,
     dato = this@toHarBorgerFrikortSvar.dato.toLocalDate(),
     status = this@toHarBorgerFrikortSvar.status.toCS(),
     svarMelding = this@toHarBorgerFrikortSvar.svarmelding
 )
 
-private fun EgenandelMengdeSvarV2.HarBorgerFrikortSvar.toHarBorgerFrikortSvar() = HarBorgerFrikortSvarV2(
+private fun no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2.HarBorgerFrikortSvar.toHarBorgerFrikortSvar() = HarBorgerFrikortSvarV2(
     borgerFnr = this@toHarBorgerFrikortSvar.borgerFnr,
     dato = this@toHarBorgerFrikortSvar.dato.toLocalDate(),
     tjenestetypeKode = TjenestetypeKode.valueOf(this@toHarBorgerFrikortSvar.tjenestetypeKode.value()),
@@ -190,17 +179,18 @@ private fun no.kith.xmlstds.msghead._2006_05_24.MsgInfo.toMsgInfo() = MsgInfo(
     )
 )
 
-private fun Organisation.toOrganisation() = Organization(
+private fun no.kith.xmlstds.msghead._2006_05_24.Organisation.toOrganisation() = Organization(
     organizationName = this@toOrganisation.organisationName,
     ident = this@toOrganisation.ident.map { it.toIdent() },
     healthcareProfessional = this@toOrganisation.healthcareProfessional?.toHealthcareProfessional()
 )
 
-private fun HealthcareProfessional.toHealthcareProfessional() = no.helsedir.frikort.frikorttjenester.model.HealthcareProfessional(
-    familyName = this@toHealthcareProfessional.familyName,
-    givenName = this@toHealthcareProfessional.givenName,
-    ident = this@toHealthcareProfessional.ident.map { it.toIdent() }
-)
+private fun no.kith.xmlstds.msghead._2006_05_24.HealthcareProfessional.toHealthcareProfessional() =
+    HealthcareProfessional(
+        familyName = this@toHealthcareProfessional.familyName,
+        givenName = this@toHealthcareProfessional.givenName,
+        ident = this@toHealthcareProfessional.ident.map { it.toIdent() }
+    )
 
 private fun no.kith.xmlstds.msghead._2006_05_24.Ident.toIdent() = Ident(
     id = this@toIdent.id,
@@ -211,7 +201,7 @@ private fun no.kith.xmlstds.msghead._2006_05_24.Ident.toIdent() = Ident(
     )
 )
 
-private fun EIFellesformat.MottakenhetBlokk.toMottakenhetBlokk() = MottakenhetBlokk(
+private fun no.trygdeetaten.xml.eiff._1.EIFellesformat.MottakenhetBlokk.toMottakenhetBlokk() = MottakenhetBlokk(
     ebAction = this@toMottakenhetBlokk.ebAction,
     ebService = MottakenhetBlokk.EbService.valueOf(this@toMottakenhetBlokk.ebService),
     ebRole = this@toMottakenhetBlokk.ebRole,
