@@ -1,5 +1,6 @@
 package no.nav.emottak.frikort.rest
 
+import io.ktor.server.plugins.BadRequestException
 import no.helsedir.frikort.frikorttjenester.model.CS
 import no.helsedir.frikort.frikorttjenester.model.CV
 import no.helsedir.frikort.frikorttjenester.model.Content
@@ -115,7 +116,8 @@ private fun no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelParamType.t
     HarBorgerFrikortMengdeParamTypeV2(
         borgerFnr = this@toHarBorgerFrikortMengdeParamTypeV2.borgerFnr,
         dato = this@toHarBorgerFrikortMengdeParamTypeV2.dato.toLocalDate(),
-        tjenestetypeKode = TjenestetypeKode.valueOf(this@toHarBorgerFrikortMengdeParamTypeV2.tjenestetypeKode.value())
+        tjenestetypeKode = TjenestetypeKode.decode(this@toHarBorgerFrikortMengdeParamTypeV2.tjenestetypeKode)
+            ?: throw BadRequestException("Ugyldig TjenestetypeKode: ${this@toHarBorgerFrikortMengdeParamTypeV2.tjenestetypeKode}")
     )
 
 private fun no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelParamType.toHarBorgerFrikort() = HarBorgerFrikortParamType(
@@ -131,7 +133,8 @@ private fun no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelParamType.toHarBo
 private fun no.kith.xmlstds.nav.egenandel._2016_06_10.FrikortParamType.toHarBorgerFrikort() = HarBorgerFrikortParamTypeV2(
     borgerFnr = this@toHarBorgerFrikort.borgerFnr,
     dato = this@toHarBorgerFrikort.dato.toLocalDate(),
-    tjenestetypeKode = TjenestetypeKode.valueOf(this@toHarBorgerFrikort.tjenestetypeKode.value())
+    tjenestetypeKode = TjenestetypeKode.decode(this@toHarBorgerFrikort.tjenestetypeKode)
+        ?: throw BadRequestException("Ugyldig TjenestetypeKode: ${this@toHarBorgerFrikort.tjenestetypeKode}")
 )
 
 private fun no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelfritakParamType.toHarBorgerEgenandelFritak() = HarBorgerEgenandelfritakParamType(
@@ -149,7 +152,8 @@ private fun no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeSvar.
 private fun no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2.HarBorgerFrikortSvar.toHarBorgerFrikortSvar() = HarBorgerFrikortSvarV2(
     borgerFnr = this@toHarBorgerFrikortSvar.borgerFnr,
     dato = this@toHarBorgerFrikortSvar.dato.toLocalDate(),
-    tjenestetypeKode = TjenestetypeKode.valueOf(this@toHarBorgerFrikortSvar.tjenestetypeKode.value()),
+    tjenestetypeKode = TjenestetypeKode.decode(this@toHarBorgerFrikortSvar.tjenestetypeKode)
+        ?: throw BadRequestException("Ugyldig TjenestetypeKode: ${this@toHarBorgerFrikortSvar.tjenestetypeKode}"),
     status = this@toHarBorgerFrikortSvar.status.toCS(),
     svarMelding = this@toHarBorgerFrikortSvar.svarmelding
 )
