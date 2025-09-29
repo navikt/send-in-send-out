@@ -57,7 +57,7 @@ private fun Document.toDocument() = no.helsedir.frikort.frikorttjenester.model.D
         content = this@toDocument.refDoc.content.toContent(),
         mimeType = this@toDocument.refDoc.mimeType
     ),
-    documentConnection = this@toDocument.documentConnection.toCS()
+    documentConnection = this@toDocument.documentConnection?.toCS()
 )
 
 private fun no.kith.xmlstds.msghead._2006_05_24.RefDoc.Content.toContent(): Content {
