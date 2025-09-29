@@ -1,0 +1,152 @@
+package no.nav.emottak.frikort.rest
+
+import no.helsedir.frikort.frikorttjenester.model.Content
+import no.helsedir.frikort.frikorttjenester.model.FrikortsporringResponse
+import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvar
+import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvarV2
+import no.helsedir.frikort.frikorttjenester.model.MottakenhetBlokk
+import no.helsedir.frikort.frikorttjenester.model.Organization
+import no.kith.xmlstds.msghead._2006_05_24.CS
+import no.kith.xmlstds.msghead._2006_05_24.CV
+import no.kith.xmlstds.msghead._2006_05_24.Document
+import no.kith.xmlstds.msghead._2006_05_24.HealthcareProfessional
+import no.kith.xmlstds.msghead._2006_05_24.Ident
+import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.kith.xmlstds.msghead._2006_05_24.MsgInfo
+import no.kith.xmlstds.msghead._2006_05_24.Organisation
+import no.kith.xmlstds.msghead._2006_05_24.Receiver
+import no.kith.xmlstds.msghead._2006_05_24.RefDoc
+import no.kith.xmlstds.msghead._2006_05_24.Sender
+import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelSvar
+import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
+import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeSvar
+import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
+import no.nav.emottak.util.toXmlGregorianCalendar
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
+
+fun FrikortsporringResponse.toEIFellesformat() = EIFellesformat().apply {
+    msgHead = this@toEIFellesformat.eiFellesformat.msgHead?.toMsgHead()
+    mottakenhetBlokk = this@toEIFellesformat.eiFellesformat.mottakenhetBlokk?.toMottakenhetBlokk()
+}
+
+private fun no.helsedir.frikort.frikorttjenester.model.MsgInfo.toMsgInfo(): MsgInfo {
+    return MsgInfo().apply {
+        type = this@toMsgInfo.type.toMsgHeadCS()
+        miGversion = this@toMsgInfo.migVersion
+        genDate = this@toMsgInfo.genDate.toXmlGregorianCalendar()
+        msgId = this@toMsgInfo.msgId
+        sender = Sender().apply {
+            organisation = this@toMsgInfo.sender.organization.toOrganisation()
+            comMethod = this@toMsgInfo.sender.comMethod?.toMsgHeadCS()
+        }
+        receiver = Receiver().apply {
+            organisation = this@toMsgInfo.receiver.organization.toOrganisation()
+            comMethod = this@toMsgInfo.receiver.comMethod?.toMsgHeadCS()
+        }
+    }
+}
+
+fun no.helsedir.frikort.frikorttjenester.model.MsgHead.toMsgHead(): MsgHead {
+    return MsgHead().apply {
+        msgInfo = this@toMsgHead.msgInfo.toMsgInfo()
+        document.addAll(this@toMsgHead.documents?.map { it.toDocument() } ?: emptyList())
+    }
+}
+
+private fun no.helsedir.frikort.frikorttjenester.model.Document.toDocument() = Document().apply {
+    refDoc = RefDoc().apply {
+        msgType = this@toDocument.refDoc.msgType.toMsgHeadCS()
+        mimeType = this@toDocument.refDoc.mimeType
+        content = this@toDocument.refDoc.content?.toContent()
+    }
+    documentConnection = this@toDocument.documentConnection?.toMsgHeadCS()
+}
+
+private fun Content.toContent(): RefDoc.Content {
+    val response = if (egenandelSvar != null) {
+        EgenandelSvar().apply {
+            status = egenandelSvar.status.toCS()
+            svarmelding = egenandelSvar.svarMelding
+        }
+    } else if (egenandelSvarV2 != null) {
+        EgenandelSvarV2().apply {
+            status = egenandelSvarV2.status.toCS()
+            svarmelding = egenandelSvarV2.svarMelding
+        }
+    } else if (egenandelMengdeSvar != null) {
+        EgenandelMengdeSvar().apply {
+            harBorgerFrikortSvar.addAll(
+                egenandelMengdeSvar.harBorgerFrikortSvar.map { it.toHarBorgerFrikortSvar() }
+            )
+        }
+    } else if (egenandelMengdeSvarV2 != null) {
+        EgenandelMengdeSvarV2().apply {
+            harBorgerFrikortSvar.addAll(
+                egenandelMengdeSvarV2.harBorgerFrikortSvar.map { it.toHarBorgerFrikortSvar() }
+            )
+        }
+    } else {
+        throw RuntimeException("Unknown return content type")
+    }
+
+    return RefDoc.Content().apply {
+        any.add(response)
+    }
+}
+
+private fun HarBorgerFrikortSvar.toHarBorgerFrikortSvar() = EgenandelMengdeSvar.HarBorgerFrikortSvar().apply {
+    this.dato = this@toHarBorgerFrikortSvar.dato.toXmlGregorianCalendar()
+    this.borgerFnr = this@toHarBorgerFrikortSvar.borgerFnr
+    this.svarmelding = this@toHarBorgerFrikortSvar.svarMelding
+    this.status = this@toHarBorgerFrikortSvar.status.toCS()
+}
+
+private fun HarBorgerFrikortSvarV2.toHarBorgerFrikortSvar() = EgenandelMengdeSvarV2.HarBorgerFrikortSvar().apply {
+    this.dato = this@toHarBorgerFrikortSvar.dato.toXmlGregorianCalendar()
+    this.borgerFnr = this@toHarBorgerFrikortSvar.borgerFnr
+    this.svarmelding = this@toHarBorgerFrikortSvar.svarMelding
+    this.status = this@toHarBorgerFrikortSvar.status.toCS()
+}
+
+private fun no.helsedir.frikort.frikorttjenester.model.CS.toMsgHeadCS() = CS().apply {
+    v = this@toMsgHeadCS.v
+    dn = this@toMsgHeadCS.dn
+}
+
+private fun no.helsedir.frikort.frikorttjenester.model.CS.toCS() = no.kith.xmlstds.CS().apply {
+    v = this@toCS.v
+    dn = this@toCS.dn
+}
+
+private fun Organization.toOrganisation() = Organisation().apply {
+    organisationName = this@toOrganisation.organizationName
+    ident.addAll(this@toOrganisation.ident?.map { it.toIdent() } ?: emptyList())
+    healthcareProfessional = this@toOrganisation.healthcareProfessional.toHealthcareProfessional()
+}
+
+private fun no.helsedir.frikort.frikorttjenester.model.HealthcareProfessional?.toHealthcareProfessional(): HealthcareProfessional {
+    return HealthcareProfessional().apply {
+        familyName = this@toHealthcareProfessional?.familyName
+        givenName = this@toHealthcareProfessional?.givenName
+        ident.addAll(this@toHealthcareProfessional?.ident?.map { it.toIdent() } ?: emptyList())
+    }
+}
+
+private fun no.helsedir.frikort.frikorttjenester.model.Ident.toIdent() = Ident().apply {
+    id = this@toIdent.id
+    typeId = CV().apply {
+        v = this@toIdent.typeId.v
+        dn = this@toIdent.typeId.dn
+        s = this@toIdent.typeId.s
+    }
+}
+
+private fun MottakenhetBlokk.toMottakenhetBlokk() = EIFellesformat.MottakenhetBlokk().apply {
+    ebAction = this@toMottakenhetBlokk.ebAction
+    ebService = this@toMottakenhetBlokk.ebService?.value
+    ebRole = this@toMottakenhetBlokk.ebRole
+    ebXMLSamtaleId = this@toMottakenhetBlokk.ebXMLSamtaleId
+    ediLoggId = this@toMottakenhetBlokk.ediLoggId
+    mottaksId = this@toMottakenhetBlokk.mottaksId
+    partnerReferanse = this@toMottakenhetBlokk.partnerReferanse
+}

@@ -2,7 +2,7 @@ package no.nav.emottak.fellesformat
 
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.nav.emottak.frikort.frikortSporringXmlMarshaller
-import no.nav.emottak.util.toXMLGregorianCalendar
+import no.nav.emottak.util.toXmlGregorianCalendar
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -38,7 +38,7 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         avsenderRef =
             "TODO2" // Hentet fra cert: Eksempelverdi: "SERIALNUMBER=132547698, CN=Blå &amp; Bjørnebær AS, O=Blå &amp; Bjørnebær AS, C=NO"
         mottaksId = sendInRequest.messageId
-        mottattDatotid = Instant.now().toXMLGregorianCalendar()
+        mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
         avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
         avsenderOrgNrFraDigSignatur = "TODO4"

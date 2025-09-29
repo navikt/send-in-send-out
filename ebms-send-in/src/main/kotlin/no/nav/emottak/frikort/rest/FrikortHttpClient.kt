@@ -10,7 +10,6 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -21,11 +20,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import no.helsedir.frikort.frikorttjenester.model.FrikortsporringRequest
+import no.helsedir.frikort.frikorttjenester.model.FrikortsporringResponse
 import no.nav.emottak.config.AppScope
 import no.nav.emottak.config.AzureAuth
 import no.nav.emottak.config.config
-import no.nav.emottak.melding.model.FrikortsporringRequest
-import no.nav.emottak.melding.model.FrikortsporringResponse
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import org.slf4j.Logger

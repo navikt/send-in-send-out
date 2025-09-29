@@ -11,6 +11,38 @@ plugins {
     application
     id("io.ktor.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
+    id("org.openapi.generator") version "7.6.0"
+}
+
+openApiGenerate {
+    generatorName.set("kotlin")
+    inputSpec.set("$projectDir/src/main/resources/frikort/frikortsporringer.yaml")
+    outputDir.set("$buildDir/generated/openapi")
+    packageName.set("no.helsedir.frikort.frikorttjenester")
+    modelPackage.set("no.helsedir.frikort.frikorttjenester.model")
+    configOptions.set(
+        mapOf(
+            "dateLibrary" to "kotlinx-datetime",
+            "serializationLibrary" to "kotlinx_serialization"
+        )
+    )
+    globalProperties.set(
+        mapOf(
+            "models" to "",
+            "modelTests" to "false",
+            "modelDocs" to "false",
+            "apis" to "false",
+            "invokers" to "false"
+        )
+    )
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("$buildDir/generated/openapi/src/main/kotlin")
+        }
+    }
 }
 
 tasks {
@@ -27,6 +59,15 @@ tasks {
     test {
         useJUnitPlatform()
     }
+    runKtlintCheckOverMainSourceSet {
+        mustRunAfter("openApiGenerate")
+    }
+    runKtlintFormatOverMainSourceSet {
+        mustRunAfter("openApiGenerate")
+    }
+    compileKotlin {
+        dependsOn("openApiGenerate")
+    }
     ktlintFormat {
         this.enabled = true
     }
@@ -35,6 +76,15 @@ tasks {
     }
     build {
         dependsOn("ktlintCheck")
+    }
+}
+
+ktlint {
+    filter {
+        exclude { element ->
+            val path = element.file.path
+            path.contains("/generated/") // Excludes any file within a directory named "generated"
+        }
     }
 }
 

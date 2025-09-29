@@ -17,8 +17,8 @@ import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
-import no.nav.emottak.melding.model.FrikortsporringRequest.Companion.asFrikortsporringRequest
-import no.nav.emottak.melding.model.MsgHead.Companion.toKithMsgHead
+import no.nav.emottak.frikort.rest.toFrikortsporringRequest
+import no.nav.emottak.frikort.rest.toMsgHead
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
@@ -173,7 +173,7 @@ object FagmeldingService {
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            postHarBorgerFrikort(this.asFrikortsporringRequest()).also {
+            postHarBorgerFrikort(this.toFrikortsporringRequest()).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -182,16 +182,16 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead!!.toMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
-                response.eiFellesformat.mottakenhetBlokk.ebService,
-                response.eiFellesformat.mottakenhetBlokk.ebAction
+                response.eiFellesformat.mottakenhetBlokk!!.ebService!!.value,
+                response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
             payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
-                response.eiFellesformat.msgHead.toKithMsgHead()
+                response.eiFellesformat.msgHead!!.toMsgHead()
             ),
             requestId = Uuid.random().toString()
         )
@@ -203,7 +203,7 @@ object FagmeldingService {
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            postHarBorgerEgenandelfritak(this.asFrikortsporringRequest()).also {
+            postHarBorgerEgenandelfritak(this.toFrikortsporringRequest()).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -212,16 +212,16 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toKithMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead!!.toMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
-                response.eiFellesformat.mottakenhetBlokk.ebService,
-                response.eiFellesformat.mottakenhetBlokk.ebAction
+                response.eiFellesformat.mottakenhetBlokk!!.ebService!!.value,
+                response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
             payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
-                response.eiFellesformat.msgHead.toKithMsgHead()
+                response.eiFellesformat.msgHead!!.toMsgHead()
             ),
             requestId = Uuid.random().toString()
         )

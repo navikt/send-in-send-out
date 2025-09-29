@@ -19,7 +19,7 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingL
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeUgyldigKombinasjonBrukerIdOgBrukertype
 import no.nav.emottak.cxf.ServiceBuilder
 import no.nav.emottak.utbetaling.UtbetalingClient.UTBETAL_SOAP_ENDPOINT
-import no.nav.emottak.util.toXMLGregorianCalendar
+import no.nav.emottak.util.toXmlGregorianCalendar
 import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.getSecret
 import org.slf4j.LoggerFactory
@@ -137,7 +137,7 @@ fun msgHeadResponse(incomingMsgHead: MsgHead, parentMessageId: String, conversat
                 dn = "Svar på forespørsel om inntekt"
                 v = "InntektInformasjon"
             }
-            genDate = Instant.now().toXMLGregorianCalendar()
+            genDate = Instant.now().toXmlGregorianCalendar()
             msgId = Uuid.random().toString()
             ack = CS().apply {
                 v = "N"

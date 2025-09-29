@@ -1,30 +1,34 @@
 package no.nav.emottak.util
 
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Month
-import java.time.Instant
 import java.util.GregorianCalendar
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 
-fun Instant.toXMLGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-    GregorianCalendar().apply { this.setTimeInMillis(this@toXMLGregorianCalendar.toEpochMilli()) }
+fun java.time.Instant.toXmlGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    GregorianCalendar().apply { this.setTimeInMillis(this@toXmlGregorianCalendar.toEpochMilli()) }
 )
 
-fun String.toXmlGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(this)
+fun Instant.toXmlGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+    GregorianCalendar().apply { this.setTimeInMillis(this@toXmlGregorianCalendar.toEpochMilliseconds()) }
+)
 
 fun LocalDate.toXmlGregorianCalendar() = DatatypeFactory.newInstance().newXMLGregorianCalendar(
     GregorianCalendar().apply {
         this.set(
             this@toXmlGregorianCalendar.year,
-            this@toXmlGregorianCalendar.monthNumber,
+            this@toXmlGregorianCalendar.month.value,
             this@toXmlGregorianCalendar.dayOfMonth
         )
     }
 )
 
 fun XMLGregorianCalendar.toLocalDate() = LocalDate(
-    year = this.year,
-    month = Month(this.month),
-    dayOfMonth = this.day
+    this.year,
+    this.month,
+    this.day
 )
+
+fun XMLGregorianCalendar.toKotlinxInstant(): Instant =
+    Instant.fromEpochMilliseconds(this.toGregorianCalendar().toInstant().toEpochMilli())
