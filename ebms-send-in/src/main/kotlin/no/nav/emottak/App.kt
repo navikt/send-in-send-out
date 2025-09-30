@@ -15,6 +15,7 @@ import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.config
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
+import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
 import no.nav.emottak.util.EventRegistrationService
@@ -66,6 +67,6 @@ internal fun Application.ebmsSendInModule(
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
-//    configureCoroutineDebugger()
+    configureCoroutineDebugger()
     configureRoutes(prometheusMeterRegistry, eventRegistrationService)
 }
