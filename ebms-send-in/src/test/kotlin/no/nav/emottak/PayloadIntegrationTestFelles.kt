@@ -19,11 +19,11 @@ import org.junit.jupiter.api.BeforeAll
 abstract class PayloadIntegrationTestFelles(
     private val envVarEndpoint: String? = null
 ) {
-    protected var wsSoapMock: MockWebServer? = null
+    protected var mockWebServer: MockWebServer? = null
 
     init {
         if (envVarEndpoint != null) {
-            wsSoapMock = MockWebServer()
+            mockWebServer = MockWebServer()
                 .also { it.start() }
                 .also {
                     System.setProperty(envVarEndpoint, "http://localhost:${it.port}")
@@ -55,13 +55,15 @@ abstract class PayloadIntegrationTestFelles(
         testBlock: suspend ApplicationTestBuilder.() -> T
     ) = testApplication {
         resourceScope {
-            wsSoapMock!!.enqueue(
-                MockResponse().setBody(
-                    String(
-                        ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
-                    )
-                ).setHeader("Content-Type", mockResponseContentType)
-            )
+            if (mockResponsePath != null) {
+                mockWebServer!!.enqueue(
+                    MockResponse().setBody(
+                        String(
+                            ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
+                        )
+                    ).setHeader("Content-Type", mockResponseContentType)
+                )
+            }
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
             val eventRegistrationService = EventRegistrationServiceFake()

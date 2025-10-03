@@ -3,17 +3,44 @@
     "msgHead": {
       "msgInfo": {
         "type": {
-          "v": "EgenandelForesporselV2",
-          "dn": "Forespørsel om egenandel"
+          "v": "Egenandelsvar",
+          "dn": "Svar på forespørsel om egenandel"
         },
         "migVersion": "v1.2 2006-05-24",
+        "ack": {
+          "v": "N",
+          "dn": "Nei"
+        },
         "conversationRef": {
           "refToParent": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
           "refToConversation": "5b895fd9-32d5-40d8-b08d-c185a3042a83"
         },
-        "genDate": "2025-09-17T13:25:52.65Z",
-        "msgId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
+        "genDate": "2025-09-17T15:25:56Z",
+        "msgId": "31a64fa4-6a8f-4dce-9b2f-f77823ef39e5",
         "sender": {
+          "organization": {
+            "organizationName": "NAV",
+            "ident": [
+              {
+                "id": "889640782",
+                "typeId": {
+                  "v": "ENH",
+                  "dn": "Organisasjonsnummeret i Enhetsregisteret",
+                  "s": "2.16.578.1.12.4.1.1.9051"
+                }
+              },
+              {
+                "id": "79768",
+                "typeId": {
+                  "v": "HER",
+                  "dn": "Identifikator fra Helsetjenesteenhetsregisteret (HER-id)",
+                  "s": "2.16.578.1.12.4.1.1.9051"
+                }
+              }
+            ]
+          }
+        },
+        "receiver": {
           "organization": {
             "organizationName": "TEST A1 Kjelleparken",
             "ident": [
@@ -35,29 +62,6 @@
               }
             ]
           }
-        },
-        "receiver": {
-          "organization": {
-            "organizationName": "NAV",
-            "ident": [
-              {
-                "id": "889640782",
-                "typeId": {
-                  "v": "ENH",
-                  "dn": "Organisasjonsnummeret i Enhetsregister",
-                  "s": "2.16.578.1.12.4.1.1.9051"
-                }
-              },
-              {
-                "id": "79768",
-                "typeId": {
-                  "v": "HER",
-                  "dn": "Identifikator fra Helsetjenesteenhetsregisteret",
-                  "s": "2.16.578.1.12.4.1.1.9051"
-                }
-              }
-            ]
-          }
         }
       },
       "documents": [
@@ -72,21 +76,23 @@
               "dn": "XML-instans"
             },
             "content": {
-              "egenandelForesporselV2": {
-                "harBorgerEgenandelfritak": {
-                  "borgerFnr": "***********",
-                  "dato": "2025-09-17"
-                }
+              "egenandelSvarV2": {
+                "status": {
+                  "v": "0",
+                  "dn": "Ingen data"
+                },
+                "svarMelding": "Informasjon om fritak fra egenandel er ikke tilgjengelig."
               }
-            }
+            },
+            "mimeType": "text/xml"
           }
         }
       ]
     },
     "mottakenhetBlokk": {
-      "ebAction": "EgenandelForesporsel",
+      "ebAction": "Svar",
       "ebService": "HarBorgerEgenandelFritak",
-      "ebRole": "Utleverer",
+      "ebRole": "Frikortregister",
       "ebXMLSamtaleId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
       "ediLoggId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
       "mottaksId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",

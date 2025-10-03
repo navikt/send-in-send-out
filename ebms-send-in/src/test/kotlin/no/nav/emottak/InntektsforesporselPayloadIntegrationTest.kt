@@ -55,7 +55,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.first().utbetalingGjelder.brukerId, "11223312345")
 
         // Validering av request:
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
         assert("no.nav.emottak.utbetaling" !in body) // Uten org-nr i req-header
     }
@@ -90,7 +90,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 0)
 
         // Validering av request:
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
         assert("<orgnr xmlns=\"no.nav.emottak.utbetaling\">940101808</orgnr>" in body) // Med org-nr i req-header
     }
@@ -128,7 +128,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebrukerIkkeFunnet.errorMessage, "Bruker ikke funnet")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -165,7 +165,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebaksystemIkkeTilgjengelig.errorMessage, "Baksystemet er ikke tilgjengelig")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -202,7 +202,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser.errorMessage, "Ingen tilgang til hemmelig ytelse")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -239,7 +239,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigDato.errorMessage, "Dato er ikke gyldig")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -276,7 +276,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNotNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype.errorMessage, "Ugyldig kombinasjon: PERSON og 9-sifret ident.")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -302,7 +302,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assert(responsePayload.contains("com.ibm.websphere.sca.ServiceRuntimeException"))
         assert(responsePayload.contains("Dette er en teknisk feil fra baksystem"))
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 }

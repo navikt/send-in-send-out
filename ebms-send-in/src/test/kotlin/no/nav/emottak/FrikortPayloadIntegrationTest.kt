@@ -41,7 +41,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         }
 
         // Validering av request:
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
@@ -74,7 +74,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             contentType(ContentType.Application.Json)
         }
 
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
 
         // Validering av request:
         val auth = req.getHeader(HttpHeaders.Authorization)
@@ -110,7 +110,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             contentType(ContentType.Application.Json)
         }
 
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
 
         // Validering av request:
         val auth = req.getHeader(HttpHeaders.Authorization)
@@ -145,7 +145,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         }
 
         // Validering av request:
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
