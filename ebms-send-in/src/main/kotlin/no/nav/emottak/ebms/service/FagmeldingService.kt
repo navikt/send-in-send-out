@@ -189,7 +189,7 @@ object FagmeldingService {
         log.info("Refparam: $referenceParameter")
 
         val eventData = Json.encodeToString(
-            mapOf(EventDataType.REFERENCE.value to referenceParameter)
+            mapOf(EventDataType.REFERENCE_PARAMETER.value to referenceParameter)
         )
         eventRegistrationService.registerEvent(
             EventType.REFERENCE_RETRIEVED,

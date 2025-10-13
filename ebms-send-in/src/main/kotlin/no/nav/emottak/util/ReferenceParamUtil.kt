@@ -6,13 +6,20 @@ import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporse
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2
 import no.kith.xmlstds.nav.pasientliste._2010_02_01.PasientlisteForesporsel
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
+import no.nav.emottak.fellesformat.MessageContentMarshaller
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import org.w3c.dom.Node
 
 const val BIRTHDAY: Int = 6
 const val FNUMBER: Int = 11
 
 fun EIFellesformat.extractReferenceParameter(): String {
-    val foresporsel = this.msgHead.document.firstOrNull()?.refDoc?.content?.any?.firstOrNull()
+    val foresporsel = this.msgHead.document.firstOrNull()?.refDoc?.content?.any?.firstOrNull().let {
+        if (it is Node) {
+            return@let MessageContentMarshaller.toDomainObject(it)
+        }
+        return@let it
+    }
 
     return when (foresporsel) {
         is PasientlisteForesporsel -> {

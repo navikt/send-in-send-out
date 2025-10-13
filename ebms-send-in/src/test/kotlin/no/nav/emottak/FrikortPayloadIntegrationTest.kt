@@ -13,7 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
-import no.nav.emottak.frikort.unmarshal
+import no.nav.emottak.frikort.FrikortXmlMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -48,7 +48,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
@@ -83,7 +83,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelMengdeSvarV2
 
@@ -119,7 +119,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelMengdeSvarV2
 
@@ -152,7 +152,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 

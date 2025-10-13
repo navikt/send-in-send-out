@@ -2,6 +2,7 @@ name: "PROD: Build and deploy ebms-send-in"
 on:
   workflow_call:
   workflow_dispatch:
+  push:
     branches:
       - main
 
