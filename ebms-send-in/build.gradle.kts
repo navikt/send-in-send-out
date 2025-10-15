@@ -81,10 +81,8 @@ tasks {
 
 ktlint {
     filter {
-        exclude { element ->
-            val path = element.file.path
-            path.contains("/generated/") // Excludes any file within a directory named "generated"
-        }
+        exclude { it.file.path.contains("/generated/") }
+        exclude { it.file.path.contains("\\generated\\") }
     }
 }
 
