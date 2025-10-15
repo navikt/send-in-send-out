@@ -16,8 +16,8 @@ plugins {
 
 openApiGenerate {
     generatorName.set("kotlin")
-    inputSpec.set("$projectDir/src/main/resources/frikort/frikortsporringer.yaml")
-    outputDir.set("$buildDir/generated/openapi")
+    inputSpec.set(file("$projectDir/src/main/resources/frikort/frikortsporringer.yaml").path)
+    outputDir.set(file("$buildDir/generated/openapi").path)
     packageName.set("no.helsedir.frikort.frikorttjenester")
     modelPackage.set("no.helsedir.frikort.frikorttjenester.model")
     configOptions.set(
