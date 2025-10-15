@@ -182,16 +182,16 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead!!.toMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
-                response.eiFellesformat.mottakenhetBlokk!!.ebService!!.value,
+                response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
             payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
-                response.eiFellesformat.msgHead!!.toMsgHead()
+                response.eiFellesformat.msgHead.toMsgHead()
             ),
             requestId = Uuid.random().toString()
         )
@@ -212,16 +212,16 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead!!.toMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         SendInResponse(
             messageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
-                response.eiFellesformat.mottakenhetBlokk!!.ebService!!.value,
+                response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
             payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
-                response.eiFellesformat.msgHead!!.toMsgHead()
+                response.eiFellesformat.msgHead.toMsgHead()
             ),
             requestId = Uuid.random().toString()
         )

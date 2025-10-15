@@ -3,7 +3,6 @@ package no.nav.emottak.frikort.rest
 import no.helsedir.frikort.frikorttjenester.model.CS
 import no.helsedir.frikort.frikorttjenester.model.Content
 import no.helsedir.frikort.frikorttjenester.model.Document
-import no.helsedir.frikort.frikorttjenester.model.FrikortsporringResponse
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvar
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvarV2
 import no.helsedir.frikort.frikorttjenester.model.HealthcareProfessional
@@ -13,11 +12,6 @@ import no.helsedir.frikort.frikorttjenester.model.MsgHead
 import no.helsedir.frikort.frikorttjenester.model.MsgInfo
 import no.helsedir.frikort.frikorttjenester.model.Organization
 import no.nav.emottak.util.toXmlGregorianCalendar
-
-fun FrikortsporringResponse.toEIFellesformat() = no.trygdeetaten.xml.eiff._1.EIFellesformat().apply {
-    msgHead = this@toEIFellesformat.eiFellesformat.msgHead.toMsgHead()
-    mottakenhetBlokk = this@toEIFellesformat.eiFellesformat.mottakenhetBlokk.toMottakenhetBlokk()
-}
 
 fun MsgHead.toMsgHead(): no.kith.xmlstds.msghead._2006_05_24.MsgHead {
     return no.kith.xmlstds.msghead._2006_05_24.MsgHead().apply {

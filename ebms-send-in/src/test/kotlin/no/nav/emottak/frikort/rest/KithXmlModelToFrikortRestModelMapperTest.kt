@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-class FrikortConverterTest {
+class KithXmlModelToFrikortRestModelMapperTest {
 
     @Test
     fun `Map from MsgHead to frikort model`() {
