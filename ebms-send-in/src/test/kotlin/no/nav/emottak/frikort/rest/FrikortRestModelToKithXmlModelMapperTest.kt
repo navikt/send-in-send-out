@@ -54,14 +54,6 @@ class FrikortRestModelToKithXmlModelMapperTest {
 
     @Test
     fun `Unknown content in document list throws exception`() {
-        val content = Content()
-        val document = Document(
-            refDoc = no.helsedir.frikort.frikorttjenester.model.RefDoc(
-                msgType = CS(v = "type", dn = "Type"),
-                mimeType = "application/xml",
-                content = content
-            )
-        )
         val msgHead = MsgHead(
             msgInfo = MsgInfo(
                 type = CS(v = "type", dn = "Type"),
@@ -71,7 +63,15 @@ class FrikortRestModelToKithXmlModelMapperTest {
                 sender = Sender(Organization("SenderOrg")),
                 receiver = Receiver(Organization("ReceiverOrg"))
             ),
-            documents = listOf(document)
+            documents = listOf(
+                Document(
+                    refDoc = no.helsedir.frikort.frikorttjenester.model.RefDoc(
+                        msgType = CS(v = "type", dn = "Type"),
+                        mimeType = "application/xml",
+                        content = Content()
+                    )
+                )
+            )
         )
         val exception = assertThrows(RuntimeException::class.java) {
             msgHead.toMsgHead()
