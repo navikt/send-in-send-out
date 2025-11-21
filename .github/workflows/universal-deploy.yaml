@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - uses: "actions/setup-java@v5"
         with:
@@ -93,7 +93,7 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - name: "Deploy  ${{ env.CPA_SYNC_MODULE_NAME }} to dev"
         if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
@@ -121,7 +121,7 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - uses: "actions/setup-java@v5"
         with:
@@ -170,7 +170,7 @@ jobs:
       id-token: write
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - name: "Deploy  ${{ env.EBMS_HTTP_MODULE_NAME }} to dev"
         if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
@@ -198,7 +198,7 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - uses: "actions/setup-java@v5"
         with:
@@ -249,7 +249,7 @@ jobs:
 
     steps:
       - name: "Checkout code"
-        uses: "actions/checkout@v5"
+        uses: "actions/checkout@v6"
 
       - name: "Deploy  ${{ env.EBMS_SEND_IN_MODULE_NAME }} to dev"
         if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
