@@ -27,6 +27,7 @@ import no.nav.emottak.config.AzureAuth
 import no.nav.emottak.config.config
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
+import no.nav.emottak.utils.environment.getEnvVar
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
@@ -110,7 +111,7 @@ suspend fun postHarBorgerFrikort(frikortsporringRequest: FrikortsporringRequest)
         obj = frikortsporringRequest,
         serializer = FrikortsporringRequest.serializer()
     )
-    val httpResponse = frikortHttpClient.post(config().frikorttjenester.harBorgerFrikortEndpoint.value) {
+    val httpResponse = frikortHttpClient.post(getEnvVar("FRIKORT_URL_REST", "http://frikorttjenester.teamfrikort.svc.nais.local")) {
         setBody(frikortsporringRequest)
         contentType(ContentType.Application.Json)
     }

@@ -1,5 +1,6 @@
 package no.nav.emottak.config
 
+import arrow.core.memoize
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.addResourceSource
 
@@ -12,4 +13,4 @@ val config: () -> Config = {
         .withExplicitSealedTypes()
         .build()
         .loadConfigOrThrow<Config>()
-}
+}.memoize()
