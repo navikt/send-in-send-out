@@ -12,16 +12,23 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
+import no.nav.emottak.config.Configurator
 import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
 import okhttp3.mockwebserver.MockResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadRESTIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL_REST") {
+
+    @BeforeEach
+    fun beforeEach() {
+        Configurator.resetMemoizedConfig()
+    }
 
     @Test
     fun `Test Frikort-HarBorgerEgenandelfritak`() = ebmsSendInTestApp(

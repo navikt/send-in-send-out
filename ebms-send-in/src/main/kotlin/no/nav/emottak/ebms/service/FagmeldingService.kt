@@ -5,7 +5,7 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
-import no.nav.emottak.config.config
+import no.nav.emottak.config.Configurator.config
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
