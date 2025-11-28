@@ -55,11 +55,15 @@ dependencies {
     implementation(libs.arrow.resilience)
     implementation(libs.arrow.suspendapp)
     implementation(libs.arrow.suspendapp.ktor)
-    implementation(libs.bundles.cxf)
+    implementation(libs.bundles.cxf) {
+        exclude(group = "org.opensaml") // buggy dependency in CXF 4.0.0, does not exist
+    }
     implementation(libs.bundles.logging)
     implementation(libs.bundles.prometheus)
     implementation(libs.ebxml.protokoll)
-    implementation(libs.emottak.payload.xsd)
+    implementation(libs.emottak.payload.xsd) { // do not want other cxf stuff than our own
+        isTransitive = false
+    }
     implementation(libs.jaxb.runtime)
     implementation(libs.ktor.client.auth)
     implementation(libs.ktor.client.cio)
@@ -80,8 +84,6 @@ dependencies {
     implementation(libs.token.validation.ktor.v3)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation(("javax.activation:activation:1.1.1"))
     implementation("org.apache.kafka:kafka-clients:3.5.1")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation(libs.apache.santuario)

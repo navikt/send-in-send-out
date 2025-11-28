@@ -1,7 +1,7 @@
 package no.nav.emottak.fellesformat
 
+import jakarta.xml.bind.JAXBContext
 import no.nav.emottak.util.XmlMarshaller
-import javax.xml.bind.JAXBContext
 
 val FellesFormatXmlMarshaller = XmlMarshaller(
 /* NB! Forsiktig med å marshalle fagmeldingen.

@@ -1,11 +1,11 @@
 package no.nav.emottak.utbetaling
 
+import jakarta.xml.bind.JAXBContext
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnBrukersUtbetalteYtelserRequest
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.meldinger.v1.FinnUtbetalingListeRequest
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
 import no.nav.emottak.util.XmlMarshaller
-import javax.xml.bind.JAXBContext
 
 val UtbetalingXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
