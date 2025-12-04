@@ -22,11 +22,7 @@ val FrikortXmlMarshaller = XmlMarshaller(
         no.kith.xmlstds.nav.egenandelmengde._2010_10_06.ObjectFactory::class.java,
         EgenandelSvarV2::class.java,
         EgenandelMengdeSvarV2::class.java,
-        org.oasis_open.committees.ebxml_cppa.schema.cpp_cpa_2_0.ObjectFactory::class.java,
-        org.xmlsoap.schemas.soap.envelope.ObjectFactory::class.java,
         no.kith.xmlstds.msghead._2006_05_24.ObjectFactory::class.java,
-        no.trygdeetaten.xml.eiff._1.ObjectFactory::class.java,
-        org.w3._1999.xlink.ObjectFactory::class.java,
-        org.w3._2009.xmldsig11_.ObjectFactory::class.java
+        no.trygdeetaten.xml.eiff._1.ObjectFactory::class.java
     )
 )
