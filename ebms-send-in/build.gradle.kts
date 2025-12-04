@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.bundles.cxf)
     implementation(libs.bundles.logging)
     implementation(libs.bundles.prometheus)
+    implementation(libs.ebxml.protokoll)
     implementation(libs.emottak.payload.xsd)
     implementation(libs.jaxb.runtime)
     implementation(libs.ktor.client.auth)
