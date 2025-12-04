@@ -95,13 +95,13 @@ jobs:
       - name: "Checkout code"
         uses: "actions/checkout@v6"
 
-      - name: "Deploy  ${{ env.CPA_SYNC_MODULE_NAME }} to dev"
-        if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
-        uses: "nais/deploy/actions/deploy@v2"
-        env:
-          CLUSTER: "dev-fss"
-          RESOURCE: ".nais/cpa-sync-dev.yaml"
-          IMAGE: ${{ env.CPA_SYNC_IMAGE_NAME }}
+#      - name: "Deploy  ${{ env.CPA_SYNC_MODULE_NAME }} to dev"
+#        if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+#        uses: "nais/deploy/actions/deploy@v2"
+#        env:
+#          CLUSTER: "dev-fss"
+#          RESOURCE: ".nais/cpa-sync-dev.yaml"
+#          IMAGE: ${{ env.CPA_SYNC_IMAGE_NAME }}
 
       - name: "Deploy  ${{ env.CPA_SYNC_MODULE_NAME }} to Prod"
         if: ${{ github.event.inputs.deploy_to_prod == 'true' }}
