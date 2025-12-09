@@ -61,8 +61,6 @@ class InntektsforesporselTest {
         val msgHeadRequest = UtbetalingXmlMarshaller.unmarshal(msgHeadEksempel, MsgHead::class.java)
         val msgHeadResponse = msgHeadResponse(
             msgHeadRequest,
-            sendInRequest.messageId,
-            sendInRequest.conversationId,
             finnUtbetalingListeFeil
         )
 
@@ -91,8 +89,6 @@ class InntektsforesporselTest {
             requestId = Uuid.random().toString()
         ).let {
             UtbetalingClient.behandleInntektsforesporsel(
-                it.messageId,
-                it.conversationId,
                 it.payload
             )
         }
