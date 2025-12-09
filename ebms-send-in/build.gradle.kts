@@ -44,6 +44,22 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
     }
 }
 
+// Ref https://issues.apache.org/jira/browse/CXF-8813
+// Need to force jakarta.xml.bind-api to 3.0.1.
+// We get 4.0.0 from transitive dependencies, which will not work with CXF.
+// Also, CXF v4 has buggy dependencies on opensaml v 4.2.0 (does not exist in maven repo),
+// so we need to force that into some existing version.
+configurations.all {
+    resolutionStrategy {
+        force(
+            "jakarta.xml.bind:jakarta.xml.bind-api:3.0.1",
+            "org.opensaml:opensaml-xacml-impl:4.0.1",
+            "org.opensaml:opensaml-xacml-saml-impl:4.0.1",
+            "org.opensaml:opensaml-saml-impl:4.0.1"
+        )
+    }
+}
+
 dependencies {
     implementation(libs.emottak.utils)
     implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
@@ -80,8 +96,6 @@ dependencies {
     implementation(libs.token.validation.ktor.v3)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation(("javax.activation:activation:1.1.1"))
     implementation("org.apache.kafka:kafka-clients:3.5.1")
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation(libs.apache.santuario)

@@ -4,6 +4,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import jakarta.xml.bind.JAXBContext
+import jakarta.xml.bind.annotation.XmlRootElement
 import kotlinx.serialization.Serializable
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
@@ -12,8 +14,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.Marker
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.annotation.XmlRootElement
 
 @XmlRootElement // for JAXB
 @Serializable // for Kotlinx

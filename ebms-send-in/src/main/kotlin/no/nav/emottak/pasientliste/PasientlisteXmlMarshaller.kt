@@ -1,7 +1,7 @@
 package no.nav.emottak.pasientliste
 
+import jakarta.xml.bind.JAXBContext
 import no.nav.emottak.util.XmlMarshaller
-import javax.xml.bind.JAXBContext
 
 val PasientlisteXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(

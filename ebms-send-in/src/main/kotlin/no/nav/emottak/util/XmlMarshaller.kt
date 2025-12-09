@@ -1,9 +1,9 @@
 package no.nav.emottak.util
 
+import jakarta.xml.bind.JAXBContext
 import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
 import java.io.StringWriter
-import javax.xml.bind.JAXBContext
 import javax.xml.stream.XMLInputFactory
 
 class XmlMarshaller(jaxbContext: JAXBContext) {
