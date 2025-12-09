@@ -16,6 +16,7 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingL
 import no.nav.emottak.utbetaling.unmarshal
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -49,8 +50,9 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         val responseMsgHead = unmarshal(String(responsePayload), MsgHead::class.java)
         val response = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         assert(response is FinnUtbetalingListeResponse)
+        assertNotEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.msgId)
         assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
-        assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToConversation)
+        assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
 
         val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
         assertNotNull(finnUtbetalingListeResponse)
