@@ -261,8 +261,6 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
         UtbetalingClient.behandleInntektsforesporsel(
-            sendInRequest.messageId,
-            sendInRequest.conversationId,
             sendInRequest.payload
         ).also {
             eventRegistrationService.registerEvent(

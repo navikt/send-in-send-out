@@ -41,7 +41,7 @@ object UtbetalingClient {
         }
     val UTBETAL_SOAP_ENDPOINT = "$RESOLVED_UTBETAL_URL/Utbetaling"
 
-    fun behandleInntektsforesporsel(parentMessageId: String, conversationId: String, payload: ByteArray): MsgHead {
+    fun behandleInntektsforesporsel(payload: ByteArray): MsgHead {
         val msgHeadRequest = UtbetalingXmlMarshaller.unmarshal(payload.toString(Charsets.UTF_8), MsgHead::class.java)
         val orgnr = msgHeadRequest.msgInfo.sender.organisation.ident.firstOrNull { it.typeId.v == "ENH" }?.id
 
@@ -72,7 +72,7 @@ object UtbetalingClient {
 
                 else -> throw IllegalStateException("Ukjent meldingstype. Classname: " + melding.javaClass.name)
             }
-            return msgHeadResponse(msgHeadRequest, parentMessageId, conversationId, response)
+            return msgHeadResponse(msgHeadRequest, response)
         } catch (utbetalError: Throwable) {
             log.info("Handling inntektsforesporsel error: " + utbetalError.message)
             val feil = FinnUtbetalingListeFeil()
@@ -90,7 +90,7 @@ object UtbetalingClient {
                 else ->
                     throw utbetalError.also { log.error("Ukjent feiltype: " + it.message, it) }
             }
-            return msgHeadResponse(msgHeadRequest, parentMessageId, conversationId, feil)
+            return msgHeadResponse(msgHeadRequest, feil)
         }
     }
 
@@ -130,7 +130,7 @@ fun receiverToSender(receiver: Receiver): Sender {
     return sender
 }
 
-fun msgHeadResponse(incomingMsgHead: MsgHead, parentMessageId: String, conversationId: String, fagmeldingResponse: Any): MsgHead {
+fun msgHeadResponse(incomingMsgHead: MsgHead, fagmeldingResponse: Any): MsgHead {
     return incomingMsgHead.apply {
         msgInfo.apply {
             type = CS().apply {
@@ -148,8 +148,8 @@ fun msgHeadResponse(incomingMsgHead: MsgHead, parentMessageId: String, conversat
             sender = newSender
             receiver = newReceiver
             conversationRef = ConversationRef().apply {
-                refToParent = parentMessageId
-                refToConversation = conversationId
+                refToParent = incomingMsgHead.msgInfo.msgId
+                refToConversation = incomingMsgHead.msgInfo.msgId
             }
         }
         document.clear()
