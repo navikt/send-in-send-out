@@ -48,11 +48,12 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNotNull(responsePayload)
 
         val responseMsgHead = unmarshal(String(responsePayload), MsgHead::class.java)
-        val response = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-        assert(response is FinnUtbetalingListeResponse)
         assertNotEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.msgId)
         assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
-        assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
+        assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToConversation)
+
+        val response = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+        assert(response is FinnUtbetalingListeResponse)
 
         val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
         assertNotNull(finnUtbetalingListeResponse)
