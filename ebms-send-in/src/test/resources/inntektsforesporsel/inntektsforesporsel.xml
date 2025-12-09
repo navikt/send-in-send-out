@@ -2,10 +2,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.kith.no/xmlstds/msghead/2006-05-24 MsgHead-v1_2.xsd">
     <MsgInfo>
-        <Type V="InntektsForesporse" DN="InntektsForesporse"/>
+        <Type V="InntektsForesporsel" DN="Forespørsel på borgers ytelser"/>
         <MIGversion>v1.2 2006-05-24</MIGversion>
         <GenDate>2024-06-25T13:37:45</GenDate>
-        <MsgId></MsgId>
+        <MsgId>12345</MsgId>
         <Sender>
             <Organisation>
                 <OrganisationName>HELSEPLATTFORMEN AS</OrganisationName>

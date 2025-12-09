@@ -131,6 +131,7 @@ fun receiverToSender(receiver: Receiver): Sender {
 }
 
 fun msgHeadResponse(incomingMsgHead: MsgHead, fagmeldingResponse: Any): MsgHead {
+    val incomingMsgId = incomingMsgHead.msgInfo.msgId
     return incomingMsgHead.apply {
         msgInfo.apply {
             type = CS().apply {
@@ -148,8 +149,8 @@ fun msgHeadResponse(incomingMsgHead: MsgHead, fagmeldingResponse: Any): MsgHead 
             sender = newSender
             receiver = newReceiver
             conversationRef = ConversationRef().apply {
-                refToParent = incomingMsgHead.msgInfo.msgId
-                refToConversation = incomingMsgHead.msgInfo.msgId
+                refToParent = incomingMsgId
+                refToConversation = incomingMsgId
             }
         }
         document.clear()
