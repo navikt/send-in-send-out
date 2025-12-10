@@ -42,8 +42,6 @@ object FagmeldingService {
                 timed(meterRegistry, "Inntektsforesporsel") {
                     Either.catch {
                         UtbetalingClient.behandleInntektsforesporsel(
-                            sendInRequest.messageId,
-                            sendInRequest.conversationId,
                             sendInRequest.payload
                         ).also {
                             eventRegistrationService.registerEvent(
