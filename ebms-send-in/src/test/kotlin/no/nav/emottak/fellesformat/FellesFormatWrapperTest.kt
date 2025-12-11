@@ -1,5 +1,5 @@
-import no.nav.emottak.fellesformat.asEIFellesFormat
-import no.nav.emottak.fellesformat.marshal
+package no.nav.emottak.fellesformat
+
 import no.nav.emottak.log
 import no.nav.emottak.validSendInHarBorgerFrikortRequest
 import no.nav.emottak.validSendInInntektforesporselRequest
