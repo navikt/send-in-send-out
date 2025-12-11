@@ -4,6 +4,7 @@ import io.ktor.server.plugins.BadRequestException
 import no.helsedir.frikort.frikorttjenester.model.CS
 import no.helsedir.frikort.frikorttjenester.model.CV
 import no.helsedir.frikort.frikorttjenester.model.Content
+import no.helsedir.frikort.frikorttjenester.model.ConversationRef
 import no.helsedir.frikort.frikorttjenester.model.Document
 import no.helsedir.frikort.frikorttjenester.model.EIFellesformat
 import no.helsedir.frikort.frikorttjenester.model.EgenandelForesporsel
@@ -173,6 +174,8 @@ private fun no.kith.xmlstds.msghead._2006_05_24.MsgInfo.toMsgInfo() = MsgInfo(
     migVersion = this@toMsgInfo.miGversion,
     genDate = this@toMsgInfo.genDate.toKotlinxInstant(),
     msgId = this@toMsgInfo.msgId,
+    ack = this@toMsgInfo.ack?.toCS(),
+    conversationRef = this@toMsgInfo.conversationRef?.toConversationRef(),
     sender = Sender(
         organization = this@toMsgInfo.sender.organisation.toOrganisation(),
         comMethod = this@toMsgInfo.sender.comMethod?.toCS()
@@ -181,6 +184,11 @@ private fun no.kith.xmlstds.msghead._2006_05_24.MsgInfo.toMsgInfo() = MsgInfo(
         organization = this@toMsgInfo.receiver.organisation.toOrganisation(),
         comMethod = this@toMsgInfo.receiver.comMethod?.toCS()
     )
+)
+
+private fun no.kith.xmlstds.msghead._2006_05_24.ConversationRef.toConversationRef() = ConversationRef(
+    refToParent = this.refToParent,
+    refToConversation = this.refToConversation
 )
 
 private fun no.kith.xmlstds.msghead._2006_05_24.Organisation.toOrganisation() = Organization(

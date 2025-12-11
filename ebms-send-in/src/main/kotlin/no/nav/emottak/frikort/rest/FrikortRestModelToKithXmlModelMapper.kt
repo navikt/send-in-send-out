@@ -2,6 +2,7 @@ package no.nav.emottak.frikort.rest
 
 import no.helsedir.frikort.frikorttjenester.model.CS
 import no.helsedir.frikort.frikorttjenester.model.Content
+import no.helsedir.frikort.frikorttjenester.model.ConversationRef
 import no.helsedir.frikort.frikorttjenester.model.Document
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvar
 import no.helsedir.frikort.frikorttjenester.model.HarBorgerFrikortSvarV2
@@ -26,6 +27,8 @@ private fun MsgInfo.toMsgInfo(): no.kith.xmlstds.msghead._2006_05_24.MsgInfo {
         miGversion = this@toMsgInfo.migVersion
         genDate = this@toMsgInfo.genDate.toXmlGregorianCalendar()
         msgId = this@toMsgInfo.msgId
+        ack = this@toMsgInfo.ack?.toMsgHeadCS()
+        conversationRef = this@toMsgInfo.conversationRef?.toConversationRef()
         sender = no.kith.xmlstds.msghead._2006_05_24.Sender().apply {
             organisation = this@toMsgInfo.sender.organization.toOrganisation()
             comMethod = this@toMsgInfo.sender.comMethod?.toMsgHeadCS()
@@ -100,6 +103,11 @@ private fun CS.toMsgHeadCS() = no.kith.xmlstds.msghead._2006_05_24.CS().apply {
 private fun CS.toCS() = no.kith.xmlstds.CS().apply {
     v = this@toCS.v
     dn = this@toCS.dn
+}
+
+private fun ConversationRef.toConversationRef() = no.kith.xmlstds.msghead._2006_05_24.ConversationRef().apply {
+    refToParent = this@toConversationRef.refToParent
+    refToConversation = this@toConversationRef.refToConversation
 }
 
 private fun Organization.toOrganisation() = no.kith.xmlstds.msghead._2006_05_24.Organisation().apply {
