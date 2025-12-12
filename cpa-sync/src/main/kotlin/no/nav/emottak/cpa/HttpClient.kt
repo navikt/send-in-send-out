@@ -26,7 +26,7 @@ import java.net.URI
 val URL_CPA_REPO_BASE = getEnvVar("URL_CPA_REPO", "http://cpa-repo.team-emottak.svc.nais.local")
 val URL_CPA_REPO_PUT = "$URL_CPA_REPO_BASE/cpa".also { log.info("CPA REPO PUT URL: [$it]") }
 val URL_CPA_REPO_DELETE = "$URL_CPA_REPO_BASE/cpa/delete"
-val URL_CPA_REPO_TIMESTAMPS = "$URL_CPA_REPO_BASE/cpa/timestamps"
+val URL_CPA_REPO_TIMESTAMPS = "$URL_CPA_REPO_BASE/cpa/timestamps/last_updated"
 
 const val AZURE_AD_AUTH = "AZURE_AD"
 
