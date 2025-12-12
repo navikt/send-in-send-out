@@ -16,6 +16,7 @@ import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingL
 import no.nav.emottak.utbetaling.unmarshal
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -31,12 +32,14 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
                 json()
             }
         }
+        val request = validSendInInntektforesporselRequest.value
+        val requestMsgHead = unmarshal(String(request.payload), MsgHead::class.java)
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(validSendInInntektforesporselRequest.value)
+            setBody(request)
             contentType(ContentType.Application.Json)
         }
         assertEquals(HttpStatusCode.OK, httpResponse.status)
@@ -44,8 +47,12 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
 
-        val msgHead = unmarshal(String(responsePayload), MsgHead::class.java)
-        val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+        val responseMsgHead = unmarshal(String(responsePayload), MsgHead::class.java)
+        assertNotEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.msgId)
+        assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
+        assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToConversation)
+
+        val response = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         assert(response is FinnUtbetalingListeResponse)
 
         val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
