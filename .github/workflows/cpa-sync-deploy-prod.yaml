@@ -60,19 +60,19 @@ jobs:
           image_suffix: cpa-sync
     outputs:
       image: ${{ steps.docker-push-cpa-sync.outputs.image }}
-
-  deploy:
-    name: "Deploy cpa-sync to Prod"
-    needs: "build-and-push"
-    runs-on: "ubuntu-latest"
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: "actions/checkout@v6"
-      - name: "Deploy to PROD"
-        uses: "nais/deploy/actions/deploy@v2"
-        env:
-          CLUSTER: "prod-fss"
-          RESOURCE: ".nais/${{ env.NAIS_MANIFEST }}"
-          IMAGE: ${{ needs.build-and-push.outputs.image }}
+#
+#  deploy:
+#    name: "Deploy cpa-sync to Prod"
+#    needs: "build-and-push"
+#    runs-on: "ubuntu-latest"
+#    permissions:
+#      contents: read
+#      id-token: write
+#    steps:
+#      - uses: "actions/checkout@v6"
+#      - name: "Deploy to PROD"
+#        uses: "nais/deploy/actions/deploy@v2"
+#        env:
+#          CLUSTER: "prod-fss"
+#          RESOURCE: ".nais/${{ env.NAIS_MANIFEST }}"
+#          IMAGE: ${{ needs.build-and-push.outputs.image }}
