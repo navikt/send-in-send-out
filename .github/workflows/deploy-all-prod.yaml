@@ -3,8 +3,5 @@ on:
   workflow_dispatch:
 
 jobs:
-#  deploy-cpa-sync:
-#    uses: ./.github/workflows/cpa-sync-deploy-prod.yaml
-
   deploy-ebms-send-in:
     uses: ./.github/workflows/ebms-send-in-deploy-prod.yaml
