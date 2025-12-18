@@ -9,8 +9,5 @@ permissions:
   id-token: write
 
 jobs:
-#  deploy-cpa-sync:
-#    uses: ./.github/workflows/cpa-sync-deploy-dev.yaml
-
   deploy-ebms-send-in:
     uses: ./.github/workflows/ebms-send-in-deploy-dev.yaml
