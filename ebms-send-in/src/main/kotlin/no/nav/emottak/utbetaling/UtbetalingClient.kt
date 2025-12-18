@@ -31,7 +31,7 @@ object UtbetalingClient {
     val log = LoggerFactory.getLogger(UtbetalingClient::class.java)
 
     private val YRP_URL_LOCAL = getEnvVar("UTBETALING_TEST_ENDPOINT", "http://localhost:8080")
-    private const val YRP_URL_TEST = "https://ytelser-rest-proxy.dev.intern.nav.no"
+    private const val YRP_URL_TEST = "https://ytelser-rest-proxy.intern.dev.nav.no"
     private const val YRP_URL_PROD = "https://ytelser-rest-proxy.intern.nav.no"
     private val RESOLVED_UTBETAL_URL =
         when (getEnvVar("NAIS_CLUSTER_NAME", "local")) {
