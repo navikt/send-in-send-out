@@ -2,7 +2,7 @@ package no.nav.emottak.referanseparam
 
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.util.extractReferenceParameter
-import no.nav.emottak.validSendInHarBorgerEgenandelfritakRequest
+import no.nav.emottak.validSendInHarBorgerEgenandelFritakRequest
 import no.nav.emottak.validSendInHarBorgerFrikortMengdeRequest
 import no.nav.emottak.validSendInHarBorgerFrikortRequest
 import no.nav.emottak.validSendInInntektforesporselRequest
@@ -41,7 +41,7 @@ class ReferanseParamTest {
 
     @Test
     fun `Wrap HarBorgerEgenadelFritak in Fellesformat`() {
-        val sendInRequest = validSendInHarBorgerEgenandelfritakRequest.value
+        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         val refParam = fellesFormat.extractReferenceParameter()
         assertEquals("123456", refParam)
