@@ -32,17 +32,28 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
                 json()
             }
         }
-        val request = validSendInInntektforesporselRequest.value
-        val requestMsgHead = unmarshal(String(request.payload), MsgHead::class.java)
+        val sendInRequest = validSendInInntektforesporselRequest.value
+        assertEquals("Inntektsforesporsel", sendInRequest.addressing.service, "Request service mismatch")
+        assertEquals("Foresporsel", sendInRequest.addressing.action, "Request action mismatch")
+        assertEquals("Fordringshaver", sendInRequest.addressing.from.role, "Request from role mismatch")
+
+        val requestMsgHead = unmarshal(String(sendInRequest.payload), MsgHead::class.java)
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(request)
+            setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
         assertEquals(HttpStatusCode.OK, httpResponse.status)
+
+        val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.conversationId, sendInResponse.conversationId)
+        assertNotEquals(sendInRequest.messageId, sendInResponse.messageId)
+        assertEquals("Inntektsforesporsel", sendInResponse.addressing.service, "Response service mismatch")
+        assertEquals("InntektInformasjon", sendInResponse.addressing.action, "Response action mismatch")
+        assertEquals("Ytelsesutbetaler", sendInResponse.addressing.from.role, "Response from role mismatch")
 
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
@@ -52,10 +63,10 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
         assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToConversation)
 
-        val response = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-        assert(response is FinnUtbetalingListeResponse)
+        val responseRefDocContent = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+        assert(responseRefDocContent is FinnUtbetalingListeResponse)
 
-        val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
+        val finnUtbetalingListeResponse = responseRefDocContent as FinnUtbetalingListeResponse
         assertNotNull(finnUtbetalingListeResponse)
         assertEquals(finnUtbetalingListeResponse.response.forespurtBrukerId, "12345678909")
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 5)
