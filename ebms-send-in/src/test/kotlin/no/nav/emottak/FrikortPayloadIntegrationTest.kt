@@ -13,7 +13,8 @@ import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
-import no.nav.emottak.frikort.FrikortXmlMarshaller
+import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
+import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -42,7 +43,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         }
 
         // Validering av request:
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
@@ -62,7 +63,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
 
         val responsePayload = sendInResponse.payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
@@ -88,7 +89,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             contentType(ContentType.Application.Json)
         }
 
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
 
         // Validering av request:
         val auth = req.getHeader(HttpHeaders.Authorization)
@@ -109,7 +110,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
 
         val responsePayload = sendInResponse.payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelMengdeForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelMengdeSvarV2
 
@@ -136,7 +137,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             contentType(ContentType.Application.Json)
         }
 
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
 
         // Validering av request:
         val auth = req.getHeader(HttpHeaders.Authorization)
@@ -157,7 +158,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
 
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelMengdeForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelMengdeSvarV2
 
@@ -183,7 +184,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         }
 
         // Validering av request:
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
@@ -202,7 +203,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
 
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
