@@ -2,6 +2,7 @@ package no.nav.emottak
 
 import arrow.fx.coroutines.resourceScope
 import com.nimbusds.jwt.SignedJWT
+import io.ktor.http.ContentType
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
@@ -18,11 +19,11 @@ import org.junit.jupiter.api.BeforeAll
 abstract class PayloadIntegrationTestFelles(
     private val envVarEndpoint: String? = null
 ) {
-    protected var wsSoapMock: MockWebServer? = null
+    protected var mockWebServer: MockWebServer? = null
 
     init {
         if (envVarEndpoint != null) {
-            wsSoapMock = MockWebServer()
+            mockWebServer = MockWebServer()
                 .also { it.start() }
                 .also {
                     System.setProperty(envVarEndpoint, "http://localhost:${it.port}")
@@ -50,16 +51,19 @@ abstract class PayloadIntegrationTestFelles(
 
     protected fun <T> ebmsSendInTestApp(
         mockResponsePath: String? = null,
+        mockResponseContentType: ContentType = ContentType.Application.Xml,
         testBlock: suspend ApplicationTestBuilder.() -> T
     ) = testApplication {
         resourceScope {
-            wsSoapMock!!.enqueue(
-                MockResponse().setBody(
-                    String(
-                        ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
-                    )
+            if (mockResponsePath != null) {
+                mockWebServer!!.enqueue(
+                    MockResponse().setBody(
+                        String(
+                            ClassLoader.getSystemResourceAsStream(mockResponsePath)!!.readAllBytes()
+                        )
+                    ).setHeader("Content-Type", mockResponseContentType)
                 )
-            )
+            }
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
             val eventRegistrationService = EventRegistrationServiceFake()
