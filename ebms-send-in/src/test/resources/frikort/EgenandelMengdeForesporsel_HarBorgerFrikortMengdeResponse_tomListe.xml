@@ -67,9 +67,9 @@
 				                      avsenderOrgNrFraDigSignatur="TODO4"
 				                      partnerReferanse="dummyCpa"
 				                      herIdentifikator="TODO5"
-				                      ebRole="dymmyRole"
+				                      ebRole="Frikortregister"
 				                      ebService="HarBorgerFrikortMengde"
-				                      ebAction="EgenandelForesporsel"/>
+				                      ebAction="Svar"/>
 			</ns3:EI_fellesformat>
 		</ns5:frikortsporringMengdeResponse>
 	</soap:Body>

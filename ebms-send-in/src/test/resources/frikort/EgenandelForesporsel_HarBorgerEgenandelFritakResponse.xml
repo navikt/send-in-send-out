@@ -70,9 +70,9 @@
 				                      avsenderOrgNrFraDigSignatur="TODO4"
 				                      partnerReferanse="dummyCpa"
 				                      herIdentifikator="TODO5"
-				                      ebRole="dymmyRole"
-				                      ebService="HarBorgerEgenandelfritak"
-				                      ebAction="EgenandelForesporsel"/>
+				                      ebRole="Frikortregister"
+				                      ebService="HarBorgerEgenandelFritak"
+				                      ebAction="Svar"/>
 			</ns3:EI_fellesformat>
 		</ns5:frikortsporringResponse>
 	</soap:Body>

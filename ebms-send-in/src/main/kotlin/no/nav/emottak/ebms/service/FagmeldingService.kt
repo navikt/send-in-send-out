@@ -116,7 +116,7 @@ object FagmeldingService {
                 )
             }.let { fellesformatResponse ->
                 SendInResponse(
-                    messageId = sendInRequest.messageId,
+                    messageId = Uuid.random().toString(),
                     conversationId = sendInRequest.conversationId,
                     addressing = sendInRequest.addressing.replyTo(
                         fellesformatResponse.mottakenhetBlokk.ebService,
@@ -154,7 +154,7 @@ object FagmeldingService {
         }
     }.bind().let { response ->
         SendInResponse(
-            messageId = sendInRequest.messageId,
+            messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService,
@@ -184,7 +184,7 @@ object FagmeldingService {
     }.bind().let { response ->
         log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         SendInResponse(
-            messageId = sendInRequest.messageId,
+            messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
@@ -214,7 +214,7 @@ object FagmeldingService {
     }.bind().let { response ->
         log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         SendInResponse(
-            messageId = sendInRequest.messageId,
+            messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
@@ -243,7 +243,7 @@ object FagmeldingService {
         }
     }.bind().let { response ->
         SendInResponse(
-            messageId = sendInRequest.messageId,
+            messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService,
@@ -271,7 +271,7 @@ object FagmeldingService {
         }
     }.bind().let { msgHeadResponse ->
         SendInResponse(
-            messageId = sendInRequest.messageId,
+            messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
             addressing = sendInRequest.addressing.replyTo(
                 sendInRequest.addressing.service,

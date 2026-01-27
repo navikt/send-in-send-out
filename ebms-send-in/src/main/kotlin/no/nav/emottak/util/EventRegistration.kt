@@ -74,9 +74,9 @@ class EventRegistrationServiceImpl(
         val ebmsMessageDetail = EbmsMessageDetail(
             requestId = requestId,
             cpaId = sendInRequest.cpaId,
-            conversationId = sendInResponse.conversationId,
-            messageId = "",
-            refToMessageId = sendInResponse.messageId,
+            conversationId = sendInRequest.conversationId,
+            messageId = sendInResponse.messageId,
+            refToMessageId = sendInRequest.messageId,
             fromPartyId = EventRegistrationService.serializePartyId(sendInResponse.addressing.from.partyId),
             fromRole = sendInResponse.addressing.from.role,
             toPartyId = EventRegistrationService.serializePartyId(sendInResponse.addressing.to.partyId),
