@@ -126,6 +126,8 @@ dependencies {
     implementation(libs.sqldelight.jdbc.driver)
     implementation(libs.sqldelight.primitive.adapters)
     implementation(libs.token.validation.ktor.v3)
+    implementation("io.github.smiley4:ktor-openapi:5.4.0")
+    implementation("io.github.smiley4:ktor-swagger-ui:5.4.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
     implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
