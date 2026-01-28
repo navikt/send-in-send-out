@@ -25,8 +25,8 @@ fun Application.configureRoutes(
     }
 
     routing {
+        openApiRoutes()
         fagmeldingRoutes(prometheusMeterRegistry, eventRegistrationService)
         healthcheckRoutes(prometheusMeterRegistry)
-        openApiRoutes()
     }
 }

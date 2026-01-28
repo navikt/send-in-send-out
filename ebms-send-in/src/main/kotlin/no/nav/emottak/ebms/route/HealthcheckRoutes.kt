@@ -2,11 +2,11 @@ package no.nav.emottak.ebms.route
 
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
-import io.ktor.server.routing.Routing
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.micrometer.prometheus.PrometheusMeterRegistry
 
-fun Routing.healthcheckRoutes(
+fun Route.healthcheckRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry
 ) {
     get("/internal/health/liveness") {
