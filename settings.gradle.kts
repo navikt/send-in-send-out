@@ -14,18 +14,11 @@ dependencyResolutionManagement {
             version("arrow", "2.0.1")
             version("suspendapp", "0.5.0")
             version("bouncycastle", "1.76")
-            version("exposed", "0.47.0")
             version("ktor", "3.1.3")
             version("token-validation-ktor", "5.0.15")
-            version("jakarta-mail", "2.1.2")
-            version("eclipse-angus", "2.0.2")
-            version("jsch", "0.2.16")
             version("cxf", "3.6.6")
             version("hoplite", "2.8.2")
             version("kotlin-kafka", "0.4.1")
-            version("sqldelight", "2.0.2")
-            version("postgres", "42.7.4")
-            version("vault-jdbc", "1.3.10")
             version("emottak-utils", "0.3.5")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
@@ -42,8 +35,6 @@ dependencyResolutionManagement {
 
             library("hoplite-core", "com.sksamuel.hoplite", "hoplite-core").versionRef("hoplite")
             library("hoplite-hocon", "com.sksamuel.hoplite", "hoplite-hocon").versionRef("hoplite")
-
-            library("jsch", "com.github.mwiede", "jsch").versionRef("jsch")
 
             library("kotlin-kafka", "io.github.nomisrev", "kotlin-kafka").versionRef("kotlin-kafka")
 
@@ -65,25 +56,14 @@ dependencyResolutionManagement {
             library("logback-classic", "ch.qos.logback:logback-classic:1.5.18")
             library("logback-logstash", "net.logstash.logback:logstash-logback-encoder:8.1")
 
-            library("sqldelight-jdbc-driver", "app.cash.sqldelight", "jdbc-driver").versionRef("sqldelight")
-            library("sqldelight-postgresql-dialect", "app.cash.sqldelight", "postgresql-dialect").versionRef("sqldelight")
-            library("sqldelight-coroutines-extensions", "app.cash.sqldelight", "coroutines-extensions").versionRef("sqldelight")
-            library("sqldelight-primitive-adapters", "app.cash.sqldelight", "primitive-adapters").versionRef("sqldelight")
-
-            library("postgresql", "org.postgresql", "postgresql").versionRef("postgres")
-
-            library("vault-jdbc", "no.nav", "vault-jdbc").versionRef("vault-jdbc")
-
             library("ebxml-protokoll", "no.nav.emottak:ebxml-protokoll:0.0.6")
             library("ebxml-processing-model", "no.nav.emottak:ebxml-processing-model:2024102305ad1b37a7c4ec36bc77ef91f5ff67098389922f")
             library("emottak-payload-xsd", "no.nav.emottak:emottak-payload-xsd:0.0.9")
             library("emottak-utils", "no.nav.emottak", "emottak-utils").versionRef("emottak-utils")
-            library("hikari", "com.zaxxer:HikariCP:5.0.1")
             library("labai-jsr305x-annotations", "com.github.labai:labai-jsr305x-annotations:0.0.2")
             library("jakarta.xml.bind-api", "jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
             library("ktor-server-auth-jvm", "io.ktor", "ktor-server-auth-jvm").versionRef("ktor")
             library("token-validation-ktor-v3", "no.nav.security", "token-validation-ktor-v3").versionRef("token-validation-ktor")
-            library("flyway-core", "org.flywaydb:flyway-core:9.16.3")
             library("jaxb-runtime", "org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
             library("cxf-rt-frontend-jaxws", "org.apache.cxf", "cxf-rt-frontend-jaxws").versionRef("cxf")
             library("cxf-rt-transports-http", "org.apache.cxf", "cxf-rt-transports-http").versionRef("cxf")
@@ -91,12 +71,8 @@ dependencyResolutionManagement {
             library("cxf-rt-features-logging", "org.apache.cxf", "cxf-rt-features-logging").versionRef("cxf")
             library("jakarta.xml.ws-api", "jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
 
-            library("jakarta-mail-api", "jakarta.mail", "jakarta.mail-api").versionRef("jakarta-mail")
-            library("eclipse-angus", "org.eclipse.angus", "jakarta.mail").versionRef("eclipse-angus")
-
             bundle("prometheus", listOf("ktor-server-metrics-micrometer", "micrometer-registry-prometheus"))
             bundle("cxf", listOf("cxf-rt-frontend-jaxws", "cxf-rt-transports-http", "cxf-rt-ws-security", "cxf-rt-features-logging", "jakarta.xml.ws-api"))
-            bundle("jakarta-mail", listOf("jakarta-mail-api", "eclipse-angus"))
             bundle("bouncycastle", listOf("bcpkix-jdk18on", "bcprov-jdk18on"))
             bundle("logging", listOf("logback-classic", "logback-logstash"))
         }
