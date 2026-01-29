@@ -37,7 +37,9 @@ fun Route.fagmeldingRoutes(
 
             val mdcData = mapOf(
                 "messageId" to sendInRequest.messageId,
-                "conversationId" to sendInRequest.conversationId
+                "conversationId" to sendInRequest.conversationId,
+                "cpaId" to sendInRequest.cpaId,
+                "requestId" to sendInRequest.requestId
             )
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
