@@ -10,7 +10,7 @@ data class Config(
     val eventLogging: EventLogging,
     val clusterName: ClusterName,
     val frikorttjenester: FrikortTjenester,
-    val frikortCpalist: List<String>,
+    val frikortCpalist: Set<String>,
     val azureAuth: AzureAuth
 )
 
