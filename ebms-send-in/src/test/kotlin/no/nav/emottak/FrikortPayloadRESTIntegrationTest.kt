@@ -27,6 +27,7 @@ class FrikortPayloadRESTIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_
 
     @BeforeEach
     fun beforeEach() {
+        System.setProperty("FRIKORT_REST_PERCENT", "100")
         Configurator.resetMemoizedConfig()
     }
 
