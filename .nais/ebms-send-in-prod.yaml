@@ -69,4 +69,4 @@ spec:
     - name: SERVICEUSER_SECRET_PATH
       value: /secret/serviceuser
     - name: FRIKORT_REST_PERCENT
-      value: "10"
+      value: "50"
