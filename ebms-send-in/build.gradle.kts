@@ -131,6 +131,7 @@ dependencies {
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation(("javax.activation:activation:1.1.1"))
     implementation("org.apache.kafka:kafka-clients:3.5.1")
+    implementation(libs.kotlin.kafka)
     runtimeOnly("net.java.dev.jna:jna:5.12.1")
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)

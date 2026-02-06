@@ -13,6 +13,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.Configurator.config
+import no.nav.emottak.ebms.kafka.launchEbmsInPayloadReceiver
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
@@ -51,6 +52,8 @@ suspend fun ResourceScope.setupServer() {
     val eventRegistrationScope = coroutineScope(Dispatchers.IO)
 
     val eventRegistrationService = EventRegistrationServiceImpl(eventLoggingService, eventRegistrationScope)
+
+    eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry)
 
     server(
         Netty,
