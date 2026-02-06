@@ -32,17 +32,28 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
                 json()
             }
         }
-        val request = validSendInInntektforesporselRequest.value
-        val requestMsgHead = unmarshal(String(request.payload), MsgHead::class.java)
+        val sendInRequest = validSendInInntektforesporselRequest.value
+        assertEquals("Inntektsforesporsel", sendInRequest.addressing.service, "Request service mismatch")
+        assertEquals("Foresporsel", sendInRequest.addressing.action, "Request action mismatch")
+        assertEquals("Fordringshaver", sendInRequest.addressing.from.role, "Request from role mismatch")
+
+        val requestMsgHead = unmarshal(String(sendInRequest.payload), MsgHead::class.java)
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(request)
+            setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
         assertEquals(HttpStatusCode.OK, httpResponse.status)
+
+        val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.conversationId, sendInResponse.conversationId)
+        assertNotEquals(sendInRequest.messageId, sendInResponse.messageId)
+        assertEquals("Inntektsforesporsel", sendInResponse.addressing.service, "Response service mismatch")
+        assertEquals("InntektInformasjon", sendInResponse.addressing.action, "Response action mismatch")
+        assertEquals("Ytelsesutbetaler", sendInResponse.addressing.from.role, "Response from role mismatch")
 
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
@@ -52,17 +63,17 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToParent)
         assertEquals(requestMsgHead.msgInfo.msgId, responseMsgHead.msgInfo.conversationRef.refToConversation)
 
-        val response = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
-        assert(response is FinnUtbetalingListeResponse)
+        val responseRefDocContent = responseMsgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
+        assert(responseRefDocContent is FinnUtbetalingListeResponse)
 
-        val finnUtbetalingListeResponse = response as FinnUtbetalingListeResponse
+        val finnUtbetalingListeResponse = responseRefDocContent as FinnUtbetalingListeResponse
         assertNotNull(finnUtbetalingListeResponse)
         assertEquals(finnUtbetalingListeResponse.response.forespurtBrukerId, "12345678909")
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 5)
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.first().utbetalingGjelder.brukerId, "11223312345")
 
         // Validering av request:
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
         assert("no.nav.emottak.utbetaling" !in body) // Uten org-nr i req-header
     }
@@ -97,7 +108,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertEquals(finnUtbetalingListeResponse.response.utbetalingListe.size, 0)
 
         // Validering av request:
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
         assert("<orgnr xmlns=\"no.nav.emottak.utbetaling\">940101808</orgnr>" in body) // Med org-nr i req-header
     }
@@ -135,7 +146,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebrukerIkkeFunnet.errorMessage, "Bruker ikke funnet")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -172,7 +183,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListebaksystemIkkeTilgjengelig.errorMessage, "Baksystemet er ikke tilgjengelig")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -209,7 +220,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeingenTilgangTilEnEllerFlereYtelser.errorMessage, "Ingen tilgang til hemmelig ytelse")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -246,7 +257,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigDato.errorMessage, "Dato er ikke gyldig")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -283,7 +294,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assertNotNull(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype)
         assertEquals(fault.finnUtbetalingListeugyldigKombinasjonBrukerIdOgBrukertype.errorMessage, "Ugyldig kombinasjon: PERSON og 9-sifret ident.")
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 
@@ -309,7 +320,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         assert(responsePayload.contains("com.ibm.websphere.sca.ServiceRuntimeException"))
         assert(responsePayload.contains("Dette er en teknisk feil fra baksystem"))
 
-        val body: String = wsSoapMock!!.takeRequest().body.readByteString().utf8()
+        val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
     }
 }

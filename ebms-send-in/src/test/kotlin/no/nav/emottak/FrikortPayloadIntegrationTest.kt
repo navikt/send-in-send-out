@@ -13,9 +13,11 @@ import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
-import no.nav.emottak.frikort.FrikortXmlMarshaller
+import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
+import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -30,25 +32,38 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
+        val sendInRequest = validSendInHarBorgerFrikortRequest.value
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(validSendInHarBorgerFrikortRequest.value)
+            setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
 
         // Validering av request:
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
+        assertEquals("HarBorgerFrikort", sendInRequest.addressing.service, "Request service mismatch")
+        assertEquals("EgenandelForesporsel", sendInRequest.addressing.action, "Request action mismatch")
+        assertEquals("Behandler", sendInRequest.addressing.from.role, "Request from role mismatch")
+
         // Validering av response:
         assertEquals(HttpStatusCode.OK, httpResponse.status)
-        val responsePayload = httpResponse.body<SendInResponse>().payload
+
+        val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.conversationId, sendInResponse.conversationId)
+        assertNotEquals(sendInRequest.messageId, sendInResponse.messageId)
+        assertEquals("HarBorgerFrikort", sendInResponse.addressing.service, "Response service mismatch")
+        assertEquals("Svar", sendInResponse.addressing.action, "Response action mismatch")
+        assertEquals("Frikortregister", sendInResponse.addressing.from.role, "Response from role mismatch")
+
+        val responsePayload = sendInResponse.payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
@@ -64,26 +79,38 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(validSendInHarBorgerFrikortMengdeRequest.value)
+            setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
 
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
 
         // Validering av request:
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
+        assertEquals("HarBorgerFrikortMengde", sendInRequest.addressing.service, "Request service mismatch")
+        assertEquals("EgenandelMengdeForesporsel", sendInRequest.addressing.action, "Request action mismatch")
+        assertEquals("Behandler", sendInRequest.addressing.from.role, "Request from role mismatch")
+
         // Validering av response:
         assertEquals(HttpStatusCode.OK, httpResponse.status)
-        val responsePayload = httpResponse.body<SendInResponse>().payload
+        val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.conversationId, sendInResponse.conversationId)
+        assertNotEquals(sendInRequest.messageId, sendInResponse.messageId)
+        assertEquals("HarBorgerFrikortMengde", sendInResponse.addressing.service, "Response service mismatch")
+        assertEquals("Svar", sendInResponse.addressing.action, "Response action mismatch")
+        assertEquals("Frikortregister", sendInResponse.addressing.from.role, "Response from role mismatch")
+
+        val responsePayload = sendInResponse.payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelMengdeForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelMengdeSvarV2
 
@@ -100,26 +127,38 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(validSendInHarBorgerFrikortMengdeRequest.value)
+            setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
 
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
 
         // Validering av request:
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
+        assertEquals("HarBorgerFrikortMengde", sendInRequest.addressing.service, "Request service mismatch")
+        assertEquals("EgenandelMengdeForesporsel", sendInRequest.addressing.action, "Request action mismatch")
+        assertEquals("Behandler", sendInRequest.addressing.from.role, "Request from role mismatch")
+
         // Validering av response:
         assertEquals(HttpStatusCode.OK, httpResponse.status)
+        val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.conversationId, sendInResponse.conversationId)
+        assertNotEquals(sendInRequest.messageId, sendInResponse.messageId)
+        assertEquals("HarBorgerFrikortMengde", sendInResponse.addressing.service, "Response service mismatch")
+        assertEquals("Svar", sendInResponse.addressing.action, "Response action mismatch")
+        assertEquals("Frikortregister", sendInResponse.addressing.from.role, "Response from role mismatch")
+
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelMengdeForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelMengdeSvarV2
 
@@ -128,31 +167,43 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
     }
 
     @Test
-    fun `Test Frikort-HarBorgerEgenandelfritak`() = ebmsSendInTestApp("frikort/EgenandelForesporsel_HarBorgerEgenandelFritakResponse.xml") {
+    fun `Test Frikort-HarBorgerEgenandelFritak`() = ebmsSendInTestApp("frikort/EgenandelForesporsel_HarBorgerEgenandelFritakResponse.xml") {
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
             }
         }
+        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
                 "Bearer ${getToken().serialize()}"
             )
-            setBody(validSendInHarBorgerEgenandelfritakRequest.value)
+            setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
 
         // Validering av request:
-        val req = wsSoapMock!!.takeRequest()
+        val req = mockWebServer!!.takeRequest()
         val auth = req.getHeader(HttpHeaders.Authorization)
         assertNotNull(auth)
 
+        assertEquals("HarBorgerEgenandelFritak", sendInRequest.addressing.service, "Request service mismatch")
+        assertEquals("EgenandelForesporsel", sendInRequest.addressing.action, "Request action mismatch")
+        assertEquals("Utleverer", sendInRequest.addressing.from.role, "Request from role mismatch")
+
         // Validering av response:
         assertEquals(HttpStatusCode.OK, httpResponse.status)
+        val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.conversationId, sendInResponse.conversationId)
+        assertNotEquals(sendInRequest.messageId, sendInResponse.messageId)
+        assertEquals("HarBorgerEgenandelFritak", sendInResponse.addressing.service, "Response service mismatch")
+        assertEquals("Svar", sendInResponse.addressing.action, "Response action mismatch")
+        assertEquals("Frikortregister", sendInResponse.addressing.from.role, "Response from role mismatch")
+
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = FrikortXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
