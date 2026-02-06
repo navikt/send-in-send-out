@@ -9,9 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.coroutines.slf4j.MDCContext
 import no.nav.emottak.config.Config
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -112,5 +112,22 @@ private suspend fun processMessage(
     return withContext(MDCContext(mdcData)) {
         log.info("Dummy processing enabled. Message with id ${sendInRequest.messageId} received.")
         "Dummy response"
+        /*
+        FagmeldingService.processRequest(
+            sendInRequest,
+            prometheusMeterRegistry,
+            eventRegistrationService
+        ).fold(
+            { error ->
+                log.error("Failed to process request: ${error.message}", error)
+                // Should we return error response? For now, logging and returning null (no response to out-queue)
+                // Or maybe send error response?
+                null
+            },
+            { response ->
+                Json.encodeToString(SendInResponse.serializer(), response)
+            }
+        )
+         */
     }
 }
