@@ -52,7 +52,7 @@ object FagmeldingService {
                 }
 
             SupportedServiceType.HarBorgerEgenandelFritak ->
-                when (sendInRequest.sendToRESTFrikortEndpoint()) {
+                when (sendToRESTFrikortEndpoint()) {
                     true -> getHarBorgerEgenandelFritakREST(sendInRequest, eventRegistrationService)
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
@@ -62,7 +62,7 @@ object FagmeldingService {
                 }
 
             SupportedServiceType.HarBorgerFrikort ->
-                when (sendInRequest.sendToRESTFrikortEndpoint()) {
+                when (sendToRESTFrikortEndpoint()) {
                     true -> getHarBorgerFrikortREST(sendInRequest, eventRegistrationService)
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
@@ -304,4 +304,4 @@ object FagmeldingService {
     }
 }
 
-private fun SendInRequest.sendToRESTFrikortEndpoint() = config().clusterName.isDev() || config().frikortCpalist.contains(this.cpaId)
+private fun sendToRESTFrikortEndpoint() = (0 until 100).random() < config().frikortRestPercent.value

@@ -13,17 +13,25 @@ import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
+import no.nav.emottak.config.Configurator
 import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL") {
+
+    @BeforeEach
+    fun beforeEach() {
+        System.setProperty("FRIKORT_REST_PERCENT", "0")
+        Configurator.resetMemoizedConfig()
+    }
 
     @Test
     fun `Test Frikort-HarBorgerFrikort`() = ebmsSendInTestApp("frikort/EgenandelForesporsel_HarBorgerFrikortResponse.xml") {
