@@ -68,3 +68,5 @@ spec:
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
     - name: SERVICEUSER_SECRET_PATH
       value: /secret/serviceuser
+    - name: FRIKORT_REST_PERCENT
+      value: "50"
