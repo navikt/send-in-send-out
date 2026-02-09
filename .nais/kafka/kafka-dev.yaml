@@ -10,4 +10,20 @@ spec:
   acl:
     - team: team-emottak
       application: send-in-send-out
-      access: readwrite   # read, write, readwrite
+      access: write   # read, write, readwrite
+
+---
+
+apiVersion: kafka.nais.io/v1
+kind: Topic
+metadata:
+  name: ebms.in.payload
+  namespace: team-emottak
+  labels:
+    team: team-emottak
+spec:
+  pool: nav-dev
+  acl:
+    - team: team-emottak
+      application: ebms-async
+      access: read   # read, write, readwrite
