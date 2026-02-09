@@ -42,7 +42,7 @@ spec:
       cpu:
         thresholdPercentage: 50
     min: 1
-    max: 6
+    max: 4
   resources:
     limits:
       memory: "512Mi"
@@ -75,3 +75,5 @@ spec:
       value: DEBUG
     - name: SERVICEUSER_SECRET_PATH
       value: /secret/serviceuser
+    - name: FRIKORT_REST_PERCENT
+      value: "100"

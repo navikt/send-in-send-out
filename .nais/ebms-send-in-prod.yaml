@@ -41,11 +41,11 @@ spec:
     scalingStrategy:
       cpu:
         thresholdPercentage: 30
-    min: 2
-    max: 12
+    min: 3
+    max: 10
   resources:
     limits:
-      memory: "512Mi"
+      memory: "768Mi"
     requests:
       cpu: "100m"
       memory: "512Mi"
@@ -68,3 +68,5 @@ spec:
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
     - name: SERVICEUSER_SECRET_PATH
       value: /secret/serviceuser
+    - name: FRIKORT_REST_PERCENT
+      value: "50"
