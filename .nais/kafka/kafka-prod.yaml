@@ -9,7 +9,7 @@ spec:
   pool: nav-prod
   acl:
     - team: team-emottak
-      application: send-in-send-out
+      application: ebms-send-in
       access: write   # read, write, readwrite
 
 ---
@@ -25,5 +25,5 @@ spec:
   pool: nav-dev
   acl:
     - team: team-emottak
-      application: ebms-async
+      application: ebms-send-in
       access: read   # read, write, readwrite
