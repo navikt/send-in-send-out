@@ -17,13 +17,13 @@ spec:
 apiVersion: kafka.nais.io/v1
 kind: Topic
 metadata:
-  name: ebms.in.payload
+  name: ebms.out.payload
   namespace: team-emottak
   labels:
     team: team-emottak
 spec:
-  pool: nav-dev
+  pool: nav-prod
   acl:
     - team: team-emottak
-      application: ebms-send-in
+      application: ebms-async
       access: read   # read, write, readwrite
