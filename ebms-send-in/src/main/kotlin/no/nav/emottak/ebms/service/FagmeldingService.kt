@@ -52,7 +52,7 @@ object FagmeldingService {
                 }
 
             SupportedServiceType.HarBorgerEgenandelFritak ->
-                when (sendToRESTFrikortEndpoint()) {
+                when (sendInRequest.sendToRESTFrikortEndpoint()) {
                     true -> getHarBorgerEgenandelFritakREST(sendInRequest, eventRegistrationService)
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
@@ -62,7 +62,7 @@ object FagmeldingService {
                 }
 
             SupportedServiceType.HarBorgerFrikort ->
-                when (sendToRESTFrikortEndpoint()) {
+                when (sendInRequest.sendToRESTFrikortEndpoint()) {
                     true -> getHarBorgerFrikortREST(sendInRequest, eventRegistrationService)
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
@@ -304,4 +304,10 @@ object FagmeldingService {
     }
 }
 
-private fun sendToRESTFrikortEndpoint() = (0 until 100).random() < config().frikortRestPercent.value
+private fun SendInRequest.sendToRESTFrikortEndpoint() =
+    when (this.cpaId) {
+        "983971636_889640782_011" -> false // AHUS Frikort (Sykemelding)
+        "nav:70079" -> false // AHUS Frikort
+        "983971636_889640782_001" -> false // AHUS Avdeling for patologi
+        else -> (0 until 100).random() < config().frikortRestPercent.value
+    }
