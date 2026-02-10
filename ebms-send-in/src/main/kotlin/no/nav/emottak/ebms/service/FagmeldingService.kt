@@ -306,6 +306,8 @@ object FagmeldingService {
 
 private fun SendInRequest.sendToRESTFrikortEndpoint() =
     when (this.cpaId) {
-        "nav:12345" -> false
+        "983971636_889640782_011" -> false  // AHUS Frikort (Sykemelding)
+        "nav:70079" -> false                // AHUS Frikort
+        "983971636_889640782_001" -> false  // AHUS Avdeling for patologi
         else -> (0 until 100).random() < config().frikortRestPercent.value
     }
