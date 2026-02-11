@@ -5,19 +5,30 @@ import com.ibm.msg.client.wmq.WMQConstants
 import no.nav.emottak.config.TrekkopplysningerMq
 import javax.jms.Session
 
-class JmsClient(config: TrekkopplysningerMq, val factory: MQQueueConnectionFactory = MQQueueConnectionFactory()) {
+class JmsClient(
+    config: TrekkopplysningerMq,
+    val factory: MQQueueConnectionFactory = MQQueueConnectionFactory(),
+    val username: String = config.username,
+    val password: String = config.password
+) {
 
+    /*
+    If we only supply queuemanager and no channel, it seems the connection will be made in "bind/server" mode.
+    This led to the error message "Failed to load the IBM MQ native JNI library: 'mqjbnd'".
+    There is no Channel defined in Fasit for old eMottak, only the queuemanager (MQLS04 in Q1).
+    We should maybe have a Channel set up to connect to mq://b27apvl222.preprod.local:1413/MQLS04.
+    The other alternative, which may work with no channel, is to explicitly set the connection mode to client.
+     */
     init {
         factory.setHostName(config.hostname.value)
         factory.setPort(config.port)
         factory.setQueueManager(config.queueManager)
         factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
-
-        //        factory.setChannel("SYSTEM.DEF.SVRCONN") // channel brukes visst ikke av gamle emottak ?
+        // factory.setChannel("SYSTEM.DEF.SVRCONN") // channel brukes visst ikke av gamle emottak ?
     }
 
     fun sendMessage(queue: String, messageText: String) {
-        factory.createContext("srvemottakmq", "", Session.AUTO_ACKNOWLEDGE)?.use {
+        factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)?.use {
             val queue = it.createQueue(queue)
             it.createProducer().send(queue, messageText)
         }

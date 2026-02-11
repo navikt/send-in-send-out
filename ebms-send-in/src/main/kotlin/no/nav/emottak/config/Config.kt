@@ -34,7 +34,9 @@ data class TrekkopplysningerMq(
     val port: Int,
     val queueManager: String,
     val channel: String,
-    val queue: String
+    val queue: String,
+    val username: String,
+    val password: String
 )
 
 @JvmInline

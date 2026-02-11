@@ -66,6 +66,8 @@ spec:
         - application: azure-token-generator
           namespace: aura
           cluster: dev-gcp
+  envFrom:
+    - secret: emottak-mq-creds
   env:
     - name: FRIKORT_URL
       value: https://wasapp-q1.adeo.no/nav-frikort/tjenestereksterne
@@ -84,6 +86,6 @@ spec:
     - name: TREKKOPPL_MQ_QMGR
       value: "MQLS04"
     - name: TREKKOPPL_MQ_CHANNEL
-      value: "notused"
+      value: "Q1_EMOTTAK_ADMIN"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"
