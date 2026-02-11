@@ -55,7 +55,7 @@ suspend fun ResourceScope.setupServer() {
 
     val mqConfig = config().trekkopplysningerMq
     val trekkopplysningerService = TrekkopplysningerService(mqConfig)
-    log.info("Set up to use MQ with $mqConfig")
+    log.info("Set up to use MQ with host ${mqConfig.hostname}, port ${mqConfig.port}, queueManager ${mqConfig.queueManager}, channel ${mqConfig.channel}, queue ${mqConfig.queue}, username ${mqConfig.username}")
 
     server(
         Netty,

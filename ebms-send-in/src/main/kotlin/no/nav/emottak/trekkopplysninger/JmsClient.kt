@@ -18,12 +18,16 @@ class JmsClient(
     There is no Channel defined in Fasit for old eMottak, only the queuemanager (MQLS04 in Q1).
     We should maybe have a Channel set up to connect to mq://b27apvl222.preprod.local:1413/MQLS04.
     The other alternative, which may work with no channel, is to explicitly set the connection mode to client.
+
+    Also, to make the authentication work with username/pw longer than 12 characters, set up MQCSP authentication.
      */
     init {
         factory.setHostName(config.hostname.value)
         factory.setPort(config.port)
         factory.setQueueManager(config.queueManager)
         factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
+        factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
+        factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
         // factory.setChannel("SYSTEM.DEF.SVRCONN") // channel brukes visst ikke av gamle emottak ?
     }
 
