@@ -53,7 +53,9 @@ suspend fun ResourceScope.setupServer() {
 
     val eventRegistrationService = EventRegistrationServiceImpl(eventLoggingService, eventRegistrationScope)
 
-    val trekkopplysningerService = TrekkopplysningerService(config().trekkopplysningerMq)
+    val mqConfig = config().trekkopplysningerMq
+    val trekkopplysningerService = TrekkopplysningerService(mqConfig)
+    log.info("Set up to use MQ with $mqConfig")
 
     server(
         Netty,

@@ -10,6 +10,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.mockk.mockk
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
+import no.nav.emottak.config.Configurator.config
 import no.nav.emottak.trekkopplysninger.TrekkopplysningerService
 import no.nav.emottak.util.EventRegistrationServiceFake
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -71,7 +72,8 @@ abstract class PayloadIntegrationTestFelles(
             val eventRegistrationService = EventRegistrationServiceFake()
 
             val trekkopplysningerService: TrekkopplysningerService = mockk()
-
+            val trekkopplysningerMq = config().trekkopplysningerMq
+            log.info("Set up to use MQ with $trekkopplysningerMq")
             application {
                 ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningerService)
             }
