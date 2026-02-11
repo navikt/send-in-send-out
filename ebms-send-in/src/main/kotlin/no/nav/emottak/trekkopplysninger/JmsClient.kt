@@ -1,6 +1,7 @@
 package no.nav.emottak.trekkopplysninger
 
 import com.ibm.mq.jms.MQQueueConnectionFactory
+import com.ibm.msg.client.wmq.WMQConstants
 import no.nav.emottak.config.TrekkopplysningerMq
 import javax.jms.Session
 
@@ -10,11 +11,13 @@ class JmsClient(config: TrekkopplysningerMq, val factory: MQQueueConnectionFacto
         factory.setHostName(config.hostname.value)
         factory.setPort(config.port)
         factory.setQueueManager(config.queueManager)
+        factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
+
         //        factory.setChannel("SYSTEM.DEF.SVRCONN") // channel brukes visst ikke av gamle emottak ?
     }
 
     fun sendMessage(queue: String, messageText: String) {
-        factory.createContext(Session.AUTO_ACKNOWLEDGE)?.use {
+        factory.createContext("srvemottakmq", "", Session.AUTO_ACKNOWLEDGE)?.use {
             val queue = it.createQueue(queue)
             it.createProducer().send(queue, messageText)
         }
