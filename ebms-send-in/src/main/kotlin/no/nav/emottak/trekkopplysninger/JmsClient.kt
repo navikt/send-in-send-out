@@ -11,7 +11,7 @@ class JmsClient(config: TrekkopplysningerMq, val factory: MQQueueConnectionFacto
         factory.setHostName(config.hostname.value)
         factory.setPort(config.port)
         factory.setQueueManager(config.queueManager)
-        factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT);
+        factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
 
         //        factory.setChannel("SYSTEM.DEF.SVRCONN") // channel brukes visst ikke av gamle emottak ?
     }
