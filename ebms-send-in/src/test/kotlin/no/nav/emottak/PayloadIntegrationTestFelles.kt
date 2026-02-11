@@ -7,8 +7,10 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.mockk.mockk
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
+import no.nav.emottak.trekkopplysninger.TrekkopplysningerService
 import no.nav.emottak.util.EventRegistrationServiceFake
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import okhttp3.mockwebserver.MockResponse
@@ -68,8 +70,10 @@ abstract class PayloadIntegrationTestFelles(
 
             val eventRegistrationService = EventRegistrationServiceFake()
 
+            val trekkopplysningerService: TrekkopplysningerService = mockk()
+
             application {
-                ebmsSendInModule(meterRegistry, eventRegistrationService)
+                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningerService)
             }
             testBlock()
         }

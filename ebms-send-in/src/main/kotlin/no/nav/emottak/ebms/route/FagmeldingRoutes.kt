@@ -7,6 +7,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.log
+import no.nav.emottak.trekkopplysninger.TrekkopplysningerService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
@@ -73,4 +75,22 @@ fun Route.fagmeldingRoutes(
             }
         }
     }
+}
+
+fun Route.browseMqRoute(
+    trekkopplysningerService: TrekkopplysningerService
+) {
+//    authenticate(AZURE_AD_AUTH) {
+    get("/testBrowseMq") {
+        log.info("Browsing MQ......")
+        try {
+            val report = trekkopplysningerService.browse()
+            log.info("Browsed MQ: $report")
+            call.respond(report)
+        } catch (e: Exception) {
+            log.error("Error browsing MQ", e)
+            call.respond(e.localizedMessage ?: e.javaClass.simpleName)
+        }
+    }
+//    }
 }
