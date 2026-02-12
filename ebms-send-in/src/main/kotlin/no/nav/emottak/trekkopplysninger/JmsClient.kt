@@ -65,21 +65,11 @@ class JmsClient(
     }
     fun superBrowse(config: TrekkopplysningerMq): String {
         create("b27apvl222.preprod.local", 1413, "MQLS04", "", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "", "MQLS04", "srvemottakmq", config.password)
         create("mqls04.preprod.local", 1413, "MQLS04", "", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "", "MQLS04", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "MQLCLIENT04", "", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "", "MQLCLIENT04", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "MQLCLIENT04", "", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "", "MQLCLIENT04", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLCLIENT04", "", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLCLIENT04", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLCLIENT04", "", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLCLIENT04", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLS04", "", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLS04", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLS04", "", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLS04", "srvemottakmq", config.password)
+        create("b27apvl222.preprod.local", 1413, "MQLS04", "Q1_EMOTTAK_ADMIN", "srvemottakmq", config.password)
+        create("mqls04.preprod.local", 1413, "MQLS04", "Q1_EMOTTAK_ADMIN", "srvemottakmq", config.password)
+        create("b27apvl222.preprod.local", 1413, "MQLS04", "Q1_JURIDISKLOGG", "srvemottakmq", config.password)
+        create("mqls04.preprod.local", 1413, "MQLS04", "Q1_JURIDISKLOGG", "srvemottakmq", config.password)
         return "OK"
     }
 
