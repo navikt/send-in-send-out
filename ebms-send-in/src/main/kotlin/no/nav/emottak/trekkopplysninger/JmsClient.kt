@@ -27,7 +27,6 @@ class JmsClient(
         factory.setQueueManager(config.queueManager)
         factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
         factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
-        factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
         // factory.setChannel("SYSTEM.DEF.SVRCONN") // channel brukes visst ikke av gamle emottak ?
     }
 
@@ -41,7 +40,7 @@ class JmsClient(
     fun browse(queue: String): String {
         val sb: StringBuilder = StringBuilder()
         sb.append("MQ Browse report\n")
-        factory.createContext(Session.AUTO_ACKNOWLEDGE)?.use {
+        factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)?.use {
             it.createBrowser(it.createQueue(queue)).use { browser ->
                 {
                     var c = 0
