@@ -13,6 +13,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.Configurator.config
+import no.nav.emottak.config.TrekkopplysningerMq
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
@@ -68,11 +69,12 @@ suspend fun ResourceScope.setupServer() {
 internal fun Application.ebmsSendInModule(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningerService: TrekkopplysningerService
+    trekkopplysningerService: TrekkopplysningerService,
+    trekkopplysningerMq: TrekkopplysningerMq = config().trekkopplysningerMq
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningerService)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningerService, trekkopplysningerMq)
 }

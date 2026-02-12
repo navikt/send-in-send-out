@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
+import no.nav.emottak.config.TrekkopplysningerMq
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.log
@@ -78,13 +79,14 @@ fun Route.fagmeldingRoutes(
 }
 
 fun Route.browseMqRoute(
-    trekkopplysningerService: TrekkopplysningerService
+    trekkopplysningerService: TrekkopplysningerService,
+    trekkopplysningerMq: TrekkopplysningerMq
 ) {
 //    authenticate(AZURE_AD_AUTH) {
     get("/testBrowseMq") {
         log.info("Browsing MQ......")
         try {
-            val report = trekkopplysningerService.browse()
+            val report = trekkopplysningerService.superBrowse(trekkopplysningerMq)
             log.info("Browsed MQ: $report")
             call.respond(report)
         } catch (e: Exception) {

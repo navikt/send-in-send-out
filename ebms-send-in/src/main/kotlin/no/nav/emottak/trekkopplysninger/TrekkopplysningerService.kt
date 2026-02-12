@@ -11,4 +11,7 @@ class TrekkopplysningerService(trekkopplysningerMq: TrekkopplysningerMq, val jmS
     fun browse(): String {
         return jmSclient.browse(queue)
     }
+    fun superBrowse(trekkopplysningerMq: TrekkopplysningerMq): String {
+        return jmSclient.superBrowse(trekkopplysningerMq)
+    }
 }
