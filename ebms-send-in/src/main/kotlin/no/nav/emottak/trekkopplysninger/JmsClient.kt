@@ -76,6 +76,10 @@ class JmsClient(
         create("b27apvl222.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLCLIENT04", "srvemottakmq", config.password)
         create("mqls04.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLCLIENT04", "", "srvemottakmq", config.password)
         create("mqls04.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLCLIENT04", "srvemottakmq", config.password)
+        create("b27apvl222.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLS04", "", "srvemottakmq", config.password)
+        create("b27apvl222.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLS04", "srvemottakmq", config.password)
+        create("mqls04.preprod.local", 1413, "b27apvl222.preprod.local:1413/MQLS04", "", "srvemottakmq", config.password)
+        create("mqls04.preprod.local", 1413, "", "b27apvl222.preprod.local:1413/MQLS04", "srvemottakmq", config.password)
         return "OK"
     }
 
@@ -84,16 +88,16 @@ class JmsClient(
         val queue = "QA.Q1_231.OB04_INNRAPP_TREKK"
         val pw = password.take(8) + "..."
         log.info("Set up to use MQ with host $host, port $port, queueManager $queueManager, channel $channel, queue $queue, username $username, pw $pw")
-        factory.setHostName(host)
-        factory.setPort(port)
-        if (!queueManager.equals("")) factory.setQueueManager(queueManager)
-        if (!channel.equals("")) factory.setChannel(channel)
-        factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
-        factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
         try {
+            factory.setHostName(host)
+            factory.setPort(port)
+            if (!queueManager.equals("")) factory.setQueueManager(queueManager)
+            if (!channel.equals("")) factory.setChannel(channel)
+            factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
+            factory.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true)
             factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)?.use {
                 it.createBrowser(it.createQueue(queue)).use { browser -> log.info("Browser running ok") }
             }
-        } catch (e: Exception) { log.error("Error creating MQ browser", e.message ?: e.javaClass.simpleName) }
+        } catch (e: Exception) { log.error("Error creating MQ browser: ${e.message}", e) }
     }
 }
