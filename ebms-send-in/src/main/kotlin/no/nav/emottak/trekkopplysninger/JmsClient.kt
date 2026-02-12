@@ -64,18 +64,21 @@ class JmsClient(
         return sb.toString()
     }
     fun superBrowse(config: TrekkopplysningerMq): String {
+        // Disse 2 gir bad auth
         create("b27apvl222.preprod.local", 1413, "MQLS04", "", "srvemottakmq", config.password)
         create("mqls04.preprod.local", 1413, "MQLS04", "", "srvemottakmq", config.password)
+        // Prøver disse
+        create("b27apvl222.preprod.local", 1413, "MQLS04", "Q1_231", "srvemottakmq", config.password)
+        create("b27apvl222.preprod.local", 1413, "MQLS04", "Q1_EMOTTAK_ADMIN", "srvemottakmq", config.password, "QA.Q1_EMOTTAK_ADMIN.OB04_INNRAPP_TREKK")
+
+        // Disse gir OK connect, men finner ikke køen
         create("b27apvl222.preprod.local", 1413, "MQLS04", "Q1_EMOTTAK_ADMIN", "srvemottakmq", config.password)
         create("mqls04.preprod.local", 1413, "MQLS04", "Q1_EMOTTAK_ADMIN", "srvemottakmq", config.password)
-        create("b27apvl222.preprod.local", 1413, "MQLS04", "Q1_JURIDISKLOGG", "srvemottakmq", config.password)
-        create("mqls04.preprod.local", 1413, "MQLS04", "Q1_JURIDISKLOGG", "srvemottakmq", config.password)
         return "OK"
     }
 
-    fun create(host: String, port: Int, queueManager: String, channel: String, username: String, password: String) {
+    fun create(host: String, port: Int, queueManager: String, channel: String, username: String, password: String, queue: String = "QA.Q1_231.OB04_INNRAPP_TREKK") {
         val factory = MQQueueConnectionFactory()
-        val queue = "QA.Q1_231.OB04_INNRAPP_TREKK"
         val pw = password.take(8) + "..."
         log.info("Set up to use MQ with host $host, port $port, queueManager $queueManager, channel $channel, queue $queue, username $username, pw $pw")
         try {
