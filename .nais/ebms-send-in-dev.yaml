@@ -80,12 +80,12 @@ spec:
     - name: FRIKORT_REST_PERCENT
       value: "100"
     - name: TREKKOPPL_MQ_HOST
-      value: "b27apvl222.preprod.local"
+      value: "mqls04.preprod.local"
     - name: TREKKOPPL_MQ_PORT
       value: "1413"
     - name: TREKKOPPL_MQ_QMGR
       value: "MQLS04"
     - name: TREKKOPPL_MQ_CHANNEL
-      value: "Q1_EMOTTAK_ADMIN"
+      value: "Q1_EMOTTAK_ASYNCH"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"

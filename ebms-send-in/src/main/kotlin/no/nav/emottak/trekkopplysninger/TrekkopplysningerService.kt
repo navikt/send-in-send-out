@@ -8,10 +8,7 @@ class TrekkopplysningerService(trekkopplysningerMq: TrekkopplysningerMq, val jmS
         jmSclient.sendMessage(queue, messageText)
     }
 
-    fun browse(): String {
-        return jmSclient.browse(queue)
-    }
-    fun superBrowse(trekkopplysningerMq: TrekkopplysningerMq): String {
-        return jmSclient.superBrowse(trekkopplysningerMq)
+    fun verifyConnection() {
+        jmSclient.verifyConnection()
     }
 }
