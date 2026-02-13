@@ -8,6 +8,7 @@ data class Config(
     val server: Server,
     val kafka: Kafka,
     val ebmsInPayloadReceiver: KafkaEbmsInPayloadReceiver,
+    val ebmsOutPayloadProducer: KafkaEbmsOutPayloadProducer,
     val eventLogging: EventLogging,
     val clusterName: ClusterName,
     val frikorttjenester: FrikortTjenester,
@@ -17,6 +18,10 @@ data class Config(
 
 data class KafkaEbmsInPayloadReceiver(
     val active: Boolean,
+    val topic: String
+)
+
+data class KafkaEbmsOutPayloadProducer(
     val topic: String
 )
 
