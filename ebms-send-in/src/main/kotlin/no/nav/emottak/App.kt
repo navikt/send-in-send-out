@@ -18,6 +18,7 @@ import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
+import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceImpl
 import no.nav.emottak.utils.coroutines.coroutineScope
@@ -52,21 +53,26 @@ suspend fun ResourceScope.setupServer() {
 
     val eventRegistrationService = EventRegistrationServiceImpl(eventLoggingService, eventRegistrationScope)
 
+    val mqConfig = config().trekkopplysningMq
+    val trekkopplysningService = TrekkopplysningService(mqConfig)
+    log.info("Set up to use MQ with host ${mqConfig.hostname}, port ${mqConfig.port}, queueManager ${mqConfig.queueManager}, channel ${mqConfig.channel}, queue ${mqConfig.queue}")
+
     server(
         Netty,
         port = serverConfig.port.value,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService) }
     )
 }
 
 internal fun Application.ebmsSendInModule(
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventRegistrationService: EventRegistrationService
+    eventRegistrationService: EventRegistrationService,
+    trekkopplysningService: TrekkopplysningService
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService)
 }

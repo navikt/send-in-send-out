@@ -7,6 +7,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +17,7 @@ import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.log
+import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
@@ -25,7 +27,8 @@ import no.nav.emottak.utils.serialization.toEventDataJson
 
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventRegistrationService: EventRegistrationService
+    eventRegistrationService: EventRegistrationService,
+    trekkopplysningService: TrekkopplysningService
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
@@ -47,7 +50,8 @@ fun Route.fagmeldingRoutes(
                     FagmeldingService.processRequest(
                         sendInRequest,
                         prometheusMeterRegistry,
-                        eventRegistrationService
+                        eventRegistrationService,
+                        trekkopplysningService
                     ).bind()
                 }
 
@@ -73,4 +77,22 @@ fun Route.fagmeldingRoutes(
             }
         }
     }
+}
+
+fun Route.verifyMq(
+    trekkopplysningService: TrekkopplysningService
+) {
+//    authenticate(AZURE_AD_AUTH) {
+    get("/testMq") {
+        log.info("Testing MQ......")
+        try {
+            trekkopplysningService.verifyConnection()
+            log.info("MQ connection OK")
+            call.respond("MQ connection OK")
+        } catch (e: Exception) {
+            log.error("Error testing MQ", e)
+            call.respond(e.localizedMessage ?: e.javaClass.simpleName)
+        }
+    }
+//    }
 }

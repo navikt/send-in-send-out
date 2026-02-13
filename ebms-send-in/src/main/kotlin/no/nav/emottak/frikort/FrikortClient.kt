@@ -14,18 +14,20 @@ import javax.xml.namespace.QName
 val frikortEndpoint = frikortEndpoint()
 private val frikortObjectFactory = ObjectFactory()
 
-fun frikortEndpoint(): FrikortV1Port =
-    ServiceBuilder(FrikortV1Port::class.java)
+fun frikortEndpoint(): FrikortV1Port {
+    val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    return ServiceBuilder(FrikortV1Port::class.java)
         .withAddress(getEnvVar("FRIKORT_URL", "https://wasapp-local.adeo.no/nav-frikort/tjenestereksterne"))
         .withWsdl("classpath:frikort_v1.wsdl")
         .withServiceName(QName("http://nav.no/tjeneste/ekstern/frikort/v1", "Frikort_v1Service"))
         .withEndpointName(QName("http://nav.no/tjeneste/ekstern/frikort/v1", "Frikort_v1Port"))
         .build()
         .withBasicSecurity(
-            getSecret("/secret/serviceuser/username", "testUsername"),
-            getSecret("/secret/serviceuser/password", "testPassword")
+            getSecret("$secretPath/username", "testUsername"),
+            getSecret("$secretPath/password", "testPassword")
         )
         .get()
+}
 
 fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
     log.debug(
