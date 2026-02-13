@@ -55,7 +55,9 @@ spec:
     enabled: true
     paths:
         - kvPath: /serviceuser/data/dev/srvtokt
-          mountPath: /secret/serviceuser
+          mountPath: /secret/srvtokt
+        - kvPath: /serviceuser/data/dev/srvemottakmq
+          mountPath: /secret/srvemottakmq
   kafka:
     pool: nav-dev
   accessPolicy:
@@ -76,7 +78,9 @@ spec:
     - name: EMOTTAK_LOGGING_LEVEL
       value: DEBUG
     - name: SERVICEUSER_SECRET_PATH
-      value: /secret/serviceuser
+      value: /secret/srvtokt
+    - name: SERVICEUSERMQ_SECRET_PATH
+      value: /secret/srvemottakmq
     - name: FRIKORT_REST_PERCENT
       value: "100"
     - name: TREKKOPPL_MQ_HOST

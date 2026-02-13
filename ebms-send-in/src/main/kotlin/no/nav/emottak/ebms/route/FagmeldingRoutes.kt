@@ -17,7 +17,7 @@ import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.log
-import no.nav.emottak.trekkopplysninger.TrekkopplysningerService
+import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
@@ -27,7 +27,8 @@ import no.nav.emottak.utils.serialization.toEventDataJson
 
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventRegistrationService: EventRegistrationService
+    eventRegistrationService: EventRegistrationService,
+    trekkopplysningService: TrekkopplysningService
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
@@ -49,7 +50,8 @@ fun Route.fagmeldingRoutes(
                     FagmeldingService.processRequest(
                         sendInRequest,
                         prometheusMeterRegistry,
-                        eventRegistrationService
+                        eventRegistrationService,
+                        trekkopplysningService
                     ).bind()
                 }
 
@@ -78,13 +80,13 @@ fun Route.fagmeldingRoutes(
 }
 
 fun Route.verifyMq(
-    trekkopplysningerService: TrekkopplysningerService
+    trekkopplysningService: TrekkopplysningService
 ) {
 //    authenticate(AZURE_AD_AUTH) {
     get("/testMq") {
         log.info("Testing MQ......")
         try {
-            trekkopplysningerService.verifyConnection()
+            trekkopplysningService.verifyConnection()
             log.info("MQ connection OK")
             call.respond("MQ connection OK")
         } catch (e: Exception) {
