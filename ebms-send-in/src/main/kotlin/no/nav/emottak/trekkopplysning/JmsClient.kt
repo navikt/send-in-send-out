@@ -8,12 +8,27 @@ import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.getSecret
 import javax.jms.Session
 
+fun safeGetUsernameSecret(secretPath: String): String {
+    try {
+        return getSecret("$secretPath/username", "testUsername")
+    } catch (e: Exception) {
+        return "testUsername"
+    }
+}
+fun safeGetPasswordSecret(secretPath: String): String {
+    try {
+        return getSecret("$secretPath/password", "testPassword")
+    } catch (e: Exception) {
+        return "testPassword"
+    }
+}
+
 class JmsClient(
     config: TrekkopplysningMq,
     val factory: MQQueueConnectionFactory = MQQueueConnectionFactory(),
     val secretPath: String = getEnvVar("SERVICEUSERMQ_SECRET_PATH", "/dummy/path"),
-    var username: String = getSecret("$secretPath/username", "testUsername"),
-    var password: String = getSecret("$secretPath/password", "testPassword")
+    var username: String = safeGetUsernameSecret(secretPath),
+    var password: String = safeGetPasswordSecret(secretPath)
 ) {
 
     /*
