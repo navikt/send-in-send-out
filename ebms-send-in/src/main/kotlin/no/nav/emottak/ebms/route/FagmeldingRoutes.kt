@@ -82,7 +82,6 @@ fun Route.fagmeldingRoutes(
 fun Route.verifyMq(
     trekkopplysningService: TrekkopplysningService
 ) {
-//    authenticate(AZURE_AD_AUTH) {
     get("/testMq") {
         log.info("Testing MQ......")
         try {
@@ -94,5 +93,4 @@ fun Route.verifyMq(
             call.respond(e.localizedMessage ?: e.javaClass.simpleName)
         }
     }
-//    }
 }

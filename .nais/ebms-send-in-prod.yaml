@@ -56,6 +56,8 @@ spec:
     paths:
         - kvPath: /serviceuser/data/prod/srvtokt
           mountPath: /secret/serviceuser
+        - kvPath: /serviceuser/data/prod/srvemottakmq
+          mountPath: /secret/srvemottakmq
   kafka:
     pool: nav-prod
   accessPolicy:
@@ -70,3 +72,13 @@ spec:
       value: /secret/serviceuser
     - name: FRIKORT_REST_PERCENT
       value: "50"
+    - name: TREKKOPPL_MQ_HOST
+      value: "mpls04.adeo.no"
+    - name: TREKKOPPL_MQ_PORT
+      value: "1414"
+    - name: TREKKOPPL_MQ_QMGR
+      value: "MPLS04"
+    - name: TREKKOPPL_MQ_CHANNEL
+      value: "P_EMOTTAK_ASYNCH"
+    - name: TREKKOPPL_MQ_QUEUE
+      value: "QA.P231.OB04_INNRAPP_TREKK"
