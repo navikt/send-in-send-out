@@ -5,7 +5,6 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
-import no.nav.emottak.config.Configurator.config
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -304,10 +303,10 @@ object FagmeldingService {
     }
 }
 
-private fun SendInRequest.sendToRESTFrikortEndpoint() =
-    when (this.cpaId) {
-        "983971636_889640782_011" -> false // AHUS Frikort (Sykemelding)
-        "nav:70079" -> false // AHUS Frikort
-        "983971636_889640782_001" -> false // AHUS Avdeling for patologi
-        else -> (0 until 100).random() < config().frikortRestPercent.value
-    }
+/**
+ * Current forwarding rules:
+ *  Forward nav:70079 to WS endpoint due to external bug
+ *  Forward every CPA ending in 0, 1 or 2 to REST for deterministic routing
+ */
+private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean =
+    cpaId != "nav:70079" && cpaId.lastOrNull()?.digitToIntOrNull() in 0..2
