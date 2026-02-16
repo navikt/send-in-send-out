@@ -56,9 +56,10 @@ fun Route.fagmeldingRoutes(
                         log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
                         eventRegistrationService.registerEvent(
                             EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                            sendInRequest.requestId.parseOrGenerateUuid(),
-                            sendInRequest.messageId,
-                            Exception(error).toEventDataJson()
+                            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                            messageId = sendInRequest.messageId,
+                            eventData = Exception(error).toEventDataJson(),
+                            conversationId = sendInRequest.conversationId
                         )
                         call.respond(
                             HttpStatusCode.BadRequest,

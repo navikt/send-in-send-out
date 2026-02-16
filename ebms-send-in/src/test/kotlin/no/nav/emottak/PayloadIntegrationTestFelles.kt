@@ -9,6 +9,7 @@ import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceFake
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import okhttp3.mockwebserver.MockResponse
@@ -52,7 +53,8 @@ abstract class PayloadIntegrationTestFelles(
     protected fun <T> ebmsSendInTestApp(
         mockResponsePath: String? = null,
         mockResponseContentType: ContentType = ContentType.Application.Xml,
-        testBlock: suspend ApplicationTestBuilder.() -> T
+        eventRegistrationService: EventRegistrationService = EventRegistrationServiceFake(),
+        testBlock: suspend ApplicationTestBuilder.(eventRegistrationService: EventRegistrationService) -> T
     ) = testApplication {
         resourceScope {
             if (mockResponsePath != null) {
@@ -66,12 +68,10 @@ abstract class PayloadIntegrationTestFelles(
             }
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-            val eventRegistrationService = EventRegistrationServiceFake()
-
             application {
                 ebmsSendInModule(meterRegistry, eventRegistrationService)
             }
-            testBlock()
+            testBlock(eventRegistrationService)
         }
     }
 
