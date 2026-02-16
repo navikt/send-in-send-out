@@ -87,6 +87,7 @@ private suspend fun processMessage(
     prometheusMeterRegistry: PrometheusMeterRegistry
 ): String? {
     val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
+    log.info("EbmsInPayload ${sendInRequest.payloadId} processing message")
 
     val mdcData = mapOf(
         "record_key" to recordKey,
@@ -113,7 +114,7 @@ private suspend fun processMessage(
                 null
             },
             { response ->
-                log.info("Payload ${sendInRequest.payloadId} forwarding complete, returning response")
+                log.info("EbmsInPayload ${sendInRequest.payloadId} forwarding complete, returning response")
                 Json.encodeToString(SendInResponse.serializer(), response)
             }
         )
