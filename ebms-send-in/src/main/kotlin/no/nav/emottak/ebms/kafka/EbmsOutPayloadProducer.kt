@@ -30,12 +30,12 @@ class EbmsOutPayloadProducer(
     }
 
     fun send(key: String?, payload: ByteArray): Future<*> {
-        log.info("Sending message to topic $topic")
+        log.info("EbmsOutPayloadProducer sending message to topic $topic")
 
         val record = ProducerRecord(topic, key, payload)
         return producer.send(record) { metadata, exception ->
             if (exception != null) {
-                log.error("Failed to send message to topic $topic with key $key", exception)
+                log.error("EbmsOutPayloadProducer failed to send message to topic $topic with key $key", exception)
             }
         }
     }

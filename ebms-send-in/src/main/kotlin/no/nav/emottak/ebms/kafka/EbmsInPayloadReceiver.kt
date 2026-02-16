@@ -104,7 +104,7 @@ private suspend fun processMessage(
             eventRegistrationService
         ).fold(
             { error ->
-                log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
+                log.error("EbmsInPayload ${sendInRequest.payloadId} forwarding failed", error)
                 eventRegistrationService.registerEvent(
                     EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
