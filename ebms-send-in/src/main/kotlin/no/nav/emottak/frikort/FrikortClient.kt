@@ -15,7 +15,7 @@ val frikortEndpoint = frikortEndpoint()
 private val frikortObjectFactory = ObjectFactory()
 
 fun frikortEndpoint(): FrikortV1Port {
-    val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    val secretPath = getEnvVar("SRVTOKT_SECRET_PATH", "/dummy/path")
     return ServiceBuilder(FrikortV1Port::class.java)
         .withAddress(getEnvVar("FRIKORT_URL", "https://wasapp-local.adeo.no/nav-frikort/tjenestereksterne"))
         .withWsdl("classpath:frikort_v1.wsdl")

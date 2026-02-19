@@ -55,7 +55,7 @@ spec:
     enabled: true
     paths:
         - kvPath: /serviceuser/data/prod/srvtokt
-          mountPath: /secret/serviceuser
+          mountPath: /secret/srvtokt
         - kvPath: /serviceuser/data/prod/srvemottakmq
           mountPath: /secret/srvemottakmq
   kafka:
@@ -68,8 +68,10 @@ spec:
   env:
     - name: FRIKORT_URL
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
-    - name: SERVICEUSER_SECRET_PATH
-      value: /secret/serviceuser
+    - name: SRVTOKT_SECRET_PATH
+      value: /secret/srvtokt
+    - name: SERVICEUSERMQ_SECRET_PATH
+      value: /secret/srvemottakmq
     - name: FRIKORT_REST_PERCENT
       value: "50"
     - name: TREKKOPPL_MQ_HOST
