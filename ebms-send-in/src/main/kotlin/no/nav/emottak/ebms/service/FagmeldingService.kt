@@ -19,6 +19,7 @@ import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
 import no.nav.emottak.pasientliste.PasientlisteService
+import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
@@ -42,7 +43,8 @@ object FagmeldingService {
     suspend fun processRequest(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
-        eventRegistrationService: EventRegistrationService
+        eventRegistrationService: EventRegistrationService,
+        trekkopplysningService: TrekkopplysningService
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
@@ -78,6 +80,11 @@ object FagmeldingService {
             SupportedServiceType.PasientlisteForesporsel ->
                 timed(meterRegistry, "PasientlisteForesporsel") {
                     getPasientlisteForesporsel(sendInRequest, eventRegistrationService)
+                }
+
+            SupportedServiceType.Trekkopplysning ->
+                timed(meterRegistry, "Trekkopplysning") {
+                    getTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
                 }
 
             SupportedServiceType.Unsupported ->
@@ -282,6 +289,37 @@ object FagmeldingService {
             requestId = Uuid.random().toString()
         )
     }
+
+    private fun Raise<Throwable>.getTrekkopplysning(
+        sendInRequest: SendInRequest,
+        eventRegistrationService: EventRegistrationService,
+        trekkopplysningService: TrekkopplysningService
+    ): SendInResponse = Either.catch {
+        with(sendInRequest.asEIFellesFormat()) {
+            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
+            trekkopplysningService.trekkopplysning(this).also {
+                eventRegistrationService.registerEvent(
+                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                    sendInRequest.requestId.parseOrGenerateUuid(),
+                    sendInRequest.messageId
+                )
+            }
+        }
+    }
+        .bind().let { response ->
+            SendInResponse(
+                messageId = Uuid.random().toString(),
+                conversationId = sendInRequest.conversationId,
+                addressing = sendInRequest.addressing.replyTo(
+                    sendInRequest.addressing.service,
+                    "" // response.eiFellesformat.mottakenhetBlokk.ebAction
+                ),
+                payload = FellesFormatXmlMarshaller.marshalToByteArray(
+                    "".toByteArray()
+                ),
+                requestId = Uuid.random().toString()
+            )
+        }
 
     private fun extractReferenceParameter(
         sendInRequest: SendInRequest,

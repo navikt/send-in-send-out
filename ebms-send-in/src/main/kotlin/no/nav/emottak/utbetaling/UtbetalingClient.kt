@@ -94,7 +94,7 @@ object UtbetalingClient {
         }
     }
 
-    private val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    private val secretPath = getEnvVar("SRVTOKT_SECRET_PATH", "/dummy/path")
     private val SERVICEUSER_NAME = lazy { getSecret("$secretPath/username", "testUsername") }
     private val SERVICEUSER_PASSWORD = lazy { getSecret("$secretPath/password", "testPassword") }
 }
