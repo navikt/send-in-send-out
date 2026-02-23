@@ -12,6 +12,7 @@ data class Config(
     val eventLogging: EventLogging,
     val clusterName: ClusterName,
     val frikorttjenester: FrikortTjenester,
+    val trekkopplysningMq: TrekkopplysningMq,
     val frikortRestPercent: Percent,
     val azureAuth: AzureAuth
 )
@@ -37,6 +38,14 @@ data class FrikortTjenester(
     val harBorgerFrikortEndpoint: Url,
     val harBorgerEgenandelFritakEndpoint: Url,
     val pingEndpoint: Url
+)
+
+data class TrekkopplysningMq(
+    val hostname: Host,
+    val port: Int,
+    val queueManager: String,
+    val channel: String,
+    val queue: String
 )
 
 @JvmInline
