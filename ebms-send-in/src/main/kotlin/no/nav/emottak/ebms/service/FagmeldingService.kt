@@ -344,7 +344,7 @@ object FagmeldingService {
 /**
  * Current forwarding rules:
  *  Forward nav:70079 to WS endpoint due to external bug
- *  Forward every CPA ending in 0, 1 or 2 to REST for deterministic routing
+ *  Forward every CPA ending in 0 to 6 to REST for deterministic routing
  */
 private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean =
-    cpaId != "nav:70079" && cpaId.lastOrNull()?.digitToIntOrNull() in 0..2
+    cpaId != "nav:70079" && cpaId.lastOrNull()?.digitToIntOrNull() in 0..6
