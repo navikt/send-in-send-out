@@ -74,7 +74,7 @@ private suspend fun startEbmsInPayloadReceiver(
                 record.partition(),
                 record.offset(),
                 recordKey,
-                record.value()?.size ?: 0,
+                record.value()?.size ?: 0
             )
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
