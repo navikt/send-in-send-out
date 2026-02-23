@@ -52,7 +52,7 @@ private suspend fun startEbmsInPayloadReceiver(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     outPayloadProducer: EbmsOutPayloadProducer
 ) {
-    log.info("Starting EbmsInPayload receiver on topic $topic")
+    log.info("Starting EbmsInPayload receiver on topic: {} with groupId: {} bootstrapServers: {} autoOffsetReset: Earliest", topic, kafka.groupId, kafka.bootstrapServers)
     val receiverSettings = ReceiverSettings<String, ByteArray>(
         bootstrapServers = kafka.bootstrapServers,
         keyDeserializer = StringDeserializer(),
@@ -66,6 +66,10 @@ private suspend fun startEbmsInPayloadReceiver(
         .receive(topic)
         .collect { record ->
             val recordKey = record.key() ?: "null"
+            log.info(
+                "EbmsInPayload received message on topic: {} partition: {} offset: {} key: {} valueSize: {}",
+                record.topic(), record.partition(), record.offset().offset, recordKey, record.value()?.size ?: 0
+            )
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
                     processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry)
@@ -76,6 +80,7 @@ private suspend fun startEbmsInPayloadReceiver(
                     log.error("Error processing EbmsInPayload message", it)
                 }
                 record.offset.acknowledge()
+                log.debug("EbmsInPayload acknowledged offset: {} on partition: {}", record.offset().offset, record.partition())
             }
         }
 }
