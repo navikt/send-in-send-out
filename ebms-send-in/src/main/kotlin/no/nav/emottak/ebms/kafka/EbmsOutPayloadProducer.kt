@@ -1,6 +1,7 @@
 package no.nav.emottak.ebms.kafka
 
 import no.nav.emottak.utils.config.Kafka
+import no.nav.emottak.utils.config.toProperties
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -25,6 +26,7 @@ class EbmsOutPayloadProducer(
             put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
             put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer::class.java.name)
             put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, "true")
+            putAll(kafka.toProperties())
         }
         producer = KafkaProducer(producerProps)
     }

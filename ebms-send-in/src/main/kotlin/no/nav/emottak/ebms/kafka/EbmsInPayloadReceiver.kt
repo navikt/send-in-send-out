@@ -17,6 +17,7 @@ import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
+import no.nav.emottak.utils.config.toProperties
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.serialization.toEventDataJson
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -59,7 +60,8 @@ private suspend fun startEbmsInPayloadReceiver(
         valueDeserializer = ByteArrayDeserializer(),
         groupId = kafka.groupId,
         autoOffsetReset = AutoOffsetReset.Earliest,
-        pollTimeout = 1.seconds
+        pollTimeout = 1.seconds,
+        properties = kafka.toProperties()
     )
 
     KafkaReceiver(receiverSettings)
@@ -68,7 +70,11 @@ private suspend fun startEbmsInPayloadReceiver(
             val recordKey = record.key() ?: "null"
             log.info(
                 "EbmsInPayload received message on topic: {} partition: {} offset: {} key: {} valueSize: {}",
-                record.topic(), record.partition(), record.offset().offset, recordKey, record.value()?.size ?: 0
+                record.topic(),
+                record.partition(),
+                record.offset(),
+                recordKey,
+                record.value()?.size ?: 0,
             )
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
@@ -80,7 +86,7 @@ private suspend fun startEbmsInPayloadReceiver(
                     log.error("Error processing EbmsInPayload message", it)
                 }
                 record.offset.acknowledge()
-                log.debug("EbmsInPayload acknowledged offset: {} on partition: {}", record.offset().offset, record.partition())
+                log.debug("EbmsInPayload acknowledged offset: {} on partition: {}", record.offset(), record.partition())
             }
         }
 }
