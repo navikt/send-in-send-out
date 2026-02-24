@@ -12,8 +12,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingService
-import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
