@@ -5,6 +5,7 @@ import no.nav.emottak.utils.config.toProperties
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
+import org.apache.kafka.common.header.Header
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.LoggerFactory
@@ -31,10 +32,10 @@ class EbmsOutPayloadProducer(
         producer = KafkaProducer(producerProps)
     }
 
-    fun send(key: String?, payload: ByteArray): Future<*> {
+    fun send(key: String?, payload: ByteArray, headers: List<Header> = emptyList()): Future<*> {
         log.info("EbmsOutPayloadProducer sending message to topic $topic")
 
-        val record = ProducerRecord(topic, key, payload)
+        val record = ProducerRecord(topic, null, key, payload, headers)
         return producer.send(record) { metadata, exception ->
             if (exception != null) {
                 log.error("EbmsOutPayloadProducer failed to send message to topic $topic with key $key", exception)

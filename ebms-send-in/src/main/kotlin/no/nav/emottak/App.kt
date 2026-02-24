@@ -64,7 +64,7 @@ suspend fun ResourceScope.setupServer() {
         config().kafka
     )
 
-    eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, outPayloadProducer)
+    eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, outPayloadProducer, trekkopplysningService)
 
 
     server(

@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
@@ -20,6 +21,7 @@ import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.serialization.toEventDataJson
+import org.apache.kafka.common.header.internals.RecordHeader
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
@@ -31,7 +33,8 @@ fun CoroutineScope.launchEbmsInPayloadReceiver(
     config: Config,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    outPayloadProducer: EbmsOutPayloadProducer
+    outPayloadProducer: EbmsOutPayloadProducer,
+    trekkopplysningService: TrekkopplysningService
 ) {
     if (config.ebmsInPayloadReceiver.active) {
         launch(Dispatchers.IO) {
@@ -40,7 +43,8 @@ fun CoroutineScope.launchEbmsInPayloadReceiver(
                 config.kafka,
                 eventRegistrationService,
                 prometheusMeterRegistry,
-                outPayloadProducer
+                outPayloadProducer,
+                trekkopplysningService
             )
         }
     }
@@ -51,7 +55,8 @@ private suspend fun startEbmsInPayloadReceiver(
     kafka: Kafka,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    outPayloadProducer: EbmsOutPayloadProducer
+    outPayloadProducer: EbmsOutPayloadProducer,
+    trekkopplysningService: TrekkopplysningService
 ) {
     log.info("Starting EbmsInPayload receiver on topic: {} with groupId: {} bootstrapServers: {} autoOffsetReset: Earliest", topic, kafka.groupId, kafka.bootstrapServers)
     val receiverSettings = ReceiverSettings<String, ByteArray>(
@@ -78,9 +83,13 @@ private suspend fun startEbmsInPayloadReceiver(
             )
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
-                    processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry)
-                        ?.let { responseBody ->
-                            outPayloadProducer.send(record.key(), responseBody.toByteArray())
+                    processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
+                        ?.let { (responseBody, sendInRequest) ->
+                            val headers = listOf(
+                                RecordHeader("cpaId", sendInRequest.cpaId.toByteArray()),
+                                RecordHeader("refToMessageId", sendInRequest.messageId.toByteArray())
+                            )
+                            outPayloadProducer.send(record.key(), responseBody.toByteArray(), headers)
                         }
                 }.onFailure {
                     log.error("Error processing EbmsInPayload message", it)
@@ -95,8 +104,9 @@ private suspend fun processMessage(
     recordKey: String,
     payload: ByteArray,
     eventRegistrationService: EventRegistrationService,
-    prometheusMeterRegistry: PrometheusMeterRegistry
-): String? {
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    trekkopplysningService: TrekkopplysningService
+): Pair<String, SendInRequest>? {
     val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
     log.info("EbmsInPayload ${sendInRequest.payloadId} processing message")
 
@@ -112,7 +122,8 @@ private suspend fun processMessage(
         FagmeldingService.processRequest(
             sendInRequest,
             prometheusMeterRegistry,
-            eventRegistrationService
+            eventRegistrationService,
+            trekkopplysningService
         ).fold(
             { error ->
                 log.error("EbmsInPayload ${sendInRequest.payloadId} forwarding failed", error)
@@ -126,7 +137,7 @@ private suspend fun processMessage(
             },
             { response ->
                 log.info("EbmsInPayload ${sendInRequest.payloadId} forwarding complete, returning response")
-                Json.encodeToString(SendInResponse.serializer(), response)
+                Json.encodeToString(SendInResponse.serializer(), response) to sendInRequest
             }
         )
     }
