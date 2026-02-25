@@ -55,7 +55,9 @@ spec:
     enabled: true
     paths:
         - kvPath: /serviceuser/data/dev/srvtokt
-          mountPath: /secret/serviceuser
+          mountPath: /secret/srvtokt
+        - kvPath: /serviceuser/data/dev/srvemottakmq
+          mountPath: /secret/srvemottakmq
   kafka:
     pool: nav-dev
   accessPolicy:
@@ -73,7 +75,19 @@ spec:
       value: https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner
     - name: EMOTTAK_LOGGING_LEVEL
       value: DEBUG
-    - name: SERVICEUSER_SECRET_PATH
-      value: /secret/serviceuser
+    - name: SRVTOKT_SECRET_PATH
+      value: /secret/srvtokt
+    - name: SERVICEUSERMQ_SECRET_PATH
+      value: /secret/srvemottakmq
     - name: FRIKORT_REST_PERCENT
       value: "100"
+    - name: TREKKOPPL_MQ_HOST
+      value: "mqls04.preprod.local"
+    - name: TREKKOPPL_MQ_PORT
+      value: "1413"
+    - name: TREKKOPPL_MQ_QMGR
+      value: "MQLS04"
+    - name: TREKKOPPL_MQ_CHANNEL
+      value: "Q1_EMOTTAK_ASYNCH"
+    - name: TREKKOPPL_MQ_QUEUE
+      value: "QA.Q1_231.OB04_INNRAPP_TREKK"

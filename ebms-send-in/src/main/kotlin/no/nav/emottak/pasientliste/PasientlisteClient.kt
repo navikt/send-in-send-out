@@ -20,7 +20,7 @@ object PasientlisteClient {
         "PASIENTLISTE_URL",
         "https://wasapp-q1.adeo.no/nav-emottak-practitioner-web/remoting/httpreqhandler-practitioner"
     )
-    private val secretPath = getEnvVar("SERVICEUSER_SECRET_PATH", "/dummy/path")
+    private val secretPath = getEnvVar("SRVTOKT_SECRET_PATH", "/dummy/path")
     private val username = lazy { getSecret("$secretPath/username", "testUsername") }
     private val password = lazy { getSecret("$secretPath/password", "testPassword") }
 
