@@ -9,12 +9,12 @@ import kotlin.uuid.Uuid
 
 val validSendInPasientlisteRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("hentpasientliste/hentpasientliste-payload.xml")
-    mockSendInRequest("PasientisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "123456789", "Fastlege", "Fastlegeregister")
+    mockSendInRequest("PasientlisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "123456789", "Fastlege", "Fastlegeregister")
 }
 
 val invalidPidSendInPasientlisteRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("hentpasientliste/hentpasientliste-payload-invalidPid.xml")
-    mockSendInRequest("PasientisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "11223312345", "Fastlege", "Fastlegeregister")
+    mockSendInRequest("PasientlisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "11223312345", "Fastlege", "Fastlegeregister")
 }
 
 val validSendInHarBorgerFrikortRequest = lazy {
