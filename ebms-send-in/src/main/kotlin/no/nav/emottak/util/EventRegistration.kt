@@ -20,7 +20,8 @@ interface EventRegistrationService {
         eventType: EventType,
         requestId: Uuid,
         messageId: String,
-        eventData: String = "{}"
+        eventData: String = "{}",
+        conversationId: String? = null
     )
 
     fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse)
@@ -46,7 +47,8 @@ class EventRegistrationServiceImpl(
         eventType: EventType,
         requestId: Uuid,
         messageId: String,
-        eventData: String
+        eventData: String,
+        conversationId: String?
     ) {
         val event = Event(
             eventType = eventType,
@@ -102,13 +104,15 @@ class EventRegistrationServiceFake : EventRegistrationService {
         eventType: EventType,
         requestId: Uuid,
         messageId: String,
-        eventData: String
+        eventData: String,
+        conversationId: String?
     ) {
         log.debug(
-            "Registering event {} for requestId: {}, messageId: {} and eventData: {}",
+            "Registering event {} for requestId: {}, messageId: {}, conversationId: {} and eventData: {}",
             eventType,
             requestId,
             messageId,
+            conversationId,
             eventData
         )
     }
