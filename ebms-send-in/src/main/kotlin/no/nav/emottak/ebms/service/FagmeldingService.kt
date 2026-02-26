@@ -322,9 +322,7 @@ object FagmeldingService {
                     sendInRequest.addressing.service,
                     "" // response.eiFellesformat.mottakenhetBlokk.ebAction
                 ),
-                payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                    "".toByteArray()
-                ),
+                payload = "".toByteArray(),
                 requestId = Uuid.random().toString()
             )
         }

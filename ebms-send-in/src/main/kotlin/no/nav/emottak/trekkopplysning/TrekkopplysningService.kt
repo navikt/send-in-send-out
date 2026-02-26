@@ -5,10 +5,10 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
-class TrekkopplysningService(trekkopplysningMq: TrekkopplysningMq, val jmSclient: JmsClient = JmsClient(trekkopplysningMq), val queue: String = trekkopplysningMq.queue) {
+class TrekkopplysningService(trekkopplysningMq: TrekkopplysningMq, val jmSclient: JmsClient = JmsClient(trekkopplysningMq), val queue: String = trekkopplysningMq.queue, val replyTo: String = trekkopplysningMq.replyTo) {
 
     fun sendMessage(messageText: String) {
-        jmSclient.sendMessage(queue, messageText)
+        jmSclient.sendMessage(queue, messageText, replyTo)
     }
 
     fun verifyConnection() {
