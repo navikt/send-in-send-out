@@ -64,7 +64,7 @@ private suspend fun startEbmsInPayloadReceiver(
         keyDeserializer = StringDeserializer(),
         valueDeserializer = ByteArrayDeserializer(),
         groupId = kafka.groupId,
-        autoOffsetReset = AutoOffsetReset.Earliest,
+        autoOffsetReset = AutoOffsetReset.Latest,
         pollTimeout = 1.seconds,
         properties = kafka.toProperties()
     )
@@ -72,7 +72,7 @@ private suspend fun startEbmsInPayloadReceiver(
     KafkaReceiver(receiverSettings)
         .receive(topic)
         .collect { record ->
-            val recordKey = record.key() ?: "null"
+            val recordKey = record.key()
             log.info(
                 "EbmsInPayload received message on topic: {} partition: {} offset: {} key: {} valueSize: {}",
                 record.topic(),
@@ -89,10 +89,21 @@ private suspend fun startEbmsInPayloadReceiver(
                                 RecordHeader("cpaId", sendInRequest.cpaId.toByteArray()),
                                 RecordHeader("refToMessageId", sendInRequest.messageId.toByteArray())
                             )
-                            outPayloadProducer.send(record.key(), responseBody.toByteArray(), headers)
+                            runCatching {
+                                outPayloadProducer.send(record.key(), responseBody.toByteArray(), headers)
+                            }.onFailure { sendError ->
+                                log.error("EbmsInPayload failed to send response to out-topic for key: {}", recordKey, sendError)
+                                eventRegistrationService.registerEvent(
+                                    EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+                                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                                    messageId = sendInRequest.messageId,
+                                    eventData = Exception(sendError).toEventDataJson(),
+                                    conversationId = sendInRequest.conversationId
+                                )
+                            }
                         }
-                }.onFailure {
-                    log.error("Error processing EbmsInPayload message", it)
+                }.onFailure { error ->
+                    log.error("Error processing EbmsInPayload message with key: {}", recordKey, error)
                 }
                 record.offset.acknowledge()
                 log.debug("EbmsInPayload acknowledged offset: {} on partition: {}", record.offset(), record.partition())
@@ -129,9 +140,10 @@ private suspend fun processMessage(
                 log.error("EbmsInPayload ${sendInRequest.payloadId} forwarding failed", error)
                 eventRegistrationService.registerEvent(
                     EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId,
-                    Exception(error).toEventDataJson()
+                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                    messageId = sendInRequest.messageId,
+                    eventData = Exception(error).toEventDataJson(),
+                    conversationId = sendInRequest.conversationId
                 )
                 null
             },
