@@ -100,6 +100,7 @@ private suspend fun startEbmsInPayloadReceiver(
                                     eventData = Exception(sendError).toEventDataJson(),
                                     conversationId = sendInRequest.conversationId
                                 )
+                                // TODO handle here? ebms.out.payload queue issue
                             }
                         }
                 }.onFailure { error ->
@@ -145,7 +146,7 @@ private suspend fun processMessage(
                     eventData = Exception(error).toEventDataJson(),
                     conversationId = sendInRequest.conversationId
                 )
-                null
+                null // TODO handle here? in retry queue error from fagmelding service
             },
             { response ->
                 log.info("EbmsInPayload ${sendInRequest.payloadId} forwarding complete, returning response")

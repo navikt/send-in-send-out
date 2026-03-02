@@ -39,6 +39,7 @@ class EbmsOutPayloadProducer(
         return producer.send(record) { metadata, exception ->
             if (exception != null) {
                 log.error("EbmsOutPayloadProducer failed to send message to topic $topic with key $key", exception)
+                // TODO handle here? in retry queue error from fagmelding service duplication?
             }
         }
     }
