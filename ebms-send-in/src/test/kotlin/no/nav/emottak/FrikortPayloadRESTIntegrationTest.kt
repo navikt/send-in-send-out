@@ -18,16 +18,15 @@ import no.nav.emottak.utils.common.model.SendInResponse
 import okhttp3.mockwebserver.MockResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadRESTIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL_REST") {
 
-    @BeforeEach
-    fun beforeEach() {
-        System.setProperty("FRIKORT_REST_PERCENT", "100")
+    @BeforeAll
+    fun beforeAll() {
         Configurator.resetMemoizedConfig()
     }
 
