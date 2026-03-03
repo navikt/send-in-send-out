@@ -72,8 +72,6 @@ spec:
       value: /secret/srvtokt
     - name: SERVICEUSERMQ_SECRET_PATH
       value: /secret/srvemottakmq
-    - name: FRIKORT_REST_PERCENT
-      value: "50"
     - name: TREKKOPPL_MQ_HOST
       value: "mpls04.adeo.no"
     - name: TREKKOPPL_MQ_PORT

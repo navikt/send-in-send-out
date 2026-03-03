@@ -11,7 +11,6 @@ data class Config(
     val clusterName: ClusterName,
     val frikorttjenester: FrikortTjenester,
     val trekkopplysningMq: TrekkopplysningMq,
-    val frikortRestPercent: Percent,
     val azureAuth: AzureAuth
 )
 
@@ -36,13 +35,6 @@ data class TrekkopplysningMq(
     val channel: String,
     val queue: String
 )
-
-@JvmInline
-value class Percent(val value: Int) {
-    init {
-        require(value in 0..100) { "Percent should be between 0 and 100" }
-    }
-}
 
 @JvmInline
 value class Host(val value: String)
