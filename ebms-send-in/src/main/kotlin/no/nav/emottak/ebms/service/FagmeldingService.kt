@@ -5,6 +5,8 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.SupportedServiceType
 import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
@@ -40,11 +42,10 @@ import kotlin.uuid.Uuid
 object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
-    suspend fun processRequest(
+    suspend fun processRequestSynchronously(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
-        eventRegistrationService: EventRegistrationService,
-        trekkopplysningService: TrekkopplysningService
+        eventRegistrationService: EventRegistrationService
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
@@ -82,11 +83,6 @@ object FagmeldingService {
                     getPasientlisteForesporsel(sendInRequest, eventRegistrationService)
                 }
 
-            SupportedServiceType.Trekkopplysning ->
-                timed(meterRegistry, "Trekkopplysning") {
-                    getTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
-                }
-
             SupportedServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
@@ -101,6 +97,25 @@ object FagmeldingService {
                 conversationId = it.conversationId
             )
         }
+    }
+
+    suspend fun processRequestAsynchronously(
+        sendInRequest: SendInRequest,
+        meterRegistry: MeterRegistry,
+        eventRegistrationService: EventRegistrationService,
+        trekkopplysningService: TrekkopplysningService
+    ): Either<Throwable, Unit> = either {
+        when (sendInRequest.addressing.service.toSupportedAsyncService()) {
+            SupportedAsyncServiceType.Trekkopplysning ->
+                timed(meterRegistry, "Trekkopplysning") {
+                    sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                }
+            SupportedAsyncServiceType.Unsupported ->
+                throw NotImplementedError(
+                    "Service: ${sendInRequest.addressing.service} is not implemented"
+                )
+        }
+        // todo trenger vi lagre event her ?
     }
 
     private fun getPasientlisteForesporsel(
@@ -297,11 +312,11 @@ object FagmeldingService {
         )
     }
 
-    private fun Raise<Throwable>.getTrekkopplysning(
+    private fun Raise<Throwable>.sendTrekkopplysning(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
-    ): SendInResponse = Either.catch {
+    ) = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
             // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
 //            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
@@ -313,19 +328,7 @@ object FagmeldingService {
                 )
             }
         }
-    }
-        .bind().let { response ->
-            SendInResponse(
-                messageId = Uuid.random().toString(),
-                conversationId = sendInRequest.conversationId,
-                addressing = sendInRequest.addressing.replyTo(
-                    sendInRequest.addressing.service,
-                    "" // response.eiFellesformat.mottakenhetBlokk.ebAction
-                ),
-                payload = "".toByteArray(),
-                requestId = Uuid.random().toString()
-            )
-        }
+    }.bind()
 
     private fun extractReferenceParameter(
         sendInRequest: SendInRequest,
