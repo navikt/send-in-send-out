@@ -96,8 +96,9 @@ object FagmeldingService {
         }.also {
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-                it.requestId.parseOrGenerateUuid(),
-                ""
+                requestId = it.requestId.parseOrGenerateUuid(),
+                messageId = "",
+                conversationId = it.conversationId
             )
         }
     }
@@ -117,8 +118,9 @@ object FagmeldingService {
             PasientlisteService.pasientlisteForesporsel(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                    messageId = sendInRequest.messageId,
+                    conversationId = sendInRequest.conversationId
                 )
             }.let { fellesformatResponse ->
                 SendInResponse(
@@ -153,8 +155,9 @@ object FagmeldingService {
             frikortsporringMengde(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                    messageId = sendInRequest.messageId,
+                    conversationId = sendInRequest.conversationId
                 )
             }
         }
@@ -183,8 +186,9 @@ object FagmeldingService {
             postHarBorgerFrikort(this.toFrikortsporringRequest()).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                    messageId = sendInRequest.messageId,
+                    conversationId = sendInRequest.conversationId
                 )
             }
         }
@@ -214,8 +218,9 @@ object FagmeldingService {
             postHarBorgerEgenandelfritak(this.toFrikortsporringRequest()).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                    messageId = sendInRequest.messageId,
+                    conversationId = sendInRequest.conversationId
                 )
             }
         }
@@ -244,8 +249,9 @@ object FagmeldingService {
             frikortsporring(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                    messageId = sendInRequest.messageId,
+                    conversationId = sendInRequest.conversationId
                 )
             }
         }
@@ -273,8 +279,9 @@ object FagmeldingService {
         ).also {
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                sendInRequest.requestId.parseOrGenerateUuid(),
-                sendInRequest.messageId
+                requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                messageId = sendInRequest.messageId,
+                conversationId = sendInRequest.conversationId
             )
         }
     }.bind().let { msgHeadResponse ->
@@ -334,9 +341,10 @@ object FagmeldingService {
         )
         eventRegistrationService.registerEvent(
             EventType.REFERENCE_RETRIEVED,
-            sendInRequest.requestId.parseOrGenerateUuid(),
-            sendInRequest.messageId,
-            eventData
+            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+            messageId = sendInRequest.messageId,
+            eventData = eventData,
+            conversationId = sendInRequest.conversationId
         )
     }
 }

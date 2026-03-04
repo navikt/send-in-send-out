@@ -10,12 +10,14 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import io.mockk.mockk
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.config.Configurator
 import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -217,5 +219,74 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         // Validating response content
         assertEquals("Personen er fritatt for egenandel.", content.svarmelding)
         assertEquals("1", content.status.v)
+    }
+
+    @Test
+    fun `Test Frikort-HarBorgerFrikort sender conversationId til eventmanager`() = ebmsSendInTestApp(
+        mockResponsePath = "frikort/EgenandelForesporsel_HarBorgerFrikortResponse.xml",
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { mockEventRegistrationService ->
+        val capturedConversationId = setupEventMockingService(mockEventRegistrationService)
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerFrikortRequest.value.copy(cpaId = "nav:70079")
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(
+                "Authorization",
+                "Bearer ${getToken().serialize()}"
+            )
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
+    }
+
+    @Test
+    fun `Test Frikort-HarBorgerFrikortMengde sender conversationId til eventmanager`() = ebmsSendInTestApp(
+        mockResponsePath = "frikort/EgenandelMengdeForesporsel_HarBorgerFrikortMengdeResponse_tomListe.xml",
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { mockEventRegistrationService ->
+        val capturedConversationId = setupEventMockingService(mockEventRegistrationService)
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(
+                "Authorization",
+                "Bearer ${getToken().serialize()}"
+            )
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
+    }
+
+    @Test
+    fun `Test Frikort-HarBorgerEgenandelFritak sender conversationId til eventmanager`() = ebmsSendInTestApp(
+        mockResponsePath = "frikort/EgenandelForesporsel_HarBorgerEgenandelFritakResponse.xml",
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { mockEventRegistrationService ->
+        val capturedConversationId = setupEventMockingService(mockEventRegistrationService)
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value.copy(cpaId = "nav:70079")
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(
+                "Authorization",
+                "Bearer ${getToken().serialize()}"
+            )
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
     }
 }
