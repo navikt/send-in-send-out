@@ -19,7 +19,7 @@ dependencyResolutionManagement {
             version("cxf", "3.6.6")
             version("hoplite", "2.8.2")
             version("kotlin-kafka", "0.4.1")
-            version("emottak-utils", "0.3.5")
+            version("emottak-utils", "0.3.6")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
             library("arrow-functions", "io.arrow-kt", "arrow-functions").versionRef("arrow")
