@@ -87,9 +87,7 @@ object FagmeldingService {
 
             SupportedServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
-                    putTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService).also {
-                        persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
-                    }
+                    putTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
                 }
 
             SupportedServiceType.Unsupported ->
