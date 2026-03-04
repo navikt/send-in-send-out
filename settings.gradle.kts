@@ -19,9 +19,6 @@ dependencyResolutionManagement {
             version("cxf", "3.6.6")
             version("hoplite", "2.8.2")
             version("kotlin-kafka", "0.4.1")
-            version("sqldelight", "2.0.2")
-            version("postgres", "42.7.4")
-            version("vault-jdbc", "1.3.10")
             version("emottak-utils", "0.3.6")
 
             library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
