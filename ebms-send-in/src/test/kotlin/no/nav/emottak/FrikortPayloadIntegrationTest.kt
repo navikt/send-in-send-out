@@ -22,16 +22,15 @@ import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL") {
 
-    @BeforeEach
-    fun beforeEach() {
-        System.setProperty("FRIKORT_REST_PERCENT", "0")
+    @BeforeAll
+    fun beforeAll() {
         Configurator.resetMemoizedConfig()
     }
 
@@ -42,7 +41,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
-        val sendInRequest = validSendInHarBorgerFrikortRequest.value
+        val sendInRequest = validSendInHarBorgerFrikortRequest.value.copy(cpaId = "nav:70079")
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
@@ -89,7 +88,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
-        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value.copy(cpaId = "nav:70079")
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
@@ -137,7 +136,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
-        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value.copy(cpaId = "nav:70079")
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
@@ -183,7 +182,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 json()
             }
         }
-        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value
+        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value.copy(cpaId = "nav:70079")
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
