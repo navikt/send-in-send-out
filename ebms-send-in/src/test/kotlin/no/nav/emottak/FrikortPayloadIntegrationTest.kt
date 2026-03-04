@@ -225,14 +225,14 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
     fun `Test Frikort-HarBorgerFrikort sender conversationId til eventmanager`() = ebmsSendInTestApp(
         mockResponsePath = "frikort/EgenandelForesporsel_HarBorgerFrikortResponse.xml",
         eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
-    ) { mockEventService ->
-        val capturedConversationId = setupEventMockingService(mockEventService)
+    ) { mockEventRegistrationService ->
+        val capturedConversationId = setupEventMockingService(mockEventRegistrationService)
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
             }
         }
-        val sendInRequest = validSendInHarBorgerFrikortRequest.value
+        val sendInRequest = validSendInHarBorgerFrikortRequest.value.copy(cpaId = "nav:70079")
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
@@ -241,15 +241,15 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
-        validateEventMockingResponse(mockEventService, httpResponse, capturedConversationId, 3)
+        validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
     }
 
     @Test
     fun `Test Frikort-HarBorgerFrikortMengde sender conversationId til eventmanager`() = ebmsSendInTestApp(
         mockResponsePath = "frikort/EgenandelMengdeForesporsel_HarBorgerFrikortMengdeResponse_tomListe.xml",
         eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
-    ) { mockEventService ->
-        val capturedConversationId = setupEventMockingService(mockEventService)
+    ) { mockEventRegistrationService ->
+        val capturedConversationId = setupEventMockingService(mockEventRegistrationService)
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
@@ -264,21 +264,21 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
-        validateEventMockingResponse(mockEventService, httpResponse, capturedConversationId, 3)
+        validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
     }
 
     @Test
     fun `Test Frikort-HarBorgerEgenandelFritak sender conversationId til eventmanager`() = ebmsSendInTestApp(
         mockResponsePath = "frikort/EgenandelForesporsel_HarBorgerEgenandelFritakResponse.xml",
         eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
-    ) { mockEventService ->
-        val capturedConversationId = setupEventMockingService(mockEventService)
+    ) { mockEventRegistrationService ->
+        val capturedConversationId = setupEventMockingService(mockEventRegistrationService)
         val httpClient = createClient {
             install(ContentNegotiation) {
                 json()
             }
         }
-        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value
+        val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value.copy(cpaId = "nav:70079")
         val httpResponse = httpClient.post("/fagmelding/synkron") {
             header(
                 "Authorization",
@@ -287,6 +287,6 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             setBody(sendInRequest)
             contentType(ContentType.Application.Json)
         }
-        validateEventMockingResponse(mockEventService, httpResponse, capturedConversationId, 3)
+        validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
     }
 }
