@@ -146,3 +146,24 @@ fun Route.verifyMq(
         }
     }
 }
+
+private const val VERSION_ID = "versionId"
+fun Route.testMqFile(
+    trekkopplysningService: TrekkopplysningService
+) {
+    get("/sendfile/{$VERSION_ID}") {
+        log.info("Testing MQ file......")
+        try {
+            var versionIdParameter: String? = null
+            val versionId: Int?
+            versionIdParameter = call.parameters[VERSION_ID]
+            versionId = versionIdParameter?.toIntOrNull()
+            trekkopplysningService.sendTestfile(versionId!!)
+            log.info("MQ file $versionId sent OK")
+            call.respond("MQ file $versionId sent OK")
+        } catch (e: Exception) {
+            log.error("Error testing MQ file ", e)
+            call.respond(e.localizedMessage ?: e.javaClass.simpleName)
+        }
+    }
+}

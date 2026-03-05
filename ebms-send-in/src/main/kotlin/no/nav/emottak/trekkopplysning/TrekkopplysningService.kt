@@ -23,4 +23,13 @@ class TrekkopplysningService(trekkopplysningMq: TrekkopplysningMq, val jmSclient
 
         sendMessage(messageBody)
     }
+
+    fun sendTestfile(versionId: Int) {
+        val fileName = "version" + versionId + ".xml"
+        val messageBody = this.javaClass.getResource("/mqtest/$fileName").readText()
+//        log.debug(
+//            "Sending in testfile with body: " + messageBody
+//        )
+        sendMessage(messageBody)
+    }
 }

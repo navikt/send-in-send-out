@@ -5,6 +5,7 @@ import io.ktor.server.routing.routing
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import no.nav.emottak.ebms.route.fagmeldingRoutes
 import no.nav.emottak.ebms.route.healthcheckRoutes
+import no.nav.emottak.ebms.route.testMqFile
 import no.nav.emottak.ebms.route.verifyMq
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
@@ -18,6 +19,7 @@ fun Application.configureRoutes(
     routing {
         if (!isProdEnv()) {
             verifyMq(trekkopplysningService)
+            testMqFile(trekkopplysningService)
         }
         fagmeldingRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService)
         healthcheckRoutes(prometheusMeterRegistry)
