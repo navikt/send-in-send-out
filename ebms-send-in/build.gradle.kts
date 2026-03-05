@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.kotlin.dsl.testLibs
 
 /*
@@ -58,6 +59,14 @@ tasks {
     }
     test {
         useJUnitPlatform()
+        testLogging.showStandardStreams = true
+        testLogging {
+            events("passed", "skipped", "failed")
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+            exceptionFormat = TestExceptionFormat.FULL
+        }
     }
     runKtlintCheckOverMainSourceSet {
         mustRunAfter("openApiGenerate")
