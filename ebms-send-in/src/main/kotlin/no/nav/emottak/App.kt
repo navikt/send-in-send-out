@@ -13,6 +13,8 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.Configurator.config
+import no.nav.emottak.ebms.kafka.EbmsOutPayloadProducer
+import no.nav.emottak.ebms.kafka.launchEbmsInPayloadReceiver
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
@@ -56,6 +58,13 @@ suspend fun ResourceScope.setupServer() {
     val mqConfig = config().trekkopplysningMq
     val trekkopplysningService = TrekkopplysningService(mqConfig)
     log.info("Set up to use MQ with host ${mqConfig.hostname}, port ${mqConfig.port}, queueManager ${mqConfig.queueManager}, channel ${mqConfig.channel}, queue ${mqConfig.queue}")
+
+    val outPayloadProducer = EbmsOutPayloadProducer(
+        config().ebmsOutPayloadProducer.topic,
+        config().kafka
+    )
+
+    eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, outPayloadProducer, trekkopplysningService)
 
     server(
         Netty,
