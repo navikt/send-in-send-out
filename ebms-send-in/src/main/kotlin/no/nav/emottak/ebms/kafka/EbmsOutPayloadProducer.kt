@@ -32,7 +32,7 @@ class EbmsOutPayloadProducer(
         producer = KafkaProducer(producerProps)
     }
 
-    fun send(key: String?, payload: ByteArray, headers: List<Header> = emptyList()): Future<*> {
+    fun send(key: String, payload: ByteArray, headers: List<Header> = emptyList()): Future<*> {
         log.info("EbmsOutPayloadProducer sending message to topic $topic")
 
         val record = ProducerRecord(topic, null, key, payload, headers)

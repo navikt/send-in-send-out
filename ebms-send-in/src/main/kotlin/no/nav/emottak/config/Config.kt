@@ -22,6 +22,7 @@ data class KafkaEbmsInPayloadReceiver(
 )
 
 data class KafkaEbmsOutPayloadProducer(
+    val active: Boolean,
     val topic: String
 )
 
