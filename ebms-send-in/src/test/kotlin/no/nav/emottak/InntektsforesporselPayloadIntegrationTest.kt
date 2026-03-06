@@ -10,10 +10,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import io.mockk.mockk
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeFeil
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListeResponse
 import no.nav.emottak.utbetaling.unmarshal
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -110,7 +112,9 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
         // Validering av request:
         val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
-        assert("<orgnr xmlns=\"no.nav.emottak.utbetaling\">940101808</orgnr>" in body) // Med org-nr i req-header
+        assert("<orgnr xmlns=\"no.nav.emottak.utbetaling\">940101808</orgnr>" in body) { // Med org-nr i req-header
+            "Forventet orgnr i header, men fant det ikke: $body"
+        }
     }
 
     @Test
@@ -322,5 +326,28 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
 
         val body: String = mockWebServer!!.takeRequest().body.readByteString().utf8()
         assert("UsernameToken" in body)
+    }
+
+    @Test
+    fun `Test Inntektsforespørsel sender conversationId`() = ebmsSendInTestApp(
+        mockResponsePath = "inntektsforesporsel/finnUtbetalingListeResponse_tom_liste.xml",
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { mockEventService ->
+        val capturedConversationId = setupEventMockingService(mockEventService)
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInInntektforesporselRequest.value
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(
+                "Authorization",
+                "Bearer ${getToken().serialize()}"
+            )
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        validateEventMockingResponse(mockEventService, httpResponse, capturedConversationId, 2)
     }
 }

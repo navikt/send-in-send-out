@@ -85,7 +85,7 @@ class EventRegistrationServiceImpl(
             toRole = sendInResponse.addressing.to.role,
             service = sendInResponse.addressing.service,
             action = sendInResponse.addressing.action,
-            sentAt = Instant.now()
+            sentAt = Instant.now() // TODO: Burde vært nowOsloToInstant()?
         )
         log.debug("Publishing message details: {}", ebmsMessageDetail)
 
