@@ -5,7 +5,6 @@ internal enum class SupportedServiceType(val service: String) {
     HarBorgerFrikort("HarBorgerFrikort"),
     HarBorgerFrikortMengde("HarBorgerFrikortMengde"),
     Inntektsforesporsel("Inntektsforesporsel"),
-    PasientlisteForesporsel("PasientlisteForesporsel"),
     Trekkopplysning("Trekkopplysning"),
     Unsupported("Unsupported");
 

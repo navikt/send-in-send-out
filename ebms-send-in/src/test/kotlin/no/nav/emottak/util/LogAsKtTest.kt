@@ -7,7 +7,7 @@ import io.mockk.verify
 import kotlinx.serialization.Serializable
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
-import no.nav.emottak.validSendInPasientlisteRequest
+import no.nav.emottak.validSendInHarBorgerFrikortRequest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
@@ -73,7 +73,7 @@ class AsXLoggerTest {
         val capturedXml = slot<String>()
         every { mockLogger.debug(any<Marker>(), "{}: {}", "FellesFormat XML", capture(capturedXml)) } returns Unit
 
-        val fellesformat = validSendInPasientlisteRequest.value.asEIFellesFormat()
+        val fellesformat = validSendInHarBorgerFrikortRequest.value.asEIFellesFormat()
         mockLogger.asXml(
             LogLevel.DEBUG,
             "FellesFormat XML",
