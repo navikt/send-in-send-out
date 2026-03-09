@@ -283,7 +283,8 @@ object FagmeldingService {
         trekkopplysningService: TrekkopplysningService
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
-            persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
+            // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
+            // persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
             trekkopplysningService.trekkopplysning(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
