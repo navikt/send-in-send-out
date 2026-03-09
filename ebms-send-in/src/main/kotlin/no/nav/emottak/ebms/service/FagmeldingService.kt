@@ -323,23 +323,23 @@ object FagmeldingService {
             // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
 //            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
 
-            val reqPayload = sendInRequest.payload
-            log.info("Payload in request is byte array with length: ${reqPayload.size}")
-            val asString = reqPayload.toString(Charsets.UTF_8)
-            log.info("Payload in request is string: $asString")
+//            val reqPayload = sendInRequest.payload
+//            log.info("Payload in request is byte array with length: ${reqPayload.size}")
+//            val asString = reqPayload.toString(Charsets.UTF_8)
+//            log.info("Payload in request is string: $asString")
+//
+//            val messageBody = marshalTrekkopplysning(this)
+//            log.info(
+//                "Would send in trekkopplysning with body: " + messageBody
+//            )
 
-            val messageBody = marshalTrekkopplysning(this)
-            log.info(
-                "Would send in trekkopplysning with body: " + messageBody
-            )
-
-//            trekkopplysningService.trekkopplysning(this).also {
-//                eventRegistrationService.registerEvent(
-//                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-//                    sendInRequest.requestId.parseOrGenerateUuid(),
-//                    sendInRequest.messageId
-//                )
-//            }
+            trekkopplysningService.trekkopplysning(this).also {
+                eventRegistrationService.registerEvent(
+                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                    sendInRequest.requestId.parseOrGenerateUuid(),
+                    sendInRequest.messageId
+                )
+            }
         }
     }.bind()
 
