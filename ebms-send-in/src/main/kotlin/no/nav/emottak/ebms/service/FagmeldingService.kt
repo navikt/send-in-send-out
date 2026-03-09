@@ -13,6 +13,7 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
+import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
 import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
@@ -22,6 +23,7 @@ import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
+import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
@@ -317,16 +319,27 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat()) {
+        with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
             // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
 //            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            trekkopplysningService.trekkopplysning(this).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
-                )
-            }
+
+            val reqPayload = sendInRequest.payload
+            log.info("Payload in request is byte array with length: ${reqPayload.size}")
+            val asString = reqPayload.toString(Charsets.UTF_8)
+            log.info("Payload in request is string: $asString")
+
+            val messageBody = marshalTrekkopplysning(this)
+            log.info(
+                "Would send in trekkopplysning with body: " + messageBody
+            )
+
+//            trekkopplysningService.trekkopplysning(this).also {
+//                eventRegistrationService.registerEvent(
+//                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+//                    sendInRequest.requestId.parseOrGenerateUuid(),
+//                    sendInRequest.messageId
+//                )
+//            }
         }
     }.bind()
 

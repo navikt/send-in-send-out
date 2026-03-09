@@ -29,6 +29,7 @@ fun marshalTrekkopplysning(fellesFormat: EIFellesformat): String {
 
 // Denne XML-writeren overstyrer normal serialisering for å få XML a la gamle eMottak:
 // Det brukes IKKE namespace-prefikser, hvert namespace deklareres som default NS inni topp-elementet det hører til
+// Virker som mottakerne må ha det EKSAKT som kodet under
 class TrekkopplysningWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter(writer) {
 
     override fun writeStartElement(namespaceURI: String?, localName: String?, prefix: String?) {
@@ -41,6 +42,11 @@ class TrekkopplysningWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter
         } else if (localName == "Signature") {
             super.writeStartElement("", "Signature", "")
             super.writeDefaultNamespace("http://www.w3.org/2000/09/xmldsig#")
+        } else if (localName == "InnrapporteringTrekk") {
+            super.writeStartElement("", "InnrapporteringTrekk", "")
+            super.writeDefaultNamespace("http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04")
+            super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+            super.writeAttribute("xsi:schemaLocation", "http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04 InnrapporteringTrekk-2010-02-04.xsd")
         } else {
             super.writeStartElement("", localName, "")
         }
