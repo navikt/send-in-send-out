@@ -7,11 +7,23 @@ import no.nav.emottak.utils.config.Server
 data class Config(
     val server: Server,
     val kafka: Kafka,
+    val ebmsInPayloadReceiver: KafkaEbmsInPayloadReceiver,
+    val ebmsOutPayloadProducer: KafkaEbmsOutPayloadProducer,
     val eventLogging: EventLogging,
     val clusterName: ClusterName,
     val frikorttjenester: FrikortTjenester,
     val trekkopplysningMq: TrekkopplysningMq,
     val azureAuth: AzureAuth
+)
+
+data class KafkaEbmsInPayloadReceiver(
+    val active: Boolean,
+    val topic: String
+)
+
+data class KafkaEbmsOutPayloadProducer(
+    val active: Boolean,
+    val topic: String
 )
 
 @JvmInline
