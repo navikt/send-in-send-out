@@ -23,7 +23,6 @@ import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
 import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
-import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
