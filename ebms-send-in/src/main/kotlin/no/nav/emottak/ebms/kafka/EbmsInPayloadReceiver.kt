@@ -15,13 +15,11 @@ import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
-import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.serialization.toEventDataJson
-import org.apache.kafka.common.header.internals.RecordHeader
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.slf4j.LoggerFactory
@@ -33,7 +31,6 @@ fun CoroutineScope.launchEbmsInPayloadReceiver(
     config: Config,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    outPayloadProducer: EbmsOutPayloadProducer,
     trekkopplysningService: TrekkopplysningService
 ) {
     if (config.ebmsInPayloadReceiver.active) {
@@ -43,7 +40,6 @@ fun CoroutineScope.launchEbmsInPayloadReceiver(
                 config.kafka,
                 eventRegistrationService,
                 prometheusMeterRegistry,
-                outPayloadProducer,
                 trekkopplysningService
             )
         }
@@ -55,7 +51,6 @@ private suspend fun startEbmsInPayloadReceiver(
     kafka: Kafka,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    outPayloadProducer: EbmsOutPayloadProducer,
     trekkopplysningService: TrekkopplysningService
 ) {
     log.info("Starting EbmsInPayload receiver on topic: {} with groupId: {} bootstrapServers: {} autoOffsetReset: Earliest", topic, kafka.groupId, kafka.bootstrapServers)
@@ -84,26 +79,15 @@ private suspend fun startEbmsInPayloadReceiver(
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
                     processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
-                        ?.let { (responseBody, sendInRequest) ->
-                            val headers = listOf(
-                                RecordHeader("cpaId", sendInRequest.cpaId.toByteArray()),
-                                RecordHeader("refToMessageId", sendInRequest.messageId.toByteArray())
-                            )
-                            runCatching {
-                                outPayloadProducer.send(record.key(), responseBody.toByteArray(), headers)
-                            }.onFailure { sendError ->
-                                log.error("EbmsInPayload failed to send response to out-topic for key: {}", recordKey, sendError)
-                                eventRegistrationService.registerEvent(
-                                    EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                                    messageId = sendInRequest.messageId,
-                                    eventData = Exception(sendError).toEventDataJson(),
-                                    conversationId = sendInRequest.conversationId
-                                )
-                            }
-                        }
-                }.onFailure { error ->
-                    log.error("Error processing EbmsInPayload message with key: {}", recordKey, error)
+//                        ?.let { (responseBody, sendInRequest) ->
+//                            val headers = listOf(
+//                                RecordHeader("cpaId", sendInRequest.cpaId.toByteArray()),
+//                                RecordHeader("refToMessageId", sendInRequest.messageId.toByteArray())
+//                            )
+//                            outPayloadProducer.send(record.key(), responseBody.toByteArray(), headers)
+//                        }
+                }.onFailure {
+                    log.error("Error processing EbmsInPayload message", it)
                 }
                 record.offset.acknowledge()
                 log.debug("EbmsInPayload acknowledged offset: {} on partition: {}", record.offset(), record.partition())
@@ -117,7 +101,7 @@ private suspend fun processMessage(
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
     trekkopplysningService: TrekkopplysningService
-): Pair<String, SendInRequest>? {
+) {
     val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
     log.info("EbmsInPayload ${sendInRequest.payloadId} processing message")
 
@@ -130,26 +114,23 @@ private suspend fun processMessage(
     )
 
     return withContext(MDCContext(mdcData)) {
-        FagmeldingService.processRequest(
+        FagmeldingService.processRequestAsynchronously(
             sendInRequest,
             prometheusMeterRegistry,
             eventRegistrationService,
             trekkopplysningService
         ).fold(
             { error ->
-                log.error("EbmsInPayload ${sendInRequest.payloadId} forwarding failed", error)
+                log.error("EbmsInPayload ${sendInRequest.payloadId} async forwarding failed", error)
                 eventRegistrationService.registerEvent(
                     EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                    messageId = sendInRequest.messageId,
-                    eventData = Exception(error).toEventDataJson(),
-                    conversationId = sendInRequest.conversationId
+                    sendInRequest.requestId.parseOrGenerateUuid(),
+                    sendInRequest.messageId,
+                    Exception(error).toEventDataJson()
                 )
-                null
             },
-            { response ->
-                log.info("EbmsInPayload ${sendInRequest.payloadId} forwarding complete, returning response")
-                Json.encodeToString(SendInResponse.serializer(), response) to sendInRequest
+            {
+                log.info("EbmsInPayload ${sendInRequest.payloadId} async forwarding complete")
             }
         )
     }

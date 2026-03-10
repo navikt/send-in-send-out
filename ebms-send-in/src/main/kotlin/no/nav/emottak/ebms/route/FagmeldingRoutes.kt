@@ -7,6 +7,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingCall
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.micrometer.prometheus.PrometheusMeterRegistry
@@ -15,6 +16,8 @@ import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.ebms.service.FagmeldingService
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.log
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
@@ -46,12 +49,22 @@ fun Route.fagmeldingRoutes(
             )
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
-                val result: Either<Throwable, SendInResponse> = either {
-                    FagmeldingService.processRequest(
+                // midlertidig hack til vi har async kall fra ebmxl-prosessor
+                if (sendInRequest.addressing.service.toSupportedAsyncService() == SupportedAsyncServiceType.Trekkopplysning) {
+                    callTrekkopplysningAsync(
                         sendInRequest,
                         prometheusMeterRegistry,
                         eventRegistrationService,
-                        trekkopplysningService
+                        trekkopplysningService,
+                        call
+                    )
+                    return@withContext
+                }
+                val result: Either<Throwable, SendInResponse> = either {
+                    FagmeldingService.processRequestSynchronously(
+                        sendInRequest,
+                        prometheusMeterRegistry,
+                        eventRegistrationService
                     ).bind()
                 }
 
@@ -80,6 +93,44 @@ fun Route.fagmeldingRoutes(
     }
 }
 
+private suspend fun callTrekkopplysningAsync(
+    sendInRequest: SendInRequest,
+    prometheusMeterRegistry: PrometheusMeterRegistry,
+    eventRegistrationService: EventRegistrationService,
+    trekkopplysningService: TrekkopplysningService,
+    call: RoutingCall
+) {
+    val result: Either<Throwable, Unit> = either {
+        FagmeldingService.processRequestAsynchronously(
+            sendInRequest,
+            prometheusMeterRegistry,
+            eventRegistrationService,
+            trekkopplysningService
+        ).bind()
+    }
+
+    result.fold(
+        { error ->
+            log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
+            eventRegistrationService.registerEvent(
+                EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+                requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                messageId = sendInRequest.messageId,
+                eventData = Exception(error).toEventDataJson(),
+                conversationId = sendInRequest.conversationId
+            )
+            call.respond(
+                HttpStatusCode.BadRequest,
+                error.localizedMessage ?: error.javaClass.simpleName
+            )
+        },
+        {
+            log.info("Trekkopplysning ${sendInRequest.payloadId} forwarding complete, no response")
+            call.respond("Trekkopplysning forwarding complete")
+        }
+    )
+}
+
 fun Route.verifyMq(
     trekkopplysningService: TrekkopplysningService
 ) {
@@ -91,6 +142,27 @@ fun Route.verifyMq(
             call.respond("MQ connection OK")
         } catch (e: Exception) {
             log.error("Error testing MQ", e)
+            call.respond(e.localizedMessage ?: e.javaClass.simpleName)
+        }
+    }
+}
+
+private const val VERSION_ID = "versionId"
+fun Route.testMqFile(
+    trekkopplysningService: TrekkopplysningService
+) {
+    get("/sendfile/{$VERSION_ID}") {
+        log.info("Testing MQ file......")
+        try {
+            var versionIdParameter: String? = null
+            val versionId: Int?
+            versionIdParameter = call.parameters[VERSION_ID]
+            versionId = versionIdParameter?.toIntOrNull()
+            trekkopplysningService.sendTestfile(versionId!!)
+            log.info("MQ file $versionId sent OK")
+            call.respond("MQ file $versionId sent OK")
+        } catch (e: Exception) {
+            log.error("Error testing MQ file ", e)
             call.respond(e.localizedMessage ?: e.javaClass.simpleName)
         }
     }

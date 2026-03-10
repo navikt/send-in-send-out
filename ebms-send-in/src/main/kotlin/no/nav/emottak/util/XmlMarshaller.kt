@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream
 import java.io.StringWriter
 import javax.xml.bind.JAXBContext
 import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLStreamWriter
 
 class XmlMarshaller(jaxbContext: JAXBContext) {
     private val marshaller = jaxbContext.createMarshaller()
@@ -18,6 +19,12 @@ class XmlMarshaller(jaxbContext: JAXBContext) {
             marshaller.marshal(objekt, writer)
         }
         return writer.toString()
+    }
+
+    fun marshal(objekt: Any, xmlStreamWriter: XMLStreamWriter) {
+        synchronized(marshallingMonitor) {
+            marshaller.marshal(objekt, xmlStreamWriter)
+        }
     }
 
     fun toDomainObject(any: Any): Any {

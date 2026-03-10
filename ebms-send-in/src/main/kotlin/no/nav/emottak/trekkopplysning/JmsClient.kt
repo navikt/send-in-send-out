@@ -36,8 +36,7 @@ class JmsClient(
     // Kan cache/poole connections hvis dette viser seg å bli for mye overhead
     fun sendMessage(queue: String, messageText: String) {
         factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)?.use {
-            val queue = it.createQueue(queue)
-            it.createProducer().send(queue, messageText)
+            it.createProducer().send(it.createQueue(queue), it.createTextMessage(messageText))
         }
     }
 

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ns8:EI_fellesformat
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        xmlns:ns8="http://www.trygdeetaten.no/xml/eiff/1/"
+    <MsgHead
+            xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <MsgInfo>
+            <Type DN="Innrapportering av trekk til NAV" V="INNRAPPORTERING_TREKK"/>
+            <MIGversion>v1.2 2006-05-24</MIGversion>
+            <GenDate>2026-03-04T12:14:37Z</GenDate>
+            <MsgId>96d864e5-b92f-4f84-b80f-386b3b98ea95</MsgId>
+            <Ack DN="Nei" V="N"/>
+            <Sender>
+                <Organisation>
+                    <OrganisationName>AIDN AS</OrganisationName>
+                    <Ident>
+                        <Id>8139944</Id>
+                        <TypeId DN="HER-id" S="2.16.578.1.12.4.1.1.9051" V="HER"/>
+                    </Ident>
+                    <Organisation>
+                        <OrganisationName>Økonomi og oppgjør</OrganisationName>
+                        <Ident>
+                            <Id>8142626</Id>
+                            <TypeId DN="HER-id" S="2.16.578.1.12.4.1.1.9051" V="HER"/>
+                        </Ident>
+                    </Organisation>
+                </Organisation>
+            </Sender>
+            <Receiver>
+                <Organisation>
+                    <OrganisationName>NAV IKT</OrganisationName>
+                    <Ident>
+                        <Id>79768</Id>
+                        <TypeId DN="HER-id" S="2.16.578.1.12.4.1.1.9051" V="HER"/>
+                    </Ident>
+                </Organisation>
+            </Receiver>
+            <Patient>
+                <FamilyName>SEILBÅT</FamilyName>
+                <GivenName>DEMOKRATISK</GivenName>
+                <Sex DN="Kvinne" V="2"/>
+                <Ident>
+                    <Id>29865097679</Id>
+                    <TypeId DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
+                </Ident>
+            </Patient>
+        </MsgInfo>
+        <Document>
+            <ContentDescription>SV:Innrapportering av trekk til NAV</ContentDescription>
+            <RefDoc>
+                <IssueDate V="2026-03-04T12:14:37Z"/>
+                <MsgType DN="XML-instans" V="XML"/>
+                <Content>
+                    <InnrapporteringTrekk xmlns="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04 InnrapporteringTrekk-2010-02-04.xsd">
+                        <Aksjonskode DN="Endring av trekkvedtak" V="ENDR"/>
+                        <Identifisering>
+                            <NavTrekkId>0014034492</NavTrekkId>
+                            <DebitorId>
+                                <Id xmlns="http://www.kith.no/xmlstds/felleskomponent1">03056537693</Id>
+                                <TypeId xmlns="http://www.kith.no/xmlstds/felleskomponent1" DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
+                            </DebitorId>
+                        </Identifisering>
+                        <Trekk>
+                            <KodeTrekktype DN="Vederlagstrekk" V="VEDE"/>
+                            <KodeTrekkAlternativ DN="Løpende trekk månedssats" V="LOPM"/>
+                            <Sats V="17703.00"/>
+                            <GyldigTomDato>2026-03-31</GyldigTomDato>
+                        </Trekk>
+                        <Periode>
+                            <PeriodeFomDato>2026-04-01</PeriodeFomDato>
+                        </Periode>
+                        <Kreditor>
+                            <TSSId>80000415406</TSSId>
+                        </Kreditor>
+                    </InnrapporteringTrekk>
+                </Content>
+            </RefDoc>
+        </Document>
+        <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+            <SignedInfo>
+                <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+                <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+                <Reference URI="">
+                    <Transforms>
+                        <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                        <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+                    </Transforms>
+                    <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                    <DigestValue>hW3MZFj00nMj+HpL+u8z1tdBdG8gW0CcrPF9cYssuWI=</DigestValue>
+                </Reference>
+            </SignedInfo>
+            <SignatureValue>ejtjr3ZsM/nBwP4MX9ws6Ajp/ZedHQYF4C4wJ8DGuTiPd8aZecFRHi1nu3fwpR517YVLK79jSDwb889GVQ6nG1tCSLD0I5bW3s7W95/nIMNUmxJqwuKrpFTS6xChBe72dsMnMzfCdbxQdnJSOc58cInf4mcwqcxMJhT/zl4RoQbuGpy71qp9sTEkQt/LwXpq60JWdwmcZ41ciAmqknGop2hpOOttks5NPVaZVP88qrHZ5O83aTve/l1GytxHrnf91bxWWj8UOQgn73de7REGH07r3YwXZ5D87X7bZYhNqaYc7kTI18/zcQti5t/5yCjTIU/W7oSDmwwC4/DwonRNaieIfwahF8yBdOKbzZpaZN6Xpm6s59IZODq6Z6yQYOmtoczkqIQm8r0c8j8BpYvzvgsXUmo7ft+hqOdZwBLcQ9x8DPp5ujLbmjtFKOjkr25GkU0ZuOKog1PNZfFduYiRuvo6ka8qLeDRzNMVYEkNT+wQgSrsW45+TPuJmVlBP3oD</SignatureValue>
+            <KeyInfo>
+                <X509Data>
+                    <X509Certificate>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</X509Certificate>
+                </X509Data>
+            </KeyInfo>
+        </Signature>
+    </MsgHead>
+    <ns8:MottakenhetBlokk avsender="8142626" avsenderRef="OID.2.5.4.97=NTRNO-927384302, CN=AIDN AS - TEST, O=AIDN AS, C=NO" ebAction="Innmelding" ebRole="Fordringshaver" ebService="Trekkopplysning" ebXMLSamtaleId="47ce3488-8b6e-4242-b797-9be5d1b65485" ediLoggId="2603041315aidn58567.1" herIdentifikator="" meldingsType="xml" mottattDatotid="2026-03-04T13:15:18" partnerReferanse="21137"/>
+</ns8:EI_fellesformat>
