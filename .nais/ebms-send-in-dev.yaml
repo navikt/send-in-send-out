@@ -89,5 +89,3 @@ spec:
       value: "Q1_EMOTTAK_ASYNCH"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"
-    - name: TREKKOPPL_MQ_REPLYTO
-      value: "QA.Q414.IU03_UTSENDING_EBMS"

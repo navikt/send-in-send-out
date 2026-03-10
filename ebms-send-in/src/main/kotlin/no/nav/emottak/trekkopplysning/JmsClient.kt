@@ -6,7 +6,6 @@ import no.nav.emottak.config.TrekkopplysningMq
 import no.nav.emottak.log
 import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.getSecret
-import javax.jms.Message
 import javax.jms.Session
 
 class JmsClient(
@@ -35,13 +34,9 @@ class JmsClient(
 
     // Her opprettes ny connection (og lukkes) for hver melding.
     // Kan cache/poole connections hvis dette viser seg å bli for mye overhead
-    fun sendMessage(queue: String, messageText: String, replyTo: String) {
+    fun sendMessage(queue: String, messageText: String) {
         factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)?.use {
-            val queue = it.createQueue(queue)
-            val replyQueue = it.createQueue(replyTo)
-            val message: Message = it.createTextMessage(messageText)
-            message.setJMSReplyTo(replyQueue)
-            it.createProducer().send(queue, message)
+            it.createProducer().send(it.createQueue(queue), it.createTextMessage(messageText))
         }
     }
 

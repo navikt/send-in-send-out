@@ -12,6 +12,8 @@ import java.time.Instant
 
 private val fellesFormatFactory = ObjectFactory()
 
+val UKJENT_ID = "Ukjent"
+
 fun SendInRequest.asEIFellesFormat(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(this@asEIFellesFormat)
@@ -75,36 +77,35 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
 private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
     val partnerReferanse = when (sendInRequest.addressing.service) {
         "PasientlisteForesporsel" -> sendInRequest.partnerId?.toString() ?: ""
+        "Trekkopplysning" -> sendInRequest.partnerId?.toString() ?: ""
         else -> sendInRequest.cpaId
     }
 
     // Gamle eMottak
     // - sender IKKE avsenderFnrFraDigSignatur, avsenderOrgNrFraDigSignatur, mottaksId, orgNummer. Kommentert ut under.
-    // - sender BLANK herIdentifikator todo ikke endret
-    // - sender ANNEN verdi for ediLoggId (= mottaksId, a la 2603041315aidn58567.1) todo antar OK
-    // - sender ANNEN verdi for partnerReferanse (= partner-ID fra CPA-tabell, a la 21137. Vi får inn CPA-ID her) todo antar OK
-    // TODO fiks avsender og -ref.
-    //  Gammel putter HER-ID som avsender (mulig ikke alltid?) Let/velg 1
-    // ref fra partner_subjectdn i cpa-tabell
+    // - sender BLANK herIdentifikator, vi velger å ta den med
+    // - sender ANNEN verdi for ediLoggId (= mottaksId, a la 2603041315aidn58567.1). Antar at dette er OK.
+    // - sender ANNEN verdi for partnerReferanse (= partner-ID fra CPA-tabell, a la 21137). Vi bruker CPA-ID
+    // - sender avsenderRef, med verdi = partner_subjectdn i cpa-tabell. Vi sender blankt
+    // Usikker på logikken for verdi i avsender. Velger første som finnes av disse: "HER", "ENH", "orgnummer"
     return fellesFormatFactory.createEIFellesformatMottakenhetBlokk().apply {
         ebXMLSamtaleId = sendInRequest.conversationId
         ebAction = sendInRequest.addressing.action
         ebService = sendInRequest.addressing.service
         ebRole = sendInRequest.addressing.from.role
-        avsender = "TODO1" // Hentes fra from. Usikker på hvilket felt siden det kan være flere.
-        avsenderRef =
-            "TODO2" // Hentet fra cert: Eksempelverdi: "SERIALNUMBER=132547698, CN=Blå &amp; Bjørnebær AS, O=Blå &amp; Bjørnebær AS, C=NO"
-//        mottaksId = sendInRequest.messageId
+        herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
+        avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
-//        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
-//        avsenderOrgNrFraDigSignatur = "TODO4"
-        herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
-//        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         meldingsType = "xml"
         this.partnerReferanse = partnerReferanse
+        avsenderRef = ""
+//        mottaksId = sendInRequest.messageId
+//        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
+//        avsenderOrgNrFraDigSignatur = "TODO4"
+//        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
     }
 }
 
 private fun List<PartyId>.getIdentifikatorByType(vararg types: String) =
-    this.firstOrNull { types.contains(it.type) }?.value ?: "Ukjent"
+    this.firstOrNull { types.contains(it.type) }?.value ?: UKJENT_ID
