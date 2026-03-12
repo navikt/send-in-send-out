@@ -18,7 +18,7 @@ plugins {
 openApiGenerate {
     generatorName.set("kotlin")
     inputSpec.set(file("$projectDir/src/main/resources/frikort/frikortsporringer.yaml").toURI().toString())
-    outputDir.set(file("$buildDir/generated/openapi").path)
+    outputDir.set(layout.buildDirectory.dir("generated/openapi").get().asFile.path)
     packageName.set("no.helsedir.frikort.frikorttjenester")
     modelPackage.set("no.helsedir.frikort.frikorttjenester.model")
     configOptions.set(
@@ -41,7 +41,7 @@ openApiGenerate {
 sourceSets {
     main {
         java {
-            srcDir("$buildDir/generated/openapi/src/main/kotlin")
+            srcDir(layout.buildDirectory.dir("generated/openapi/src/main/kotlin").get().asFile.path)
         }
     }
 }
@@ -55,7 +55,7 @@ tasks {
         archiveFileName.set("app.jar")
     }
     register<Wrapper>("wrapper") {
-        gradleVersion = "8.1.1"
+        gradleVersion = "8.14"
     }
     test {
         useJUnitPlatform()
@@ -103,7 +103,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
 
 dependencies {
     implementation(libs.emottak.utils)
-    implementation("com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
+    implementation(libs.saaj.impl)
     implementation(libs.hoplite.core)
     implementation(libs.hoplite.hocon)
     implementation(libs.arrow.core)
@@ -132,15 +132,15 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.labai.jsr305x.annotations)
     implementation(libs.token.validation.ktor.v3)
-    implementation("jakarta.jms:jakarta.jms-api:3.1.0")
-    implementation("com.ibm.mq:com.ibm.mq.allclient:9.4.0.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
-    implementation("dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation(("javax.activation:activation:1.1.1"))
-    implementation("org.apache.kafka:kafka-clients:3.5.1")
+    implementation(libs.jakarta.jms.api)
+    implementation(libs.ibm.mq.allclient)
+    implementation(libs.kotlinx.coroutines.slf4j)
+    implementation(libs.stacktrace.decoroutinator.jvm)
+    implementation(libs.jaxb.api)
+    implementation(libs.javax.activation)
+    implementation(libs.kafka.clients)
     implementation(libs.kotlin.kafka)
-    runtimeOnly("net.java.dev.jna:jna:5.12.1")
+    runtimeOnly(libs.jna)
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)
     testImplementation(testLibs.ktor.server.test.host)
@@ -148,7 +148,8 @@ dependencies {
     testImplementation(testLibs.mockk.dsl.jvm)
     testImplementation(testLibs.mockk.jvm)
     testRuntimeOnly(testLibs.junit.jupiter.engine)
-    testImplementation("org.testcontainers:kafka:1.19.0")
+    testRuntimeOnly(testLibs.junit.platform.launcher)
+    testImplementation(testLibs.testcontainers.kafka)
 }
 
 application {
