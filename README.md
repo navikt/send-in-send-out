@@ -12,14 +12,11 @@ Tjenesten videresender innkommende `SendInRequest`-meldinger til ett av følgend
 | `HarBorgerEgenandelFritak` | `frikorttjenester` REST API (eller legacy SOAP for `cpaId = nav:70079`) |
 | `HarBorgerFrikortMengde` | `frikorttjenester` SOAP/CXF |
 | `Inntektsforesporsel` | Utbetaling SOAP/CXF-tjeneste |
-| `PasientlisteForesporsel` | Pasientliste SOAP/CXF-tjeneste _(deaktivert i prod)_ |
 | `Trekkopplysning` | IBM MQ |
 
-Alle behandlede meldinger hendelseslogges til Kafka via `EventRegistrationService`.
+Alle asynkrone behandlede meldinger hendelseslogges til Kafka via `EventRegistrationService`.
 
 ## API
-
-Alle endepunkter kjører på port `8080`.
 
 | Metode | Sti | Auth | Beskrivelse |
 |---|---|---|---|
@@ -38,9 +35,6 @@ Alle endepunkter kjører på port `8080`.
 # Kjør kun tester
 ./gradlew test
 
-# Kjør én enkelt testklasse
-./gradlew test --tests "no.nav.emottak.FrikortPayloadIntegrationTest"
-
 # Formater kode
 ./gradlew ktlintFormat
 ```
@@ -58,7 +52,7 @@ Docker-imaget er bygget fra en distroless Java 21-base og eksponerer `build/libs
 
 Eksterne tjenester denne applikasjonen er avhengig av:
 
-- **frikorttjenester** — REST- og SOAP-endepunkter for frikort/egenandel-oppslag (konfigurert via `FRIKORT_URL_REST`)
-- **IBM MQ** — for Trekkopplysning (konfigurert via `TREKKOPPL_MQ_*`-miljøvariabler)
-- **Kafka** — for hendelseslogging (pool: `nav-dev` / `nav-prod`)
+- **frikorttjenester** — REST- og SOAP-endepunkter for frikort/egenandel-oppslag
+- **IBM MQ** — for Trekkopplysning
+- **Kafka** — for hendelseslogging
 - **Azure AD** — for tokenvalidering på innkommende forespørsler og tokenanskaffelse for utgående kall
