@@ -1,0 +1,80 @@
+[versions]
+apache-santuario = "3.0.2"
+arrow = "2.0.1"
+cxf = "3.6.6"
+ebxml-protokoll = "0.0.6"
+emottak-payload-xsd = "0.0.9"
+emottak-utils = "0.3.6"
+hoplite = "2.8.2"
+ibm-mq-allclient = "9.4.0.0"
+jakarta-jms-api = "3.1.0"
+jakarta-xml-ws-api = "2.3.3"
+jaxb-api = "2.3.1"
+jaxb-runtime = "2.4.0-b180830.0438"
+javax-activation = "1.1.1"
+jna = "5.12.1"
+kafka-clients = "3.5.1"
+kotlin-kafka = "0.4.1"
+kotlinx-coroutines-slf4j = "1.7.3"
+ktor = "3.1.3"
+labai-jsr305x-annotations = "0.0.2"
+logback-classic = "1.5.18"
+logback-logstash = "8.1"
+micrometer-registry-prometheus = "1.12.4"
+saaj-impl = "1.5.1"
+stacktrace-decoroutinator-jvm = "2.3.8"
+suspendapp = "0.5.0"
+token-validation-ktor = "5.0.15"
+
+[libraries]
+apache-santuario = { module = "org.apache.santuario:xmlsec", version.ref = "apache-santuario" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-functions = { module = "io.arrow-kt:arrow-functions", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+arrow-resilience = { module = "io.arrow-kt:arrow-resilience", version.ref = "arrow" }
+arrow-suspendapp = { module = "io.arrow-kt:suspendapp", version.ref = "suspendapp" }
+arrow-suspendapp-ktor = { module = "io.arrow-kt:suspendapp-ktor", version.ref = "suspendapp" }
+cxf-rt-features-logging = { module = "org.apache.cxf:cxf-rt-features-logging", version.ref = "cxf" }
+cxf-rt-frontend-jaxws = { module = "org.apache.cxf:cxf-rt-frontend-jaxws", version.ref = "cxf" }
+cxf-rt-transports-http = { module = "org.apache.cxf:cxf-rt-transports-http", version.ref = "cxf" }
+cxf-rt-ws-security = { module = "org.apache.cxf:cxf-rt-ws-security", version.ref = "cxf" }
+ebxml-protokoll = { module = "no.nav.emottak:ebxml-protokoll", version.ref = "ebxml-protokoll" }
+emottak-payload-xsd = { module = "no.nav.emottak:emottak-payload-xsd", version.ref = "emottak-payload-xsd" }
+emottak-utils = { module = "no.nav.emottak:emottak-utils", version.ref = "emottak-utils" }
+hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
+hoplite-hocon = { module = "com.sksamuel.hoplite:hoplite-hocon", version.ref = "hoplite" }
+ibm-mq-allclient = { module = "com.ibm.mq:com.ibm.mq.allclient", version.ref = "ibm-mq-allclient" }
+jakarta-jms-api = { module = "jakarta.jms:jakarta.jms-api", version.ref = "jakarta-jms-api" }
+jakarta-xml-ws-api = { module = "jakarta.xml.ws:jakarta.xml.ws-api", version.ref = "jakarta-xml-ws-api" }
+jaxb-api = { module = "javax.xml.bind:jaxb-api", version.ref = "jaxb-api" }
+jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-runtime" }
+javax-activation = { module = "javax.activation:activation", version.ref = "javax-activation" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka-clients" }
+kotlin-kafka = { module = "io.github.nomisrev:kotlin-kafka", version.ref = "kotlin-kafka" }
+kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines-slf4j" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-server-auth-jvm = { module = "io.ktor:ktor-server-auth-jvm", version.ref = "ktor" }
+ktor-server-call-logging-jvm = { module = "io.ktor:ktor-server-call-logging-jvm", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
+ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktor-server-metrics-micrometer = { module = "io.ktor:ktor-server-metrics-micrometer", version.ref = "ktor" }
+ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+labai-jsr305x-annotations = { module = "com.github.labai:labai-jsr305x-annotations", version.ref = "labai-jsr305x-annotations" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
+logback-logstash = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logback-logstash" }
+micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer-registry-prometheus" }
+saaj-impl = { module = "com.sun.xml.messaging.saaj:saaj-impl", version.ref = "saaj-impl" }
+stacktrace-decoroutinator-jvm = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator-jvm" }
+token-validation-ktor-v3 = { module = "no.nav.security:token-validation-ktor-v3", version.ref = "token-validation-ktor" }
+
+[bundles]
+cxf = ["cxf-rt-frontend-jaxws", "cxf-rt-transports-http", "cxf-rt-ws-security", "cxf-rt-features-logging", "jakarta-xml-ws-api"]
+logging = ["logback-classic", "logback-logstash"]
+prometheus = ["ktor-server-metrics-micrometer", "micrometer-registry-prometheus"]

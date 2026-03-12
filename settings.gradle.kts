@@ -4,136 +4,14 @@
  * The settings file is used to specify which projects to include in your build.
  *
  * Detailed information about configuring a multi-project build in Gradle can be found
- * in the user manual at https://docs.gradle.org/8.1.1/userguide/multi_project_builds.html
+ * in the user manual at https://docs.gradle.org/current/userguide/multi_project_builds.html
  */
 
 dependencyResolutionManagement {
 
     versionCatalogs {
-        create("libs") {
-            version("arrow", "2.0.1")
-            version("suspendapp", "0.5.0")
-            version("bouncycastle", "1.76")
-            version("ktor", "3.1.3")
-            version("token-validation-ktor", "5.0.15")
-            version("cxf", "3.6.6")
-            version("hoplite", "2.8.2")
-            version("kotlin-kafka", "0.4.1")
-            version("emottak-utils", "0.3.6")
-
-            library("arrow-core", "io.arrow-kt", "arrow-core").versionRef("arrow")
-            library("arrow-functions", "io.arrow-kt", "arrow-functions").versionRef("arrow")
-
-            library("arrow-fx-coroutines", "io.arrow-kt", "arrow-fx-coroutines").versionRef("arrow")
-            library("arrow-resilience", "io.arrow-kt", "arrow-resilience").versionRef("arrow")
-            library("arrow-suspendapp", "io.arrow-kt", "suspendapp").versionRef("suspendapp")
-            library("arrow-suspendapp-ktor", "io.arrow-kt", "suspendapp-ktor").versionRef("suspendapp")
-
-            library("bcpkix-jdk18on", "org.bouncycastle", "bcpkix-jdk18on").versionRef("bouncycastle")
-            library("bcprov-jdk18on", "org.bouncycastle", "bcprov-jdk18on").versionRef("bouncycastle")
-            library("apache-santuario", "org.apache.santuario:xmlsec:3.0.2")
-
-            library("hoplite-core", "com.sksamuel.hoplite", "hoplite-core").versionRef("hoplite")
-            library("hoplite-hocon", "com.sksamuel.hoplite", "hoplite-hocon").versionRef("hoplite")
-
-            library("kotlin-kafka", "io.github.nomisrev", "kotlin-kafka").versionRef("kotlin-kafka")
-
-            library("ktor-server-core", "io.ktor", "ktor-server-core").versionRef("ktor")
-            library("ktor-server-core-jvm", "io.ktor", "ktor-server-core-jvm").versionRef("ktor")
-            library("ktor-server-netty", "io.ktor", "ktor-server-netty").versionRef("ktor")
-            library("ktor-server-call-logging-jvm", "io.ktor", "ktor-server-call-logging-jvm").versionRef("ktor")
-            library("ktor-server-content-negotiation", "io.ktor", "ktor-server-content-negotiation").versionRef("ktor")
-            library("ktor-client-content-negotiation", "io.ktor", "ktor-client-content-negotiation").versionRef("ktor")
-            library("ktor-serialization-kotlinx-json", "io.ktor", "ktor-serialization-kotlinx-json").versionRef("ktor")
-            library("ktor-client-core", "io.ktor", "ktor-client-core").versionRef("ktor")
-            library("ktor-client-cio", "io.ktor", "ktor-client-cio").versionRef("ktor")
-            library("ktor-client-cio-jvm", "io.ktor", "ktor-client-cio-jvm").versionRef("ktor")
-            library("ktor-client-auth", "io.ktor", "ktor-client-auth").versionRef("ktor")
-
-            library("ktor-server-metrics-micrometer", "io.ktor", "ktor-server-metrics-micrometer").versionRef("ktor")
-            library("micrometer-registry-prometheus", "io.micrometer:micrometer-registry-prometheus:1.12.4")
-
-            library("logback-classic", "ch.qos.logback:logback-classic:1.5.18")
-            library("logback-logstash", "net.logstash.logback:logstash-logback-encoder:8.1")
-
-            library("ebxml-protokoll", "no.nav.emottak:ebxml-protokoll:0.0.6")
-            library("ebxml-processing-model", "no.nav.emottak:ebxml-processing-model:2024102305ad1b37a7c4ec36bc77ef91f5ff67098389922f")
-            library("emottak-payload-xsd", "no.nav.emottak:emottak-payload-xsd:0.0.9")
-            library("emottak-utils", "no.nav.emottak", "emottak-utils").versionRef("emottak-utils")
-            library("labai-jsr305x-annotations", "com.github.labai:labai-jsr305x-annotations:0.0.2")
-            library("jakarta.xml.bind-api", "jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
-            library("ktor-server-auth-jvm", "io.ktor", "ktor-server-auth-jvm").versionRef("ktor")
-            library("token-validation-ktor-v3", "no.nav.security", "token-validation-ktor-v3").versionRef("token-validation-ktor")
-            library("jaxb-runtime", "org.glassfish.jaxb:jaxb-runtime:2.4.0-b180830.0438")
-            library("cxf-rt-frontend-jaxws", "org.apache.cxf", "cxf-rt-frontend-jaxws").versionRef("cxf")
-            library("cxf-rt-transports-http", "org.apache.cxf", "cxf-rt-transports-http").versionRef("cxf")
-            library("cxf-rt-ws-security", "org.apache.cxf", "cxf-rt-ws-security").versionRef("cxf")
-            library("cxf-rt-features-logging", "org.apache.cxf", "cxf-rt-features-logging").versionRef("cxf")
-            library("jakarta.xml.ws-api", "jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
-
-            library("saaj-impl", "com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
-            library("jakarta-jms-api", "jakarta.jms:jakarta.jms-api:3.1.0")
-            library("ibm-mq-allclient", "com.ibm.mq:com.ibm.mq.allclient:9.4.0.0")
-            library("kotlinx-coroutines-slf4j", "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
-            library("stacktrace-decoroutinator-jvm", "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
-            library("jaxb-api", "javax.xml.bind:jaxb-api:2.3.1")
-            library("javax-activation", "javax.activation:activation:1.1.1")
-            library("kafka-clients", "org.apache.kafka:kafka-clients:3.5.1")
-            library("jna", "net.java.dev.jna:jna:5.12.1")
-
-            bundle("prometheus", listOf("ktor-server-metrics-micrometer", "micrometer-registry-prometheus"))
-            bundle("cxf", listOf("cxf-rt-frontend-jaxws", "cxf-rt-transports-http", "cxf-rt-ws-security", "cxf-rt-features-logging", "jakarta.xml.ws-api"))
-            bundle("bouncycastle", listOf("bcpkix-jdk18on", "bcprov-jdk18on"))
-            bundle("logging", listOf("logback-classic", "logback-logstash"))
-        }
-
         create("testLibs") {
-            version("junit", "5.9.2")
-            version("hamcrest", "2.2")
-            version("mockk", "1.13.10")
-            version("testPostgres", "1.18.0")
-            version("xmlunit", "2.9.1")
-            version("ktor-server-test", "3.0.3")
-            version("kotest", "5.9.1")
-            version("testcontainers", "1.19.0")
-            version("kotest-extensions", "2.0.2")
-            version("postgres", "42.7.4")
-            version("turbine", "1.2.0")
-            version("arrow", "2.0.1")
-
-            library("ktor-server-test-host", "io.ktor", "ktor-server-test-host").versionRef("ktor-server-test")
-            library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
-            library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").versionRef("junit")
-            library("junit-jupiter-params", "org.junit.jupiter", "junit-jupiter-params").versionRef("junit")
-            library("junit-platform-launcher", "org.junit.platform:junit-platform-launcher:1.9.2")
-            library("mock-oauth2-server", "no.nav.security:mock-oauth2-server:2.1.2")
-
-            library("hamcrest", "org.hamcrest", "hamcrest").versionRef("hamcrest")
-
-            library("mockk-jvm", "io.mockk", "mockk-jvm").versionRef("mockk")
-            library("mockk-dsl-jvm", "io.mockk", "mockk-dsl-jvm").versionRef("mockk")
-
-            library("xmlunit-core", "org.xmlunit", "xmlunit-core").versionRef("xmlunit")
-            library("xmlunit-matchers", "org.xmlunit", "xmlunit-matchers").versionRef("xmlunit")
-
-            library("kotest-runner-junit5", "io.kotest", "kotest-runner-junit5").versionRef("kotest")
-            library("kotest-framework-datatest", "io.kotest", "kotest-framework-datatest").versionRef("kotest")
-            library("kotest-extensions-testcontainers", "io.kotest.extensions", "kotest-extensions-testcontainers").versionRef("kotest-extensions")
-            library("kotest-extensions-testcontainers-kafka", "io.kotest.extensions", "kotest-extensions-testcontainers-kafka").versionRef("kotest-extensions")
-
-            library("kotest-assertions-arrow", "io.kotest.extensions", "kotest-assertions-arrow").versionRef("arrow")
-
-            library("testcontainers", "org.testcontainers", "testcontainers").versionRef("testcontainers")
-            library("testcontainers-kafka", "org.testcontainers", "kafka").versionRef("testcontainers")
-            library("testcontainers-postgresql", "org.testcontainers", "postgresql").versionRef("testcontainers")
-
-            library("postgresql", "org.postgresql", "postgresql").versionRef("postgres")
-
-            library("turbine", "app.cash.turbine", "turbine").versionRef("turbine")
-
-            bundle("kotest", listOf("kotest-runner-junit5", "kotest-framework-datatest"))
-            bundle("mockk", listOf("mockk-jvm", "mockk-dsl-jvm"))
-            bundle("xmlunit", listOf("xmlunit-core", "xmlunit-matchers"))
+            from(files("gradle/testLibs.versions.toml"))
         }
     }
 
