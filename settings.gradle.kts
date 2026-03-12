@@ -71,6 +71,16 @@ dependencyResolutionManagement {
             library("cxf-rt-features-logging", "org.apache.cxf", "cxf-rt-features-logging").versionRef("cxf")
             library("jakarta.xml.ws-api", "jakarta.xml.ws:jakarta.xml.ws-api:2.3.3")
 
+            library("saaj-impl", "com.sun.xml.messaging.saaj:saaj-impl:1.5.1")
+            library("jakarta-jms-api", "jakarta.jms:jakarta.jms-api:3.1.0")
+            library("ibm-mq-allclient", "com.ibm.mq:com.ibm.mq.allclient:9.4.0.0")
+            library("kotlinx-coroutines-slf4j", "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.7.3")
+            library("stacktrace-decoroutinator-jvm", "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm:2.3.8")
+            library("jaxb-api", "javax.xml.bind:jaxb-api:2.3.1")
+            library("javax-activation", "javax.activation:activation:1.1.1")
+            library("kafka-clients", "org.apache.kafka:kafka-clients:3.5.1")
+            library("jna", "net.java.dev.jna:jna:5.12.1")
+
             bundle("prometheus", listOf("ktor-server-metrics-micrometer", "micrometer-registry-prometheus"))
             bundle("cxf", listOf("cxf-rt-frontend-jaxws", "cxf-rt-transports-http", "cxf-rt-ws-security", "cxf-rt-features-logging", "jakarta.xml.ws-api"))
             bundle("bouncycastle", listOf("bcpkix-jdk18on", "bcprov-jdk18on"))
@@ -85,7 +95,7 @@ dependencyResolutionManagement {
             version("xmlunit", "2.9.1")
             version("ktor-server-test", "3.0.3")
             version("kotest", "5.9.1")
-            version("testcontainers", "1.18.1")
+            version("testcontainers", "1.19.0")
             version("kotest-extensions", "2.0.2")
             version("postgres", "42.7.4")
             version("turbine", "1.2.0")
@@ -95,6 +105,7 @@ dependencyResolutionManagement {
             library("junit-jupiter-api", "org.junit.jupiter", "junit-jupiter-api").versionRef("junit")
             library("junit-jupiter-engine", "org.junit.jupiter", "junit-jupiter-engine").versionRef("junit")
             library("junit-jupiter-params", "org.junit.jupiter", "junit-jupiter-params").versionRef("junit")
+            library("junit-platform-launcher", "org.junit.platform:junit-platform-launcher:1.9.2")
             library("mock-oauth2-server", "no.nav.security:mock-oauth2-server:2.1.2")
 
             library("hamcrest", "org.hamcrest", "hamcrest").versionRef("hamcrest")
