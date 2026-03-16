@@ -21,14 +21,19 @@ import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
+import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.LogLevel
+import no.nav.emottak.util.asJson
+import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
+import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -74,15 +79,9 @@ object FagmeldingService {
                     getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService)
                 }
 
-<<<<<<< 318-bugfiks
             SupportedServiceType.PasientlisteForesporsel ->
                 timed(meterRegistry, "PasientlisteForesporsel") {
                     getPasientlisteForesporsel(sendInRequest, eventRegistrationService)
-=======
-            SupportedServiceType.Trekkopplysning ->
-                timed(meterRegistry, "Trekkopplysning") {
-                    getTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
->>>>>>> main
                 }
 
             SupportedServiceType.Unsupported ->
@@ -101,7 +100,6 @@ object FagmeldingService {
         }
     }
 
-<<<<<<< 318-bugfiks
     suspend fun processRequestAsynchronously(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
@@ -166,8 +164,6 @@ object FagmeldingService {
         }
     }
 
-=======
->>>>>>> main
     private fun Raise<Throwable>.getHarBorgerFrikortMengde(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService

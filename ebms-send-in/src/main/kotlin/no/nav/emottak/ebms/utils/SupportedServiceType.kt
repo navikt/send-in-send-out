@@ -6,7 +6,6 @@ internal enum class SupportedServiceType(val service: String) {
     HarBorgerFrikortMengde("HarBorgerFrikortMengde"),
     Inntektsforesporsel("Inntektsforesporsel"),
     PasientlisteForesporsel("PasientlisteForesporsel"),
-    Trekkopplysning("Trekkopplysning"),
     Unsupported("Unsupported");
 
     companion object {
