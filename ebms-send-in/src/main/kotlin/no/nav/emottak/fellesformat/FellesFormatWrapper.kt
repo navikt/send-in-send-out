@@ -82,7 +82,7 @@ private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: Se
     }
 
     // Gamle eMottak
-    // - sender IKKE avsenderFnrFraDigSignatur, avsenderOrgNrFraDigSignatur, mottaksId, orgNummer. Kommentert ut under.
+    // - sender IKKE avsenderFnrFraDigSignatur, avsenderOrgNrFraDigSignatur, mottaksId, orgnummer. Vi tar med orgnummer.
     // - sender BLANK herIdentifikator, vi velger å ta den med
     // - sender ANNEN verdi for ediLoggId (= mottaksId, a la 2603041315aidn58567.1). Antar at dette er OK.
     // - sender ANNEN verdi for partnerReferanse (= partner-ID fra CPA-tabell, a la 21137). Vi bruker CPA-ID
@@ -94,6 +94,7 @@ private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: Se
         ebService = sendInRequest.addressing.service
         ebRole = sendInRequest.addressing.from.role
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
+        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer")
         avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
@@ -103,7 +104,6 @@ private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: Se
 //        mottaksId = sendInRequest.messageId
 //        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
 //        avsenderOrgNrFraDigSignatur = "TODO4"
-//        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
     }
 }
 

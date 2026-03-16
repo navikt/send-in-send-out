@@ -15,6 +15,7 @@ import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.Configurator.config
 import no.nav.emottak.ebms.kafka.EbmsOutPayloadProducer
 import no.nav.emottak.ebms.kafka.launchEbmsInPayloadReceiver
+import no.nav.emottak.ebms.kafka.launchEbmsOutFellesformatReceiver
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
@@ -65,6 +66,7 @@ suspend fun ResourceScope.setupServer() {
     )
 
     eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
+    eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), outPayloadProducer)
 
     server(
         Netty,

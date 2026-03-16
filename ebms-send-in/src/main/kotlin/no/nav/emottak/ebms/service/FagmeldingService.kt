@@ -141,7 +141,9 @@ object FagmeldingService {
             }.let { fellesformatResponse ->
                 SendInResponse(
                     messageId = Uuid.random().toString(),
+                    refToMessageId = sendInRequest.messageId,
                     conversationId = sendInRequest.conversationId,
+                    cpaId = sendInRequest.cpaId,
                     addressing = sendInRequest.addressing.replyTo(
                         fellesformatResponse.mottakenhetBlokk.ebService,
                         fellesformatResponse.mottakenhetBlokk.ebAction
@@ -180,7 +182,9 @@ object FagmeldingService {
     }.bind().let { response ->
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
@@ -212,7 +216,9 @@ object FagmeldingService {
         log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
@@ -244,7 +250,9 @@ object FagmeldingService {
         log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
@@ -274,7 +282,9 @@ object FagmeldingService {
     }.bind().let { response ->
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
@@ -303,7 +313,9 @@ object FagmeldingService {
     }.bind().let { msgHeadResponse ->
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 sendInRequest.addressing.service,
                 msgHeadResponse.msgInfo.type.v
