@@ -145,8 +145,9 @@ object FagmeldingService {
         log.debug("Marshalled response from new frikort: ${egenandelForesporselFullXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         val content = response.eiFellesformat.msgHead.documents?.firstOrNull()?.refDoc?.content
         val xmlMarshaller = when {
-            (content?.egenandelSvar != null) -> egenandelForesporselXmlMarshaller
-            (content?.egenandelSvarV2 != null) -> egenandelForesporselV2XmlMarshaller
+            content == null -> egenandelForesporselFullXmlMarshaller
+            content.egenandelSvar != null -> egenandelForesporselXmlMarshaller
+            content.egenandelSvarV2 != null -> egenandelForesporselV2XmlMarshaller
             else -> egenandelForesporselFullXmlMarshaller
         }
         SendInResponse(
@@ -183,8 +184,9 @@ object FagmeldingService {
         log.debug("Marshalled response from new frikort: ${egenandelForesporselFullXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
         val content = response.eiFellesformat.msgHead.documents?.firstOrNull()?.refDoc?.content
         val xmlMarshaller = when {
-            (content?.egenandelSvar != null) -> egenandelForesporselXmlMarshaller
-            (content?.egenandelSvarV2 != null) -> egenandelForesporselV2XmlMarshaller
+            content == null -> egenandelForesporselFullXmlMarshaller
+            content.egenandelSvar != null -> egenandelForesporselXmlMarshaller
+            content.egenandelSvarV2 != null -> egenandelForesporselV2XmlMarshaller
             else -> egenandelForesporselFullXmlMarshaller
         }
         SendInResponse(
