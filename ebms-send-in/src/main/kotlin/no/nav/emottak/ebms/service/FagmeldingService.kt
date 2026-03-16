@@ -21,19 +21,14 @@ import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
-import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
-import no.nav.emottak.util.LogLevel
-import no.nav.emottak.util.asJson
-import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
-import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -79,11 +74,6 @@ object FagmeldingService {
                     getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService)
                 }
 
-            SupportedServiceType.PasientlisteForesporsel ->
-                timed(meterRegistry, "PasientlisteForesporsel") {
-                    getPasientlisteForesporsel(sendInRequest, eventRegistrationService)
-                }
-
             SupportedServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
@@ -117,51 +107,6 @@ object FagmeldingService {
                 )
         }
         // todo trenger vi lagre event her ?
-    }
-
-    private fun getPasientlisteForesporsel(
-        sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService
-    ): SendInResponse {
-        if (isProdEnv()) {
-            throw NotImplementedError(
-                "PasientlisteForesporsel is used in prod. Feature is not ready. Aborting."
-            )
-        }
-        return with(sendInRequest.asEIFellesFormat()) {
-            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
-            PasientlisteService.pasientlisteForesporsel(this).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                    messageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId
-                )
-            }.let { fellesformatResponse ->
-                SendInResponse(
-                    messageId = Uuid.random().toString(),
-                    refToMessageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId,
-                    cpaId = sendInRequest.cpaId,
-                    addressing = sendInRequest.addressing.replyTo(
-                        fellesformatResponse.mottakenhetBlokk.ebService,
-                        fellesformatResponse.mottakenhetBlokk.ebAction
-                    ),
-                    payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                        fellesformatResponse.appRec
-                    ),
-                    requestId = Uuid.random().toString()
-                ).also {
-                    log.asJson(
-                        LogLevel.DEBUG,
-                        "Sending SendInResponse",
-                        it,
-                        SendInResponse.serializer()
-                    )
-                }
-            }
-        }
     }
 
     private fun Raise<Throwable>.getHarBorgerFrikortMengde(
