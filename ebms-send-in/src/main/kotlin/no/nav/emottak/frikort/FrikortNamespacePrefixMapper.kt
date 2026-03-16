@@ -12,6 +12,6 @@ class FrikortNamespacePrefixMapper : NamespacePrefixMapper() {
         )
     }
 
-    override fun getPreferredPrefix(namespaceUri: String, suggestion: String?, requirePrefix: Boolean): String =
-        PREFIXES[namespaceUri] ?: suggestion ?: "ns"
+    override fun getPreferredPrefix(namespaceUri: String, suggestion: String?, requirePrefix: Boolean): String? =
+        PREFIXES[namespaceUri]
 }
