@@ -7,16 +7,6 @@ import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
 import kotlin.uuid.Uuid
 
-val validSendInPasientlisteRequest = lazy {
-    val fagmelding = ClassLoader.getSystemResourceAsStream("hentpasientliste/hentpasientliste-payload.xml")
-    mockSendInRequest("PasientlisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "123456789", "Fastlege", "Fastlegeregister")
-}
-
-val invalidPidSendInPasientlisteRequest = lazy {
-    val fagmelding = ClassLoader.getSystemResourceAsStream("hentpasientliste/hentpasientliste-payload-invalidPid.xml")
-    mockSendInRequest("PasientlisteForesporsel", "HentPasientliste", fagmelding.readAllBytes(), "11223312345", "Fastlege", "Fastlegeregister")
-}
-
 val validSendInHarBorgerFrikortRequest = lazy {
     val fagmelding = ClassLoader.getSystemResourceAsStream("frikort/EgenandelForesporsel_HarBorgerFrikortRequest.xml")
     mockSendInRequest("HarBorgerFrikort", "EgenandelForesporsel", fagmelding.readAllBytes(), "123456789", "Behandler", "Frikortregister")
