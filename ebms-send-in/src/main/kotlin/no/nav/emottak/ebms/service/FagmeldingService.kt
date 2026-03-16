@@ -11,6 +11,8 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
+import no.nav.emottak.frikort.egenandelForesporselFullXmlMarshaller
+import no.nav.emottak.frikort.egenandelForesporselV2XmlMarshaller
 import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
@@ -140,7 +142,13 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselFullXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
+        val content = response.eiFellesformat.msgHead.documents?.firstOrNull()?.refDoc?.content
+        val xmlMarshaller = when {
+            (content?.egenandelSvar != null) -> egenandelForesporselXmlMarshaller
+            (content?.egenandelSvarV2 != null) -> egenandelForesporselV2XmlMarshaller
+            else -> egenandelForesporselFullXmlMarshaller
+        }
         SendInResponse(
             messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
@@ -148,7 +156,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
-            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
+            payload = xmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead.toMsgHead()
             ),
             requestId = Uuid.random().toString()
@@ -172,7 +180,13 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
+        log.debug("Marshalled response from new frikort: ${egenandelForesporselFullXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
+        val content = response.eiFellesformat.msgHead.documents?.firstOrNull()?.refDoc?.content
+        val xmlMarshaller = when {
+            (content?.egenandelSvar != null) -> egenandelForesporselXmlMarshaller
+            (content?.egenandelSvarV2 != null) -> egenandelForesporselV2XmlMarshaller
+            else -> egenandelForesporselFullXmlMarshaller
+        }
         SendInResponse(
             messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
@@ -180,7 +194,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
-            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
+            payload = xmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead.toMsgHead()
             ),
             requestId = Uuid.random().toString()
