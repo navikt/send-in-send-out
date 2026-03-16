@@ -34,8 +34,6 @@ private val frikortSporringClasses = listOf(
     no.trygdeetaten.xml.eiff._1.ObjectFactory::class.java
 )
 
-private val frikortNamespacePrefixMapper = FrikortNamespacePrefixMapper()
-
 fun no.helsedir.frikort.frikorttjenester.model.MsgHead.getMinimalContentXmlMarshaller(): XmlMarshaller {
     val content = this.documents?.firstOrNull()?.refDoc?.content
     return when {
@@ -62,27 +60,23 @@ val frikortSporringXmlMarshaller = XmlMarshaller(
 val egenandelForesporselXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(commonClasses + egenandelForesporselClasses).toTypedArray()
-    ),
-    frikortNamespacePrefixMapper
+    )
 )
 
 val egenandelForesporselV2XmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(commonClasses + egenandelForesporselV2Classes).toTypedArray()
-    ),
-    frikortNamespacePrefixMapper
+    )
 )
 
 val egenandelForesporselFullXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(commonClasses + egenandelForesporselClasses + egenandelForesporselV2Classes).toTypedArray()
-    ),
-    frikortNamespacePrefixMapper
+    )
 )
 
 val egenandelMengdeForesporselXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(commonClasses + xmldsigClasses + egenandelMengdeForesporselClasses).toTypedArray()
-    ),
-    frikortNamespacePrefixMapper
+    )
 )
