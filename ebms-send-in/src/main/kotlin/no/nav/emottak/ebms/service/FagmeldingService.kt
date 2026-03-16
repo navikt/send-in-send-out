@@ -281,4 +281,4 @@ object FagmeldingService {
  *  Forward nav:70079 to WS endpoint due to external bug
  *  Forward every other CPA to REST endpoint
  */
-private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean = cpaId != "nav:70079"
+private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean = cpaId !in setOf("nav:70079", "nav:60987")
