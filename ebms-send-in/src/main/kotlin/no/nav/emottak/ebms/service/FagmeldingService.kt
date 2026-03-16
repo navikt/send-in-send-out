@@ -11,11 +11,9 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
-import no.nav.emottak.frikort.egenandelForesporselFullXmlMarshaller
-import no.nav.emottak.frikort.egenandelForesporselV2XmlMarshaller
-import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
+import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
@@ -142,14 +140,7 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselFullXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
-        val content = response.eiFellesformat.msgHead.documents?.firstOrNull()?.refDoc?.content
-        val xmlMarshaller = when {
-            content == null -> egenandelForesporselFullXmlMarshaller
-            content.egenandelSvar != null -> egenandelForesporselXmlMarshaller
-            content.egenandelSvarV2 != null -> egenandelForesporselV2XmlMarshaller
-            else -> egenandelForesporselFullXmlMarshaller
-        }
+        val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
         SendInResponse(
             messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
@@ -181,14 +172,7 @@ object FagmeldingService {
             }
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselFullXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
-        val content = response.eiFellesformat.msgHead.documents?.firstOrNull()?.refDoc?.content
-        val xmlMarshaller = when {
-            content == null -> egenandelForesporselFullXmlMarshaller
-            content.egenandelSvar != null -> egenandelForesporselXmlMarshaller
-            content.egenandelSvarV2 != null -> egenandelForesporselV2XmlMarshaller
-            else -> egenandelForesporselFullXmlMarshaller
-        }
+        val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
         SendInResponse(
             messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,

@@ -36,6 +36,16 @@ private val frikortSporringClasses = listOf(
 
 private val frikortNamespacePrefixMapper = FrikortNamespacePrefixMapper()
 
+fun no.helsedir.frikort.frikorttjenester.model.MsgHead.getMinimalContentXmlMarshaller(): XmlMarshaller {
+    val content = this.documents?.firstOrNull()?.refDoc?.content
+    return when {
+        content == null -> egenandelForesporselFullXmlMarshaller
+        content.egenandelSvar != null -> egenandelForesporselXmlMarshaller
+        content.egenandelSvarV2 != null -> egenandelForesporselV2XmlMarshaller
+        else -> egenandelForesporselFullXmlMarshaller
+    }
+}
+
 val frikortSporringXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(
