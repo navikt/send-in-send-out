@@ -43,7 +43,7 @@ object FagmeldingResponseService {
             conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId,
             cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse,
             addressing = Addressing(
-                Party(listOf(toPartyId), "role"), // todo
+                Party(listOf(toPartyId), ""),
                 Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole),
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction

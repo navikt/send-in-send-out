@@ -12,9 +12,12 @@ import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingResponseService
 import no.nav.emottak.fellesformat.unmarshal
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
+import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
+import no.nav.emottak.utils.kafka.model.EventType
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -26,6 +29,7 @@ private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.kafka.EbmsOutFell
 // Denne lytteren leser Fellesformat-responsmeldinger (XML) og konverterer til SendInResponse (json) som legges på EbmsOutPayload-topic (til ebms-async).
 fun CoroutineScope.launchEbmsOutFellesformatReceiver(
     config: Config,
+    eventRegistrationService: EventRegistrationService,
     ebmsOutPayloadProducer: EbmsOutPayloadProducer
 ) {
     if (config.ebmsOutFellesformatReceiver.active) {
@@ -33,7 +37,8 @@ fun CoroutineScope.launchEbmsOutFellesformatReceiver(
             startEbmsOutFellesformatReceiver(
                 config.ebmsOutFellesformatReceiver.topic,
                 config.kafka,
-                ebmsOutPayloadProducer
+                ebmsOutPayloadProducer,
+                eventRegistrationService
             )
         }
     }
@@ -42,7 +47,8 @@ fun CoroutineScope.launchEbmsOutFellesformatReceiver(
 private suspend fun startEbmsOutFellesformatReceiver(
     topic: String,
     kafka: Kafka,
-    ebmsOutPayloadProducer: EbmsOutPayloadProducer
+    ebmsOutPayloadProducer: EbmsOutPayloadProducer,
+    eventRegistrationService: EventRegistrationService
 ) {
     log.info("Starting EbmsOutFellesformat receiver on topic: {} with groupId: {} bootstrapServers: {} autoOffsetReset: Earliest", topic, kafka.groupId, kafka.bootstrapServers)
     val receiverSettings = ReceiverSettings<String, ByteArray>(
@@ -68,7 +74,7 @@ private suspend fun startEbmsOutFellesformatReceiver(
                 record.value()?.size ?: 0
             )
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
-                processMessage(recordKey, record.value(), ebmsOutPayloadProducer)
+                processMessage(recordKey, record.value(), ebmsOutPayloadProducer, eventRegistrationService)
                 record.offset.acknowledge()
                 log.debug("EbmsOutFellesformat acknowledged offset: {} on partition: {}", record.offset(), record.partition())
             }
@@ -78,11 +84,12 @@ private suspend fun startEbmsOutFellesformatReceiver(
 suspend fun processMessage(
     recordKey: String,
     payload: ByteArray,
-    ebmsOutPayloadProducer: EbmsOutPayloadProducer
+    ebmsOutPayloadProducer: EbmsOutPayloadProducer,
+    eventRegistrationService: EventRegistrationService
 ) {
     val fellesformat = unmarshal(payload.toString(Charsets.UTF_8), EIFellesformat::class.java)
 
-    log.info("EbmsOutFellesformat processing message")
+    log.info("EbmsOutFellesformat processing message from fagsystem")
 
     val mdcData = mapOf(
         "record_key" to recordKey,
@@ -94,7 +101,16 @@ suspend fun processMessage(
 
     return withContext(MDCContext(mdcData)) {
         val sendInResponse = FagmeldingResponseService.getResponse(fellesformat)
+        eventRegistrationService.registerEvent(
+            EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
+            requestId = sendInResponse.requestId.parseOrGenerateUuid(),
+            messageId = "",
+            conversationId = sendInResponse.conversationId
+        )
+        eventRegistrationService.registerEventMessageDetails(sendInResponse)
+
         val json = Json.encodeToString<SendInResponse>(sendInResponse).toByteArray()
         ebmsOutPayloadProducer.send(sendInResponse.messageId, json)
+        log.info("Message converted to SendInResponse with messageId: ${sendInResponse.messageId} and forwarded to EbmsOutPayload topic")
     }
 }

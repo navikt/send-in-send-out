@@ -46,13 +46,18 @@ object FagmeldingService {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
+                    log.info("Inntektsforesporsel is processed synchronously")
                     getInntektsforesporsel(sendInRequest, eventRegistrationService)
                 }
 
             SupportedServiceType.HarBorgerEgenandelFritak ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> getHarBorgerEgenandelFritakREST(sendInRequest, eventRegistrationService)
+                    true -> {
+                        log.info("HarBorgerEgenandelFritak is processed synchronously, via REST")
+                        getHarBorgerEgenandelFritakREST(sendInRequest, eventRegistrationService)
+                    }
                     false -> {
+                        log.info("HarBorgerEgenandelFritak is processed synchronously")
                         timed(meterRegistry, "frikort-sporing") {
                             getHarBorgerFrikort(sendInRequest, eventRegistrationService)
                         }
@@ -61,9 +66,13 @@ object FagmeldingService {
 
             SupportedServiceType.HarBorgerFrikort ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> getHarBorgerFrikortREST(sendInRequest, eventRegistrationService)
+                    true -> {
+                        log.info("HarBorgerFrikort is processed synchronously, via REST")
+                        getHarBorgerFrikortREST(sendInRequest, eventRegistrationService)
+                    }
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
+                            log.info("HarBorgerFrikort is processed synchronously")
                             getHarBorgerFrikort(sendInRequest, eventRegistrationService)
                         }
                     }
@@ -71,6 +80,7 @@ object FagmeldingService {
 
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
+                    log.info("HarBorgerFrikortMengde is processed synchronously")
                     getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService)
                 }
 
@@ -79,7 +89,7 @@ object FagmeldingService {
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
         }.also {
-            eventRegistrationService.registerEventMessageDetails(sendInRequest, it)
+            eventRegistrationService.registerEventMessageDetails(it)
         }.also {
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
@@ -99,6 +109,7 @@ object FagmeldingService {
         when (sendInRequest.addressing.service.toSupportedAsyncService()) {
             SupportedAsyncServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
+                    log.info("Trekkopplysning is processed asynchronously")
                     sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
                 }
             SupportedAsyncServiceType.Unsupported ->
@@ -106,7 +117,7 @@ object FagmeldingService {
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
         }
-        // todo trenger vi lagre event her ?
+        // Logging av eventer som krever respons ligger i Receiveren som mottar respons/fellesformat fra fagsystem
     }
 
     private fun Raise<Throwable>.getHarBorgerFrikortMengde(
@@ -145,7 +156,6 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        log.info("Message forwarded to HarBorgerFrikort REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             postHarBorgerFrikort(this.toFrikortsporringRequest()).also {
@@ -179,7 +189,6 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        log.info("Message forwarded to HarBorgerEgenandelFritak REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             postHarBorgerEgenandelfritak(this.toFrikortsporringRequest()).also {
@@ -276,19 +285,6 @@ object FagmeldingService {
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
-//            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-
-//            val reqPayload = sendInRequest.payload
-//            log.info("Payload in request is byte array with length: ${reqPayload.size}")
-//            val asString = reqPayload.toString(Charsets.UTF_8)
-//            log.info("Payload in request is string: $asString")
-//
-//            val messageBody = marshalTrekkopplysning(this)
-//            log.info(
-//                "Would send in trekkopplysning with body: " + messageBody
-//            )
-
             trekkopplysningService.trekkopplysning(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,

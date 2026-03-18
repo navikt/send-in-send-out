@@ -35,6 +35,7 @@ fun Route.fagmeldingRoutes(
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
+            log.info("EbmsInPayload received synchronously, processing message")
             val sendInRequest = call.receiveEither<SendInRequest>().getOrElse { error ->
                 log.error("SendInRequest mapping error", error)
                 call.respond(HttpStatusCode.BadRequest, error.localizedMessage ?: "Mapping error")
@@ -70,7 +71,7 @@ fun Route.fagmeldingRoutes(
 
                 result.fold(
                     { error ->
-                        log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
+                        log.error("Payload ${sendInRequest.payloadId} sync processing failed", error)
                         eventRegistrationService.registerEvent(
                             EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
                             requestId = sendInRequest.requestId.parseOrGenerateUuid(),
@@ -84,7 +85,7 @@ fun Route.fagmeldingRoutes(
                         )
                     },
                     { response ->
-                        log.info("Payload ${sendInRequest.payloadId} forwarding complete, returning response")
+                        log.info("Payload ${sendInRequest.payloadId} sync processing complete, returning response")
                         call.respond(response)
                     }
                 )

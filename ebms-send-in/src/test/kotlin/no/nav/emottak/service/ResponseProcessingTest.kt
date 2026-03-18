@@ -9,6 +9,7 @@ import no.kith.xmlstds.apprec._2004_11_21.AppRec
 import no.nav.emottak.ebms.kafka.EbmsOutPayloadProducer
 import no.nav.emottak.ebms.kafka.processMessage
 import no.nav.emottak.fellesformat.unmarshal
+import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -22,7 +23,8 @@ class ResponseProcessingTest {
         val fellesformatXml = this::class.java.classLoader.getResourceAsStream("svar.xml")!!
 
         val jsonKafkaProducer: EbmsOutPayloadProducer = mockk(relaxed = true)
-        processMessage("dummyKey", fellesformatXml.readAllBytes(), jsonKafkaProducer)
+        val eventRegistrationService: EventRegistrationService = mockk(relaxed = true)
+        processMessage("dummyKey", fellesformatXml.readAllBytes(), jsonKafkaProducer, eventRegistrationService)
 
         val keySentToKafka = slot<String>()
         val payloadSentToKafka = slot<ByteArray>()

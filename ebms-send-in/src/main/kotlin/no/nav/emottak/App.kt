@@ -66,7 +66,7 @@ suspend fun ResourceScope.setupServer() {
     )
 
     eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
-    eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), outPayloadProducer)
+    eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), eventRegistrationService, outPayloadProducer)
 
     server(
         Netty,

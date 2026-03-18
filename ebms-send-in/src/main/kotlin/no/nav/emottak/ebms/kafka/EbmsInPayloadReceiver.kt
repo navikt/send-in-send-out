@@ -79,13 +79,6 @@ private suspend fun startEbmsInPayloadReceiver(
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
                     processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
-//                        ?.let { (responseBody, sendInRequest) ->
-//                            val headers = listOf(
-//                                RecordHeader("cpaId", sendInRequest.cpaId.toByteArray()),
-//                                RecordHeader("refToMessageId", sendInRequest.messageId.toByteArray())
-//                            )
-//                            outPayloadProducer.send(record.key(), responseBody.toByteArray(), headers)
-//                        }
                 }.onFailure {
                     log.error("Error processing EbmsInPayload message", it)
                 }
@@ -102,8 +95,8 @@ private suspend fun processMessage(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     trekkopplysningService: TrekkopplysningService
 ) {
+    log.info("EbmsInPayload received asynchronously, processing message")
     val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
-    log.info("EbmsInPayload ${sendInRequest.payloadId} processing message")
 
     val mdcData = mapOf(
         "record_key" to recordKey,
