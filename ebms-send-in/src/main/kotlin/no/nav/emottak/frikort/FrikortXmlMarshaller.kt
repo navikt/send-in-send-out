@@ -4,23 +4,25 @@ import no.nav.emottak.util.XmlMarshaller
 import javax.xml.bind.JAXBContext
 
 private val commonClasses = listOf(
-    no.kith.xmlstds.msghead._2006_05_24.ObjectFactory::class.java,
+    no.kith.xmlstds.msghead._2006_05_24.ObjectFactory::class.java
+)
+
+private val xmldsigClasses = listOf(
     org.w3._1999.xlink.ObjectFactory::class.java,
     org.w3._2009.xmldsig11_.ObjectFactory::class.java
 )
 
 private val egenandelForesporselClasses = listOf(
-    no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel::class.java,
-    no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelSvar::class.java,
-    no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2::class.java,
-    no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2::class.java
+    no.kith.xmlstds.nav.egenandel._2010_02_01.ObjectFactory::class.java
+)
+
+private val egenandelForesporselV2Classes = listOf(
+    no.kith.xmlstds.nav.egenandel._2016_06_10.ObjectFactory::class.java
 )
 
 private val egenandelMengdeForesporselClasses = listOf(
-    no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel::class.java,
-    no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeSvar::class.java,
-    no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2::class.java,
-    no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2::class.java
+    no.kith.xmlstds.nav.egenandelmengde._2010_10_06.ObjectFactory::class.java,
+    no.kith.xmlstds.nav.egenandelmengde._2016_06_10.ObjectFactory::class.java
 )
 
 private val frikortSporringClasses = listOf(
@@ -32,12 +34,24 @@ private val frikortSporringClasses = listOf(
     no.trygdeetaten.xml.eiff._1.ObjectFactory::class.java
 )
 
+fun no.helsedir.frikort.frikorttjenester.model.MsgHead.getMinimalContentXmlMarshaller(): XmlMarshaller {
+    val content = this.documents?.firstOrNull()?.refDoc?.content
+    return when {
+        content == null -> egenandelForesporselFullXmlMarshaller
+        content.egenandelSvar != null -> egenandelForesporselXmlMarshaller
+        content.egenandelSvarV2 != null -> egenandelForesporselV2XmlMarshaller
+        else -> egenandelForesporselFullXmlMarshaller
+    }
+}
+
 val frikortSporringXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
         *(
             commonClasses +
+                xmldsigClasses +
                 frikortSporringClasses +
                 egenandelForesporselClasses +
+                egenandelForesporselV2Classes +
                 egenandelMengdeForesporselClasses
             ).toTypedArray()
     )
@@ -49,8 +63,20 @@ val egenandelForesporselXmlMarshaller = XmlMarshaller(
     )
 )
 
+val egenandelForesporselV2XmlMarshaller = XmlMarshaller(
+    JAXBContext.newInstance(
+        *(commonClasses + egenandelForesporselV2Classes).toTypedArray()
+    )
+)
+
+val egenandelForesporselFullXmlMarshaller = XmlMarshaller(
+    JAXBContext.newInstance(
+        *(commonClasses + egenandelForesporselClasses + egenandelForesporselV2Classes).toTypedArray()
+    )
+)
+
 val egenandelMengdeForesporselXmlMarshaller = XmlMarshaller(
     JAXBContext.newInstance(
-        *(commonClasses + egenandelMengdeForesporselClasses).toTypedArray()
+        *(commonClasses + xmldsigClasses + egenandelMengdeForesporselClasses).toTypedArray()
     )
 )
