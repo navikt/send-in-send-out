@@ -4,7 +4,6 @@ import no.kith.xmlstds.nav.egenandel._2010_02_01.EgenandelForesporsel
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelForesporselV2
 import no.kith.xmlstds.nav.egenandelmengde._2010_10_06.EgenandelMengdeForesporsel
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeForesporselV2
-import no.kith.xmlstds.nav.pasientliste._2010_02_01.PasientlisteForesporsel
 import no.nav.ekstern.virkemiddelokonomi.tjenester.utbetaling.v1.FinnUtbetalingListe
 import no.nav.emottak.fellesformat.MessageContentMarshaller
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
@@ -22,14 +21,6 @@ fun EIFellesformat.extractReferenceParameter(): String {
     }
 
     return when (foresporsel) {
-        is PasientlisteForesporsel -> {
-            val fnrLege = foresporsel.hentPasientliste?.fnrLege
-                ?: foresporsel.startAbonnement?.fnrLege
-                ?: foresporsel.stoppAbonnement?.fnrLege
-                ?: foresporsel.hentAbonnementStatus?.fnrLege
-
-            fnrLege?.extractBirthDay() ?: "NA"
-        }
         is FinnUtbetalingListe -> {
             foresporsel.request.bruker?.brukerId?.extractBirthDay() ?: "NA"
         }

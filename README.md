@@ -1,8 +1,8 @@
 # ebms-send-in
 
-Kotlin/Ktor-tjeneste som fungerer som **send-in**-gateway i `emottak`-plattformen. Den mottar eBMS-meldinger fra oppstrøms tjenester ([ebms-provider](https://github.com/navikt/ebxml-processor) og [ebms-async](https://github.com/navikt/ebxml-processor)), ruter dem til riktig backend-fagsystem og returnerer svaret.
+Kotlin/Ktor-tjeneste som fungerer som **send-in**-gateway. Den mottar eBMS-meldinger fra oppstrøms tjenester ([ebms-provider](https://github.com/navikt/ebxml-processor) og [ebms-async](https://github.com/navikt/ebxml-processor)), ruter dem til riktig backend-fagsystem og returnerer svaret.
 
-## Ansvar
+## Oppgaver
 
 Tjenesten videresender innkommende `SendInRequest`-meldinger til ett av følgende backends basert på `service`-feltet i forespørselens adressering:
 
@@ -14,7 +14,7 @@ Tjenesten videresender innkommende `SendInRequest`-meldinger til ett av følgend
 | `Inntektsforesporsel` | Utbetaling SOAP/CXF-tjeneste |
 | `Trekkopplysning` | IBM MQ |
 
-Alle asynkrone behandlede meldinger hendelseslogges til Kafka via `EventRegistrationService`.
+Asynkrone behandlede meldinger hendelseslogges til Kafka via `EventRegistrationService`.
 
 ## API
 
@@ -35,6 +35,9 @@ Alle asynkrone behandlede meldinger hendelseslogges til Kafka via `EventRegistra
 # Kjør kun tester
 ./gradlew test
 
+# Kjør én enkelt testklasse
+./gradlew test --tests "no.nav.emottak.FrikortPayloadIntegrationTest"
+
 # Formater kode
 ./gradlew ktlintFormat
 ```
@@ -46,7 +49,7 @@ GitHub Actions-workflows håndterer utrulling:
 - `ebms-send-in-deploy-dev.yaml` — ruller ut til dev
 - `ebms-send-in-deploy-prod.yaml` — ruller ut til prod
 
-Docker-imaget er bygget fra en distroless Java 21-base og eksponerer `build/libs/app.jar`.
+Docker-imaget er bygget fra en distroless Java 21-versjon.
 
 ## Avhengigheter
 
