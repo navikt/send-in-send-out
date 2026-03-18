@@ -127,7 +127,7 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        log.info("Message forwarded to HarBorgerFrikort REST")
+        log.debug("Message forwarded to HarBorgerFrikort REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             postHarBorgerFrikort(this.toFrikortsporringRequest()).also {
@@ -159,7 +159,7 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        log.info("Message forwarded to HarBorgerEgenandelFritak REST")
+        log.debug("Message forwarded to HarBorgerEgenandelFritak REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             postHarBorgerEgenandelfritak(this.toFrikortsporringRequest()).also {
@@ -191,6 +191,7 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
+        log.info("Message forwarded to frikorttjenester WS")
         with(sendInRequest.asEIFellesFormat()) {
             extractReferenceParameter(sendInRequest, this, eventRegistrationService)
             frikortsporring(this).also {
