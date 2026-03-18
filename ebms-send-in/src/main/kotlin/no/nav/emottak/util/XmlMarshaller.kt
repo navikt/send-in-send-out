@@ -1,13 +1,18 @@
 package no.nav.emottak.util
 
+import com.sun.xml.bind.marshaller.NamespacePrefixMapper
 import org.w3c.dom.Node
 import java.io.ByteArrayOutputStream
 import java.io.StringWriter
 import javax.xml.bind.JAXBContext
 import javax.xml.stream.XMLInputFactory
 
-class XmlMarshaller(jaxbContext: JAXBContext) {
-    private val marshaller = jaxbContext.createMarshaller()
+class XmlMarshaller(jaxbContext: JAXBContext, namespacePrefixMapper: NamespacePrefixMapper? = null) {
+    private val marshaller = jaxbContext.createMarshaller().apply {
+        if (namespacePrefixMapper != null) {
+            this.setProperty("com.sun.xml.bind.namespacePrefixMapper", namespacePrefixMapper)
+        }
+    }
     private val unmarshaller = jaxbContext.createUnmarshaller()
     private val marshallingMonitor = Any()
     private val unmarshallingMonitor = Any()

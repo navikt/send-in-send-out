@@ -11,26 +11,21 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
-import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
+import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
-import no.nav.emottak.pasientliste.PasientlisteService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
-import no.nav.emottak.util.LogLevel
-import no.nav.emottak.util.asJson
-import no.nav.emottak.util.asXml
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
-import no.nav.emottak.utils.environment.isProdEnv
 import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import org.slf4j.LoggerFactory
@@ -80,11 +75,6 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedServiceType.PasientlisteForesporsel ->
-                timed(meterRegistry, "PasientlisteForesporsel") {
-                    getPasientlisteForesporsel(sendInRequest, eventRegistrationService)
-                }
-
             SupportedServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
                     putTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
@@ -105,49 +95,6 @@ object FagmeldingService {
             messageId = "",
             conversationId = sendInResponse.conversationId
         )
-    }
-
-    private fun getPasientlisteForesporsel(
-        sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService
-    ): SendInResponse {
-        if (isProdEnv()) {
-            throw NotImplementedError(
-                "PasientlisteForesporsel is used in prod. Feature is not ready. Aborting."
-            )
-        }
-        return with(sendInRequest.asEIFellesFormat()) {
-            persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
-            log.asXml(LogLevel.DEBUG, "Wrapped message (fellesformatRequest)", this, FellesFormatXmlMarshaller)
-            PasientlisteService.pasientlisteForesporsel(this).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                    messageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId
-                )
-            }.let { fellesformatResponse ->
-                SendInResponse(
-                    messageId = Uuid.random().toString(),
-                    conversationId = sendInRequest.conversationId,
-                    addressing = sendInRequest.addressing.replyTo(
-                        fellesformatResponse.mottakenhetBlokk.ebService,
-                        fellesformatResponse.mottakenhetBlokk.ebAction
-                    ),
-                    payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                        fellesformatResponse.appRec
-                    ),
-                    requestId = Uuid.random().toString()
-                ).also {
-                    log.asJson(
-                        LogLevel.DEBUG,
-                        "Sending SendInResponse",
-                        it,
-                        SendInResponse.serializer()
-                    )
-                }
-            }
-        }
     }
 
     private fun Raise<Throwable>.getHarBorgerFrikortMengde(
@@ -189,7 +136,7 @@ object FagmeldingService {
             postHarBorgerFrikort(this.toFrikortsporringRequest())
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
+        val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
         SendInResponse(
             messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
@@ -197,7 +144,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
-            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
+            payload = xmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead.toMsgHead()
             ),
             requestId = Uuid.random().toString()
@@ -213,7 +160,7 @@ object FagmeldingService {
             postHarBorgerEgenandelfritak(this.toFrikortsporringRequest())
         }
     }.bind().let { response ->
-        log.debug("Marshalled response from new frikort: ${egenandelForesporselXmlMarshaller.marshal(response.eiFellesformat.msgHead.toMsgHead())}")
+        val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
         SendInResponse(
             messageId = Uuid.random().toString(),
             conversationId = sendInRequest.conversationId,
@@ -221,7 +168,7 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
             ),
-            payload = egenandelForesporselXmlMarshaller.marshalToByteArray(
+            payload = xmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead.toMsgHead()
             ),
             requestId = Uuid.random().toString()

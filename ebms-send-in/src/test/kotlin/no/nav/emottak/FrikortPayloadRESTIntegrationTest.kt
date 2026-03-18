@@ -13,7 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandel._2016_06_10.EgenandelSvarV2
 import no.nav.emottak.config.Configurator
-import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
+import no.nav.emottak.frikort.egenandelForesporselV2XmlMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
 import okhttp3.mockwebserver.MockResponse
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -52,7 +52,7 @@ class FrikortPayloadRESTIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = egenandelForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelForesporselV2XmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
@@ -103,7 +103,7 @@ class FrikortPayloadRESTIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val responsePayload = httpResponse.body<SendInResponse>().payload
         assertNotNull(responsePayload)
-        val msgHead = egenandelForesporselXmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
+        val msgHead = egenandelForesporselV2XmlMarshaller.unmarshal(String(responsePayload), MsgHead::class.java)
         val response = msgHead.document.map { doc -> doc.refDoc.content.any }.first().first()
         val content = response as EgenandelSvarV2
 
