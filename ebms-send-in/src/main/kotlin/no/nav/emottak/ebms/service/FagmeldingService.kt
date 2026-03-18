@@ -28,7 +28,6 @@ import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
-import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
 
@@ -44,53 +43,58 @@ object FagmeldingService {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
-                    getInntektsforesporsel(sendInRequest, eventRegistrationService)
+                    getInntektsforesporsel(sendInRequest, eventRegistrationService).also {
+                        persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
+                    }
                 }
 
             SupportedServiceType.HarBorgerEgenandelFritak ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> getHarBorgerEgenandelFritakREST(sendInRequest, eventRegistrationService)
+                    true -> getHarBorgerEgenandelFritakREST(sendInRequest)
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
-                            getHarBorgerFrikort(sendInRequest, eventRegistrationService)
+                            getHarBorgerFrikort(sendInRequest)
                         }
                     }
                 }
 
             SupportedServiceType.HarBorgerFrikort ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> getHarBorgerFrikortREST(sendInRequest, eventRegistrationService)
+                    true -> getHarBorgerFrikortREST(sendInRequest)
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
-                            getHarBorgerFrikort(sendInRequest, eventRegistrationService)
+                            getHarBorgerFrikort(sendInRequest)
                         }
                     }
                 }
 
             SupportedServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
-                    getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService)
+                    getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService).also {
+                        persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
+                    }
                 }
 
             SupportedServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
-                    getTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                    putTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
                 }
 
             SupportedServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
-        }.also {
-            eventRegistrationService.registerEventMessageDetails(sendInRequest, it)
-        }.also {
-            eventRegistrationService.registerEvent(
-                EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-                requestId = it.requestId.parseOrGenerateUuid(),
-                messageId = "",
-                conversationId = it.conversationId
-            )
         }
+    }
+
+    private fun persistEventsAndMessageDetails(eventRegistrationService: EventRegistrationService, sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
+        eventRegistrationService.registerEventMessageDetails(sendInRequest, sendInResponse)
+        eventRegistrationService.registerEvent(
+            EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
+            requestId = sendInResponse.requestId.parseOrGenerateUuid(),
+            messageId = "",
+            conversationId = sendInResponse.conversationId
+        )
     }
 
     private fun Raise<Throwable>.getHarBorgerFrikortMengde(
@@ -98,7 +102,7 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
-            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
+            persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
             frikortsporringMengde(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -124,20 +128,12 @@ object FagmeldingService {
     }
 
     private suspend fun Raise<Throwable>.getHarBorgerFrikortREST(
-        sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService
+        sendInRequest: SendInRequest
     ): SendInResponse = Either.catch {
         log.info("Message forwarded to HarBorgerFrikort REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
-            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            postHarBorgerFrikort(this.toFrikortsporringRequest()).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                    messageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId
-                )
-            }
+            log.info("Refparam: ${this.extractReferenceParameter()}")
+            postHarBorgerFrikort(this.toFrikortsporringRequest())
         }
     }.bind().let { response ->
         val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
@@ -156,20 +152,12 @@ object FagmeldingService {
     }
 
     private suspend fun Raise<Throwable>.getHarBorgerEgenandelFritakREST(
-        sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService
+        sendInRequest: SendInRequest
     ): SendInResponse = Either.catch {
         log.info("Message forwarded to HarBorgerEgenandelFritak REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
-            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            postHarBorgerEgenandelfritak(this.toFrikortsporringRequest()).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                    messageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId
-                )
-            }
+            log.info("Refparam: ${this.extractReferenceParameter()}")
+            postHarBorgerEgenandelfritak(this.toFrikortsporringRequest())
         }
     }.bind().let { response ->
         val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
@@ -188,19 +176,11 @@ object FagmeldingService {
     }
 
     private fun Raise<Throwable>.getHarBorgerFrikort(
-        sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService
+        sendInRequest: SendInRequest
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
-            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
-            frikortsporring(this).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                    messageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId
-                )
-            }
+            log.info("Refparam: ${this.extractReferenceParameter()}")
+            frikortsporring(this)
         }
     }.bind().let { response ->
         SendInResponse(
@@ -244,14 +224,14 @@ object FagmeldingService {
         )
     }
 
-    private fun Raise<Throwable>.getTrekkopplysning(
+    private fun Raise<Throwable>.putTrekkopplysning(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
             // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
-//            extractReferenceParameter(sendInRequest, this, eventRegistrationService)
+            // persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
             trekkopplysningService.trekkopplysning(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -276,12 +256,11 @@ object FagmeldingService {
             )
         }
 
-    private fun extractReferenceParameter(
+    private fun persistReferenceParameter(
         sendInRequest: SendInRequest,
-        fellesformat: EIFellesformat,
+        referenceParameter: String,
         eventRegistrationService: EventRegistrationService
     ) {
-        val referenceParameter = fellesformat.extractReferenceParameter()
         log.info("Refparam: $referenceParameter")
 
         val eventData = Json.encodeToString(
