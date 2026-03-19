@@ -31,7 +31,8 @@ import no.nav.emottak.utils.serialization.toEventDataJson
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    useAsyncIn: Boolean
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
@@ -51,15 +52,18 @@ fun Route.fagmeldingRoutes(
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
                 // midlertidig hack til vi har async kall fra ebmxl-prosessor
-                if (sendInRequest.addressing.service.toSupportedAsyncService() == SupportedAsyncServiceType.Trekkopplysning) {
-                    callTrekkopplysningAsync(
-                        sendInRequest,
-                        prometheusMeterRegistry,
-                        eventRegistrationService,
-                        trekkopplysningService,
-                        call
-                    )
-                    return@withContext
+                if (useAsyncIn) {
+                    if (sendInRequest.addressing.service.toSupportedAsyncService() == SupportedAsyncServiceType.Trekkopplysning) {
+                        log.warn("Trekkopplysning is received synchronously, and will be further processed asynchronously. However the synchronous response will be empty and probably regarded as an error.")
+                        callTrekkopplysningAsync(
+                            sendInRequest,
+                            prometheusMeterRegistry,
+                            eventRegistrationService,
+                            trekkopplysningService,
+                            call
+                        )
+                        return@withContext
+                    }
                 }
                 val result: Either<Throwable, SendInResponse> = either {
                     FagmeldingService.processRequestSynchronously(

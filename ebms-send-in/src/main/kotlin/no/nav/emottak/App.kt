@@ -25,6 +25,7 @@ import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceImpl
 import no.nav.emottak.utils.coroutines.coroutineScope
+import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.kafka.client.EventPublisherClient
 import no.nav.emottak.utils.kafka.service.EventLoggingService
 import org.slf4j.LoggerFactory
@@ -65,25 +66,38 @@ suspend fun ResourceScope.setupServer() {
         config().kafka
     )
 
-    eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
-    eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), eventRegistrationService, outPayloadProducer)
+    val useAsyncIn = getEnvVar("USE_ASYNC_IN", "false").toBoolean()
+    if (useAsyncIn) {
+        log.info("Set up to read asynchronous inbound messages from EbmsInPayload topic")
+        eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
+    } else {
+        log.info("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
+    }
+    val useAsyncOut = getEnvVar("USE_ASYNC_OUT", "false").toBoolean()
+    if (useAsyncOut) {
+        log.info("Set up to read asynchronous responses/outbound messages from Fellesformat topic")
+        eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), eventRegistrationService, outPayloadProducer)
+    } else {
+        log.info("Asynchronous outbound messages turned OFF, will not process responses/outbound messages")
+    }
 
     server(
         Netty,
         port = serverConfig.port.value,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, useAsyncIn) }
     )
 }
 
 internal fun Application.ebmsSendInModule(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    useAsyncIn: Boolean
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, useAsyncIn)
 }

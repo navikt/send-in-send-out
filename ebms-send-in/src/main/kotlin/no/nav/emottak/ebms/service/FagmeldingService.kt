@@ -14,7 +14,6 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
-import no.nav.emottak.frikort.egenandelForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
@@ -96,7 +95,7 @@ object FagmeldingService {
     }
 
     private fun persistEventsAndMessageDetails(eventRegistrationService: EventRegistrationService, sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
-        eventRegistrationService.registerEventMessageDetails(sendInRequest, sendInResponse)
+        eventRegistrationService.registerEventMessageDetails(sendInResponse)
         eventRegistrationService.registerEvent(
             EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
             requestId = sendInResponse.requestId.parseOrGenerateUuid(),

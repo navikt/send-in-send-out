@@ -83,7 +83,7 @@ abstract class PayloadIntegrationTestFelles(
 
             val trekkopplysningService: TrekkopplysningService = mockk()
             application {
-                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService)
+                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, false)
             }
             testBlock(eventRegistrationService)
         }
