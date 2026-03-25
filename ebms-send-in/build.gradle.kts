@@ -59,7 +59,6 @@ tasks {
     }
     test {
         useJUnitPlatform()
-        testLogging.showStandardStreams = true
         testLogging {
             events("passed", "skipped", "failed")
             showExceptions = true
@@ -97,7 +96,8 @@ ktlint {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
     compilerOptions {
-        freeCompilerArgs = listOf("-opt-in=kotlin.uuid.ExperimentalUuidApi,com.sksamuel.hoplite.ExperimentalHoplite")
+        optIn.add("kotlin.uuid.ExperimentalUuidApi")
+        optIn.add("com.sksamuel.hoplite.ExperimentalHoplite")
     }
 }
 
