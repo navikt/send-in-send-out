@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBContext.newInstance
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
+// todo må endre MottakenhetBlokkType i payload-xsd så role kommer til slutt, etter action
 val trekkopplysningXmlMarshaller = XmlMarshaller(
     newInstance(
         //            org.oasis_open.committees.ebxml_cppa.schema.cpp_cpa_2_0.ObjectFactory::class.java,

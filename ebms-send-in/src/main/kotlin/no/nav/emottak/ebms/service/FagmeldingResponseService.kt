@@ -1,5 +1,7 @@
 package no.nav.emottak.ebms.service
 
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
@@ -33,9 +35,17 @@ object FagmeldingResponseService {
         return PartyId(UKJENT_ID_TYPE, mottakenhetBlokk.avsender)
     }
 
-    // har ikke to-role, den må legges på av ebms-async
     fun getResponse(fellesFormatResponse: EIFellesformat): SendInResponse {
         val toPartyId = getToPartyId(fellesFormatResponse.mottakenhetBlokk)
+        val toRole =
+            when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
+                SupportedAsyncServiceType.Trekkopplysning ->
+                    "Fordringshaver"
+                SupportedAsyncServiceType.Unsupported ->
+                    throw NotImplementedError(
+                        "Service: ${fellesFormatResponse.mottakenhetBlokk.ebService} is not implemented"
+                    )
+            }
 
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
@@ -43,7 +53,7 @@ object FagmeldingResponseService {
             conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId,
             cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse,
             addressing = Addressing(
-                Party(listOf(toPartyId), ""),
+                Party(listOf(toPartyId), toRole),
                 Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole),
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction

@@ -49,8 +49,6 @@ fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
     }
 
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
-    val partnerReferanse = sendInRequest.cpaId
-
     return fellesFormatFactory.createEIFellesformatMottakenhetBlokk().apply {
         ebXMLSamtaleId = sendInRequest.conversationId
         ebAction = sendInRequest.addressing.action
@@ -67,13 +65,11 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
         orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         meldingsType = "xml"
-        this.partnerReferanse = partnerReferanse
+        this.partnerReferanse = sendInRequest.cpaId
     }
 }
 
 private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
-    val partnerReferanse = sendInRequest.cpaId
-
     // Gamle eMottak
     // - sender IKKE avsenderFnrFraDigSignatur, avsenderOrgNrFraDigSignatur, mottaksId, orgnummer. Vi tar med orgnummer.
     // - sender BLANK herIdentifikator, vi velger å ta den med
@@ -92,7 +88,7 @@ private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: Se
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
         meldingsType = "xml"
-        this.partnerReferanse = partnerReferanse
+        this.partnerReferanse = sendInRequest.cpaId
         avsenderRef = ""
 //        mottaksId = sendInRequest.messageId
 //        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
