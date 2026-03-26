@@ -49,10 +49,7 @@ fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
     }
 
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
-    val partnerReferanse = when (sendInRequest.addressing.service) {
-        "PasientlisteForesporsel" -> sendInRequest.partnerId?.toString() ?: ""
-        else -> sendInRequest.cpaId
-    }
+    val partnerReferanse = sendInRequest.cpaId
 
     return fellesFormatFactory.createEIFellesformatMottakenhetBlokk().apply {
         ebXMLSamtaleId = sendInRequest.conversationId
@@ -75,11 +72,7 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
 }
 
 private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
-    val partnerReferanse = when (sendInRequest.addressing.service) {
-        "PasientlisteForesporsel" -> sendInRequest.partnerId?.toString() ?: ""
-        "Trekkopplysning" -> sendInRequest.partnerId?.toString() ?: ""
-        else -> sendInRequest.cpaId
-    }
+    val partnerReferanse = sendInRequest.cpaId
 
     // Gamle eMottak
     // - sender IKKE avsenderFnrFraDigSignatur, avsenderOrgNrFraDigSignatur, mottaksId, orgnummer. Vi tar med orgnummer.
