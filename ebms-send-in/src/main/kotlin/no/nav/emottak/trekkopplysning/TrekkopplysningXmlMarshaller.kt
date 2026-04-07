@@ -52,7 +52,6 @@ class TrekkopplysningWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter
             // Ser ut til at den under kommer uansett
 //            super.writeAttribute("xsi:schemaLocation", "http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04 InnrapporteringTrekk-2010-02-04.xsd")
         } else {
-            println("Writting start element $localName'")
             super.writeStartElement("", localName, "")
         }
 
