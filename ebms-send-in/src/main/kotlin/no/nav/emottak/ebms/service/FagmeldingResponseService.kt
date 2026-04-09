@@ -69,42 +69,10 @@ object FagmeldingResponseService {
             response,
             SendInResponse.serializer()
         )
-        return makeHackForPossiblyConfusedRoleAndAction(response)
+        return response
     }
 
     private fun notEmpty(s: String?): Boolean {
         return s != null && s.isNotBlank()
-    }
-
-    /* Denne er for å håndtere svar fra Trekkopplysning sitt fagsystem, som ser ut til å kunne bytte om ebAction og ebRole.
-       Ser ut som role alltid skal være Ytelsesutbetaler, og action enten Kvittering eller Avvisning.
-       Satser på at det er tilstrekkelig å fange opp om en av disse 3 er feilplassert */
-    private fun makeHackForPossiblyConfusedRoleAndAction(response: SendInResponse): SendInResponse {
-        if (response.addressing.from.role in listOf("Kvittering", "Avvisning") || response.addressing.action == "Ytelsesutbetaler") {
-            log.warn("Performs hack to exchange role and action values")
-
-            val newResponse = SendInResponse(
-                messageId = response.messageId,
-                refToMessageId = response.refToMessageId,
-                conversationId = response.conversationId,
-                cpaId = response.cpaId,
-                addressing = Addressing(
-                    response.addressing.to,
-                    Party(response.addressing.from.partyId, response.addressing.action),
-                    response.addressing.service,
-                    response.addressing.from.role
-                ),
-                payload = response.payload,
-                requestId = response.requestId
-            )
-            log.asJson(
-                LogLevel.DEBUG,
-                "Sending CORRECTED SendInResponse",
-                newResponse,
-                SendInResponse.serializer()
-            )
-            return newResponse
-        }
-        return response
     }
 }
