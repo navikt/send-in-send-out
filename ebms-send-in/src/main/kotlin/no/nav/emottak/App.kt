@@ -72,14 +72,14 @@ suspend fun ResourceScope.setupServer() {
         config().kafka
     )
 
-    val useAsyncIn = fixEnvStringFromConfig(getEnvVar(USE_ASYNC_IN_KEY, "false")).toBoolean()
+    val useAsyncIn = getEnvVar(USE_ASYNC_IN_KEY, "false").fixEnvStringFromConfig().toBoolean()
     if (useAsyncIn) {
         log.info("Set up to read asynchronous inbound messages from EbmsInPayload topic")
         eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
     } else {
         log.info("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
     }
-    val useAsyncOut = fixEnvStringFromConfig(getEnvVar(USE_ASYNC_OUT_KEY, "false")).toBoolean()
+    val useAsyncOut = getEnvVar(USE_ASYNC_OUT_KEY, "false").fixEnvStringFromConfig().toBoolean()
     if (useAsyncOut) {
         log.info("Set up to read asynchronous responses/outbound messages from Fellesformat topic")
         eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), eventRegistrationService, outPayloadProducer)
@@ -110,9 +110,4 @@ internal fun Application.ebmsSendInModule(
 
 // Boolske verdier i ekstern NAIS config må/bør være tekst-strenger, ellers kan de ikke redigeres
 // De kommer da inn til applikasjonen med anførselstegnene i tekstverdien, som må fjernes for å kunne tolkes riktig.
-internal fun fixEnvStringFromConfig(s: String): String {
-    if (s != null && s.startsWith("\"") && s.endsWith("\"")) {
-        return s.replace("\"", "")
-    }
-    return s
-}
+internal fun String.fixEnvStringFromConfig() = removeSurrounding("\"")

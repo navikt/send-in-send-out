@@ -7,8 +7,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
-import no.nav.emottak.ebms.utils.SupportedServiceType
-import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
+import no.nav.emottak.ebms.utils.SupportedSyncServiceType
+import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
@@ -43,7 +43,7 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
-            SupportedServiceType.Inntektsforesporsel ->
+            SupportedSyncServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
                     log.info("Inntektsforesporsel is processed synchronously")
                     getInntektsforesporsel(sendInRequest, eventRegistrationService).also {
@@ -51,7 +51,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedServiceType.HarBorgerEgenandelFritak ->
+            SupportedSyncServiceType.HarBorgerEgenandelFritak ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
                     true -> {
                         log.info("HarBorgerEgenandelFritak is processed synchronously, via REST")
@@ -65,7 +65,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedServiceType.HarBorgerFrikort ->
+            SupportedSyncServiceType.HarBorgerFrikort ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
                     true -> {
                         log.info("HarBorgerFrikort is processed synchronously, via REST")
@@ -79,7 +79,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedServiceType.HarBorgerFrikortMengde ->
+            SupportedSyncServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
                     log.info("HarBorgerFrikortMengde is processed synchronously")
                     getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService).also {
@@ -87,7 +87,7 @@ object FagmeldingService {
                     }
                 }
 
-            SupportedServiceType.Unsupported ->
+            SupportedSyncServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )

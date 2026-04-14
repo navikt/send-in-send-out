@@ -90,9 +90,6 @@ private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: Se
         meldingsType = "xml"
         this.partnerReferanse = sendInRequest.cpaId
         avsenderRef = ""
-//        mottaksId = sendInRequest.messageId
-//        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
-//        avsenderOrgNrFraDigSignatur = "TODO4"
     }
 }
 
