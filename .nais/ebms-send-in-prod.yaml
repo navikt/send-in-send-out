@@ -65,6 +65,8 @@ spec:
       rules:
         - application: ebms-provider
         - application: ebms-async
+  envFrom:
+    - configmap: ebms-send-in
   env:
     - name: FRIKORT_URL
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
