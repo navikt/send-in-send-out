@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import no.nav.emottak.log
 import no.nav.emottak.utils.common.model.PartyId
-import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EbmsMessageDetail
@@ -24,7 +23,7 @@ interface EventRegistrationService {
         conversationId: String? = null
     )
 
-    fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse)
+    fun registerEventMessageDetails(sendInResponse: SendInResponse)
 
     companion object {
         fun serializePartyId(partyIDs: List<PartyId>): String {
@@ -68,17 +67,17 @@ class EventRegistrationServiceImpl(
         }
     }
 
-    override fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
+    override fun registerEventMessageDetails(sendInResponse: SendInResponse) {
         log.debug("Registering message with requestId: ${sendInResponse.requestId}")
 
         val requestId = sendInResponse.requestId.parseOrGenerateUuid()
 
         val ebmsMessageDetail = EbmsMessageDetail(
             requestId = requestId,
-            cpaId = sendInRequest.cpaId,
-            conversationId = sendInRequest.conversationId,
+            cpaId = sendInResponse.cpaId,
+            conversationId = sendInResponse.conversationId,
             messageId = sendInResponse.messageId,
-            refToMessageId = sendInRequest.messageId,
+            refToMessageId = sendInResponse.refToMessageId,
             fromPartyId = EventRegistrationService.serializePartyId(sendInResponse.addressing.from.partyId),
             fromRole = sendInResponse.addressing.from.role,
             toPartyId = EventRegistrationService.serializePartyId(sendInResponse.addressing.to.partyId),
@@ -117,7 +116,7 @@ class EventRegistrationServiceFake : EventRegistrationService {
         )
     }
 
-    override fun registerEventMessageDetails(sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
+    override fun registerEventMessageDetails(sendInResponse: SendInResponse) {
         log.debug("Registering message details for SendInResponse: {}", sendInResponse)
     }
 }

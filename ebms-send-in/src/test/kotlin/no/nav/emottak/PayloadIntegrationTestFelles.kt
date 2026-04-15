@@ -83,7 +83,7 @@ abstract class PayloadIntegrationTestFelles(
 
             val trekkopplysningService: TrekkopplysningService = mockk()
             application {
-                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService)
+                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, false)
             }
             testBlock(eventRegistrationService)
         }
@@ -97,7 +97,7 @@ abstract class PayloadIntegrationTestFelles(
 
     protected fun setupEventMockingService(mockEventService: EventRegistrationService): CapturingSlot<String> {
         val capturedConversationId = slot<String>()
-        every { mockEventService.registerEventMessageDetails(any(), any()) } returns Unit
+        every { mockEventService.registerEventMessageDetails(any()) } returns Unit
         every {
             mockEventService.registerEvent(
                 eventType = any<EventType>(),
@@ -119,7 +119,7 @@ abstract class PayloadIntegrationTestFelles(
         mockWebServer!!.takeRequest() // Take out our request to prevent messing up other tests
         assertEquals(HttpStatusCode.OK, httpResponse.status)
         val sendInResponse: SendInResponse = httpResponse.body<SendInResponse>()
-        verify(exactly = 1) { mockEventService.registerEventMessageDetails(any(), any()) }
+        verify(exactly = 1) { mockEventService.registerEventMessageDetails(any()) }
         verify(exactly = expectedNumberOfRegisterEventCalls) { mockEventService.registerEvent(any(), any(), any(), any(), any()) }
         assertTrue(capturedConversationId.captured == sendInResponse.conversationId) {
             "RegisterEvent should have received '${sendInResponse.conversationId}' as conversationId, but got: '${capturedConversationId.captured}'"

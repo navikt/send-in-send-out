@@ -5,12 +5,15 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
-import no.nav.emottak.ebms.utils.SupportedServiceType
-import no.nav.emottak.ebms.utils.SupportedServiceType.Companion.toSupportedService
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
+import no.nav.emottak.ebms.utils.SupportedSyncServiceType
+import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
+import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
@@ -34,53 +37,57 @@ import kotlin.uuid.Uuid
 object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
-    suspend fun processRequest(
+    suspend fun processRequestSynchronously(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
-        eventRegistrationService: EventRegistrationService,
-        trekkopplysningService: TrekkopplysningService
+        eventRegistrationService: EventRegistrationService
     ): Either<Throwable, SendInResponse> = either {
         when (sendInRequest.addressing.service.toSupportedService()) {
-            SupportedServiceType.Inntektsforesporsel ->
+            SupportedSyncServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
+                    log.info("Inntektsforesporsel is processed synchronously")
                     getInntektsforesporsel(sendInRequest, eventRegistrationService).also {
                         persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
                     }
                 }
 
-            SupportedServiceType.HarBorgerEgenandelFritak ->
+            SupportedSyncServiceType.HarBorgerEgenandelFritak ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> getHarBorgerEgenandelFritakREST(sendInRequest)
+                    true -> {
+                        log.info("HarBorgerEgenandelFritak is processed synchronously, via REST")
+                        getHarBorgerEgenandelFritakREST(sendInRequest)
+                    }
                     false -> {
+                        log.info("HarBorgerEgenandelFritak is processed synchronously")
                         timed(meterRegistry, "frikort-sporing") {
                             getHarBorgerFrikort(sendInRequest)
                         }
                     }
                 }
 
-            SupportedServiceType.HarBorgerFrikort ->
+            SupportedSyncServiceType.HarBorgerFrikort ->
                 when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> getHarBorgerFrikortREST(sendInRequest)
+                    true -> {
+                        log.info("HarBorgerFrikort is processed synchronously, via REST")
+                        getHarBorgerFrikortREST(sendInRequest)
+                    }
                     false -> {
                         timed(meterRegistry, "frikort-sporing") {
+                            log.info("HarBorgerFrikort is processed synchronously")
                             getHarBorgerFrikort(sendInRequest)
                         }
                     }
                 }
 
-            SupportedServiceType.HarBorgerFrikortMengde ->
+            SupportedSyncServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
+                    log.info("HarBorgerFrikortMengde is processed synchronously")
                     getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService).also {
                         persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
                     }
                 }
 
-            SupportedServiceType.Trekkopplysning ->
-                timed(meterRegistry, "Trekkopplysning") {
-                    putTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
-                }
-
-            SupportedServiceType.Unsupported ->
+            SupportedSyncServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
                 )
@@ -88,13 +95,33 @@ object FagmeldingService {
     }
 
     private fun persistEventsAndMessageDetails(eventRegistrationService: EventRegistrationService, sendInRequest: SendInRequest, sendInResponse: SendInResponse) {
-        eventRegistrationService.registerEventMessageDetails(sendInRequest, sendInResponse)
+        eventRegistrationService.registerEventMessageDetails(sendInResponse)
         eventRegistrationService.registerEvent(
             EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
             requestId = sendInResponse.requestId.parseOrGenerateUuid(),
             messageId = "",
             conversationId = sendInResponse.conversationId
         )
+    }
+
+    suspend fun processRequestAsynchronously(
+        sendInRequest: SendInRequest,
+        meterRegistry: MeterRegistry,
+        eventRegistrationService: EventRegistrationService,
+        trekkopplysningService: TrekkopplysningService
+    ): Either<Throwable, Unit> = either {
+        when (sendInRequest.addressing.service.toSupportedAsyncService()) {
+            SupportedAsyncServiceType.Trekkopplysning ->
+                timed(meterRegistry, "Trekkopplysning") {
+                    log.info("Trekkopplysning is processed asynchronously")
+                    sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                }
+            SupportedAsyncServiceType.Unsupported ->
+                throw NotImplementedError(
+                    "Service: ${sendInRequest.addressing.service} is not implemented"
+                )
+        }
+        // Logging av eventer som krever respons ligger i Receiveren som mottar respons/fellesformat fra fagsystem
     }
 
     private fun Raise<Throwable>.getHarBorgerFrikortMengde(
@@ -115,7 +142,9 @@ object FagmeldingService {
     }.bind().let { response ->
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
@@ -130,7 +159,6 @@ object FagmeldingService {
     private suspend fun Raise<Throwable>.getHarBorgerFrikortREST(
         sendInRequest: SendInRequest
     ): SendInResponse = Either.catch {
-        log.info("Message forwarded to HarBorgerFrikort REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             log.info("Refparam: ${this.extractReferenceParameter()}")
             postHarBorgerFrikort(this.toFrikortsporringRequest())
@@ -139,7 +167,9 @@ object FagmeldingService {
         val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
@@ -154,7 +184,6 @@ object FagmeldingService {
     private suspend fun Raise<Throwable>.getHarBorgerEgenandelFritakREST(
         sendInRequest: SendInRequest
     ): SendInResponse = Either.catch {
-        log.info("Message forwarded to HarBorgerEgenandelFritak REST")
         with(sendInRequest.asEIFellesFormatWithFrikort()) {
             log.info("Refparam: ${this.extractReferenceParameter()}")
             postHarBorgerEgenandelfritak(this.toFrikortsporringRequest())
@@ -163,7 +192,9 @@ object FagmeldingService {
         val xmlMarshaller = response.eiFellesformat.msgHead.getMinimalContentXmlMarshaller()
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService!!.value,
                 response.eiFellesformat.mottakenhetBlokk.ebAction!!
@@ -185,7 +216,9 @@ object FagmeldingService {
     }.bind().let { response ->
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
@@ -214,7 +247,9 @@ object FagmeldingService {
     }.bind().let { msgHeadResponse ->
         SendInResponse(
             messageId = Uuid.random().toString(),
+            refToMessageId = sendInRequest.messageId,
             conversationId = sendInRequest.conversationId,
+            cpaId = sendInRequest.cpaId,
             addressing = sendInRequest.addressing.replyTo(
                 sendInRequest.addressing.service,
                 msgHeadResponse.msgInfo.type.v
@@ -224,14 +259,12 @@ object FagmeldingService {
         )
     }
 
-    private fun Raise<Throwable>.putTrekkopplysning(
+    private fun Raise<Throwable>.sendTrekkopplysning(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
-    ): SendInResponse = Either.catch {
-        with(sendInRequest.asEIFellesFormat()) {
-            // todo hvis dette skal være med, må vi antagelig kunne parse hele meldingen ???? dvs trenger skjema
-            // persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
+    ) = Either.catch {
+        with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
             trekkopplysningService.trekkopplysning(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -240,21 +273,7 @@ object FagmeldingService {
                 )
             }
         }
-    }
-        .bind().let { response ->
-            SendInResponse(
-                messageId = Uuid.random().toString(),
-                conversationId = sendInRequest.conversationId,
-                addressing = sendInRequest.addressing.replyTo(
-                    sendInRequest.addressing.service,
-                    "" // response.eiFellesformat.mottakenhetBlokk.ebAction
-                ),
-                payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                    "".toByteArray()
-                ),
-                requestId = Uuid.random().toString()
-            )
-        }
+    }.bind()
 
     private fun persistReferenceParameter(
         sendInRequest: SendInRequest,

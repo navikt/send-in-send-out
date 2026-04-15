@@ -15,6 +15,7 @@ import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.Configurator.config
 import no.nav.emottak.ebms.kafka.EbmsOutPayloadProducer
 import no.nav.emottak.ebms.kafka.launchEbmsInPayloadReceiver
+import no.nav.emottak.ebms.kafka.launchEbmsOutFellesformatReceiver
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
@@ -24,9 +25,16 @@ import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceImpl
 import no.nav.emottak.utils.coroutines.coroutineScope
+import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.kafka.client.EventPublisherClient
 import no.nav.emottak.utils.kafka.service.EventLoggingService
 import org.slf4j.LoggerFactory
+
+// De fleste env-variablene hentes fra nais-yaml i dette prosjektet, så key i koden skal stemme med key i nais-yaml.
+// For de følgende feature-flaggene hentes variabelverdien fra ekstern nais-config, med følgende keys.
+// (Se https://console.nav.cloud.nais.io/team/team-emottak/dev-fss/config/ebms-send-in)
+const val USE_ASYNC_IN_KEY = "USE_ASYNC_IN"
+const val USE_ASYNC_OUT_KEY = "USE_ASYNC_OUT"
 
 internal val log = LoggerFactory.getLogger("no.nav.emottak.App")
 
@@ -64,24 +72,42 @@ suspend fun ResourceScope.setupServer() {
         config().kafka
     )
 
-    eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, outPayloadProducer, trekkopplysningService)
+    val useAsyncIn = getEnvVar(USE_ASYNC_IN_KEY, "false").fixEnvStringFromConfig().toBoolean()
+    if (useAsyncIn) {
+        log.info("Set up to read asynchronous inbound messages from EbmsInPayload topic")
+        eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
+    } else {
+        log.info("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
+    }
+    val useAsyncOut = getEnvVar(USE_ASYNC_OUT_KEY, "false").fixEnvStringFromConfig().toBoolean()
+    if (useAsyncOut) {
+        log.info("Set up to read asynchronous responses/outbound messages from Fellesformat topic")
+        eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), eventRegistrationService, outPayloadProducer)
+    } else {
+        log.info("Asynchronous outbound messages turned OFF, will not process responses/outbound messages")
+    }
 
     server(
         Netty,
         port = serverConfig.port.value,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, useAsyncIn) }
     )
 }
 
 internal fun Application.ebmsSendInModule(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    useAsyncIn: Boolean
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, useAsyncIn)
 }
+
+// Boolske verdier i ekstern NAIS config må/bør være tekst-strenger, ellers kan de ikke redigeres
+// De kommer da inn til applikasjonen med anførselstegnene i tekstverdien, som må fjernes for å kunne tolkes riktig.
+internal fun String.fixEnvStringFromConfig() = removeSurrounding("\"")
