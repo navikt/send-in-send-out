@@ -13,13 +13,14 @@ import no.nav.emottak.utils.environment.isProdEnv
 fun Application.configureRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    useAsyncIn: Boolean
 ) {
     routing {
         if (!isProdEnv()) {
             verifyMq(trekkopplysningService)
         }
-        fagmeldingRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService)
+        fagmeldingRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, useAsyncIn)
         healthcheckRoutes(prometheusMeterRegistry)
     }
 }

@@ -1,7 +1,6 @@
 package no.nav.emottak.trekkopplysning
 
 import no.nav.emottak.config.TrekkopplysningMq
-import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
@@ -16,7 +15,7 @@ class TrekkopplysningService(trekkopplysningMq: TrekkopplysningMq, val jmSclient
     }
 
     fun trekkopplysning(fellesformat: EIFellesformat) {
-        val messageBody = FellesFormatXmlMarshaller.marshal(fellesformat)
+        val messageBody = marshalTrekkopplysning(fellesformat)
         log.debug(
             "Sending in trekkopplysning with body: " + messageBody
         )

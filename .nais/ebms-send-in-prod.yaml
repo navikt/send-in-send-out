@@ -65,6 +65,8 @@ spec:
       rules:
         - application: ebms-provider
         - application: ebms-async
+  envFrom:
+    - configmap: ebms-send-in
   env:
     - name: FRIKORT_URL
       value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
@@ -82,3 +84,5 @@ spec:
       value: "P_EMOTTAK_ASYNCH"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.P231.OB04_INNRAPP_TREKK"
+    - name: NAV_HER_ID
+      value: "79768"

@@ -1,0 +1,47 @@
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+    <AppRec xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21" xmlns:xsd="http://www.w3.org/2001/XMLSchema.xsd"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.kith.no/xmlstds/apprec/2004-11-21 AppRec-v1-2004-11-21.xsd">
+        <MsgType V="APPREC"/>
+        <MIGversion>1.0 2004-11-21</MIGversion>
+        <GenDate>2026-03-10T12:56:57</GenDate>
+        <Id>f2f0f2f6-f0f3-f1f0-f1f2-f5f6f5f7f2f9</Id>
+        <Sender>
+            <Role V="SENDER"/>
+            <HCP>
+                <Inst>
+                    <Name>NAV IKT</Name>
+                    <Id>79768</Id>
+                    <TypeId V="HER" DN="HER-id"/>
+                </Inst>
+            </HCP>
+        </Sender>
+        <Receiver>
+            <Role V="RECEIVER"/>
+            <HCP>
+                <Inst>
+                    <Name>AIDN AS</Name>
+                    <Id>8139944</Id>
+                    <TypeId V="HER" DN="HER-id"/>
+                    <Dept>
+                        <Name>Økonomi og oppgjør</Name>
+                        <Id>8142626</Id>
+                        <TypeId V="HER" DN="HER-id"/>
+                    </Dept>
+                </Inst>
+            </HCP>
+        </Receiver>
+        <Status V="2" DN="Avvist"/>
+        <Error S="2.16.578.1.12.4.1.1.8124" V="B720007F" DN="Trekkvedtak finnes fra før"/>
+        <OriginalMsgId>
+            <MsgType V="INNRAPPORTERING_TREKK" DN="Innrapportering av trekk, XML, v1.1"/>
+            <IssueDate>2026-03-06T15:22:35Z</IssueDate>
+            <Id>7f41c4e9-b6bd-44a3-822b-622332b4e421</Id>
+        </OriginalMsgId>
+    </AppRec>
+    <MottakenhetBlokk ediLoggId="69abb69f-b491-4d34-aeb1-10c02c7b98b6" avsender="TODO1"
+                      ebXMLSamtaleId="91e01f3c-b754-4ea3-98fe-07c249661bba" meldingsType="xml" avsenderRef="TODO2"
+                      mottattDatotid="2026-03-10T11:56:57.181Z" partnerReferanse="nav:qass:36181"
+                      herIdentifikator="8142626" ebRole="Ytelsesutbetaler" ebService="Trekkopplysning"
+                      ebAction="Avvisning"/>
+</EI_fellesformat>
