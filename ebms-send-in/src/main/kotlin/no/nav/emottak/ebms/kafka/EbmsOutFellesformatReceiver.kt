@@ -76,15 +76,15 @@ private suspend fun startEbmsOutFellesformatReceiver(
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 try {
                     processMessage(recordKey, record.value(), ebmsOutPayloadProducer, eventRegistrationService)
-                    record.offset.acknowledge()
                     log.debug(
                         "EbmsOutFellesformat acknowledged offset: {} on partition: {}",
                         record.offset(),
                         record.partition()
                     )
                 } catch (e: Exception) {
-                    log.error("Error processing EbmsOutFellesformat message", e)
+                    log.error("Error processing EbmsOutFellesformat message with offset {}, the message WILL BE IGNORED", record.offset(), e)
                 }
+                record.offset.acknowledge()
             }
         }
 }
