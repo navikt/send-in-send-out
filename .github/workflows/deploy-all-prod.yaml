@@ -1,7 +1,0 @@
-name: "PROD: Deploy all to PROD"
-on:
-  workflow_dispatch:
-
-jobs:
-  deploy-ebms-send-in:
-    uses: ./.github/workflows/ebms-send-in-deploy-prod.yaml
