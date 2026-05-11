@@ -68,6 +68,8 @@ spec:
         - application: azure-token-generator
           namespace: aura
           cluster: dev-gcp
+  envFrom:
+    - configmap: ebms-send-in
   env:
     - name: FRIKORT_URL
       value: https://wasapp-q1.adeo.no/nav-frikort/tjenestereksterne
@@ -87,3 +89,5 @@ spec:
       value: "Q1_EMOTTAK_ASYNCH"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"
+    - name: NAV_HER_ID
+      value: "79768"
