@@ -1,4 +1,4 @@
-name: "Build and deploy ebms-send-in"
+name: "DEV: Build and deploy ebms-send-in"
 on:
   workflow_call:
   workflow_dispatch:
@@ -7,9 +7,6 @@ on:
       - main
       - dev
       - dev/**
-    paths:
-      - ebms-send-in/**
-      - .github/workflows/ebms-send-in-deploy-dev.yaml
 
 env:
   MODULE_NAME: "ebms-send-in"
