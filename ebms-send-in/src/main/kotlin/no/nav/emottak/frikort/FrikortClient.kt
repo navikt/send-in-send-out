@@ -6,7 +6,6 @@ import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.getSecret
 import no.nav.tjeneste.ekstern.frikort.v1.FrikortV1Port
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
-import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringResponse
 import no.nav.tjeneste.ekstern.frikort.v1.types.ObjectFactory
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import javax.xml.namespace.QName
@@ -27,18 +26,6 @@ fun frikortEndpoint(): FrikortV1Port {
             getSecret("$secretPath/password", "testPassword")
         )
         .get()
-}
-
-fun frikortsporring(fellesformat: EIFellesformat): FrikortsporringResponse {
-    log.debug(
-        "Sending in frikortsporring request with body: " + frikortSporringXmlMarshaller.marshal(fellesformat)
-    )
-
-    return frikortEndpoint.frikortsporring(
-        frikortObjectFactory.createFrikortsporringRequest().also { it.eiFellesformat = fellesformat }
-    ).also {
-        log.debug("Send in Frikort response " + frikortSporringXmlMarshaller.marshal(it))
-    }
 }
 
 fun frikortsporringMengde(fellesformat: EIFellesformat): FrikortsporringMengdeResponse {

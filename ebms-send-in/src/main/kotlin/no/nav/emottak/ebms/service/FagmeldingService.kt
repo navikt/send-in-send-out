@@ -14,7 +14,6 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
-import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
@@ -45,43 +44,25 @@ object FagmeldingService {
         when (sendInRequest.addressing.service.toSupportedService()) {
             SupportedSyncServiceType.Inntektsforesporsel ->
                 timed(meterRegistry, "Inntektsforesporsel") {
-                    log.info("Inntektsforesporsel is processed synchronously")
+                    log.debug("Inntektsforesporsel is processed synchronously")
                     getInntektsforesporsel(sendInRequest, eventRegistrationService).also {
                         persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
                     }
                 }
 
-            SupportedSyncServiceType.HarBorgerEgenandelFritak ->
-                when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> {
-                        log.info("HarBorgerEgenandelFritak is processed synchronously, via REST")
-                        getHarBorgerEgenandelFritakREST(sendInRequest)
-                    }
-                    false -> {
-                        log.info("HarBorgerEgenandelFritak is processed synchronously")
-                        timed(meterRegistry, "frikort-sporing") {
-                            getHarBorgerFrikort(sendInRequest)
-                        }
-                    }
-                }
+            SupportedSyncServiceType.HarBorgerEgenandelFritak -> {
+                log.debug("HarBorgerEgenandelFritak is processed synchronously via REST")
+                getHarBorgerEgenandelFritakREST(sendInRequest)
+            }
 
-            SupportedSyncServiceType.HarBorgerFrikort ->
-                when (sendInRequest.sendToRESTFrikortEndpoint()) {
-                    true -> {
-                        log.info("HarBorgerFrikort is processed synchronously, via REST")
-                        getHarBorgerFrikortREST(sendInRequest)
-                    }
-                    false -> {
-                        timed(meterRegistry, "frikort-sporing") {
-                            log.info("HarBorgerFrikort is processed synchronously")
-                            getHarBorgerFrikort(sendInRequest)
-                        }
-                    }
-                }
+            SupportedSyncServiceType.HarBorgerFrikort -> {
+                log.debug("HarBorgerFrikort is processed synchronously via REST")
+                getHarBorgerFrikortREST(sendInRequest)
+            }
 
             SupportedSyncServiceType.HarBorgerFrikortMengde ->
                 timed(meterRegistry, "frikortMengde-sporing") {
-                    log.info("HarBorgerFrikortMengde is processed synchronously")
+                    log.debug("HarBorgerFrikortMengde is processed synchronously")
                     getHarBorgerFrikortMengde(sendInRequest, eventRegistrationService).also {
                         persistEventsAndMessageDetails(eventRegistrationService, sendInRequest, it)
                     }
@@ -206,30 +187,6 @@ object FagmeldingService {
         )
     }
 
-    private fun Raise<Throwable>.getHarBorgerFrikort(
-        sendInRequest: SendInRequest
-    ): SendInResponse = Either.catch {
-        with(sendInRequest.asEIFellesFormat()) {
-            log.info("Refparam: ${this.extractReferenceParameter()}")
-            frikortsporring(this)
-        }
-    }.bind().let { response ->
-        SendInResponse(
-            messageId = Uuid.random().toString(),
-            refToMessageId = sendInRequest.messageId,
-            conversationId = sendInRequest.conversationId,
-            cpaId = sendInRequest.cpaId,
-            addressing = sendInRequest.addressing.replyTo(
-                response.eiFellesformat.mottakenhetBlokk.ebService,
-                response.eiFellesformat.mottakenhetBlokk.ebAction
-            ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
-                response.eiFellesformat.msgHead
-            ),
-            requestId = Uuid.random().toString()
-        )
-    }
-
     private fun Raise<Throwable>.getInntektsforesporsel(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
@@ -294,10 +251,3 @@ object FagmeldingService {
         )
     }
 }
-
-/**
- * Current forwarding rules:
- *  Forward nav:70079 to WS endpoint due to external bug
- *  Forward every other CPA to REST endpoint
- */
-private fun SendInRequest.sendToRESTFrikortEndpoint(): Boolean = cpaId != "nav:70079"
