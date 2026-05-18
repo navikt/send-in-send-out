@@ -21,22 +21,25 @@ object FagmeldingResponseService {
     val navHerId = getEnvVar("NAV_HER_ID", "00000")
     val HER_ID_TYPE = "HER"
     val ORGNR_ID_TYPE = "orgnummer"
+    val ENH_ID_TYPE = "ENH"
     val UKJENT_ID_TYPE = "Ukjent"
 
     // Mottakenhetblokken kommer fra den opprinnelige requestmeldingen, så ID-feltene refererer til avsender av requesten (samhandler),
     // som jo er mottaker av respons-meldingen.
-    private fun getToPartyId(mottakenhetBlokk: EIFellesformat.MottakenhetBlokk): PartyId {
-        if (notEmpty(mottakenhetBlokk.herIdentifikator)) {
-            return PartyId(HER_ID_TYPE, mottakenhetBlokk.herIdentifikator)
+    private fun getToPartyId(mottakenhetBlokk: EIFellesformat.MottakenhetBlokk): List<PartyId> {
+        return mutableListOf<PartyId>().apply {
+            if (notEmpty(mottakenhetBlokk.herIdentifikator)) {
+                add(PartyId(HER_ID_TYPE, mottakenhetBlokk.herIdentifikator))
+            }
+            if (notEmpty(mottakenhetBlokk.orgNummer)) {
+                add(PartyId(ORGNR_ID_TYPE, mottakenhetBlokk.orgNummer))
+                add(PartyId(ENH_ID_TYPE, mottakenhetBlokk.orgNummer))
+            }
         }
-        if (notEmpty(mottakenhetBlokk.orgNummer)) {
-            return PartyId(ORGNR_ID_TYPE, mottakenhetBlokk.orgNummer)
-        }
-        return PartyId(UKJENT_ID_TYPE, mottakenhetBlokk.avsender)
     }
 
     fun getResponse(fellesFormatResponse: EIFellesformat): SendInResponse {
-        val toPartyId = getToPartyId(fellesFormatResponse.mottakenhetBlokk)
+        val toPartyIds = getToPartyId(fellesFormatResponse.mottakenhetBlokk)
         val toRole =
             when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
                 SupportedAsyncServiceType.Trekkopplysning ->
@@ -53,7 +56,7 @@ object FagmeldingResponseService {
             conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId,
             cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse,
             addressing = Addressing(
-                Party(listOf(toPartyId), toRole),
+                Party(toPartyIds, toRole),
                 Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole),
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction
@@ -72,7 +75,5 @@ object FagmeldingResponseService {
         return response
     }
 
-    private fun notEmpty(s: String?): Boolean {
-        return s != null && s.isNotBlank()
-    }
+    private fun notEmpty(s: String?): Boolean = !s.isNullOrBlank()
 }

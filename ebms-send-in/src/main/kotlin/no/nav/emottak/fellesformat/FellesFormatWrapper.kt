@@ -83,7 +83,7 @@ private fun createFellesFormatMottakEnhetBlokk_Trekkopplysning(sendInRequest: Se
         ebService = sendInRequest.addressing.service
         ebRole = sendInRequest.addressing.from.role
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
-        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer")
+        orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
