@@ -142,7 +142,6 @@ dependencies {
     implementation(libs.kafka.clients)
     implementation(libs.kotlin.kafka)
     runtimeOnly(libs.jna)
-    testImplementation(kotlin("test"))
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)
     testImplementation(testLibs.ktor.server.test.host)
