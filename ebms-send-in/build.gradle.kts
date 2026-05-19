@@ -12,7 +12,7 @@ plugins {
     application
     id("io.ktor.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
-    id("org.openapi.generator") version "7.6.0"
+    id("org.openapi.generator") version "7.22.0"
 }
 
 openApiGenerate {
@@ -135,12 +135,14 @@ dependencies {
     implementation(libs.jakarta.jms.api)
     implementation(libs.ibm.mq.allclient)
     implementation(libs.kotlinx.coroutines.slf4j)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.stacktrace.decoroutinator.jvm)
     implementation(libs.jaxb.api)
     implementation(libs.javax.activation)
     implementation(libs.kafka.clients)
     implementation(libs.kotlin.kafka)
     runtimeOnly(libs.jna)
+    testImplementation(kotlin("test"))
     testImplementation(libs.apache.santuario)
     testImplementation(testLibs.junit.jupiter.api)
     testImplementation(testLibs.ktor.server.test.host)
