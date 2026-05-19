@@ -20,6 +20,7 @@ import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.log
+import no.nav.emottak.trekkopplysning.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -32,6 +33,7 @@ fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
+    syfoMeldingService: SyfoMeldingService,
     useAsyncIn: Boolean
 ) {
     authenticate(AZURE_AD_AUTH) {
@@ -60,6 +62,7 @@ fun Route.fagmeldingRoutes(
                             prometheusMeterRegistry,
                             eventRegistrationService,
                             trekkopplysningService,
+                            syfoMeldingService,
                             call
                         )
                         return@withContext
@@ -103,6 +106,7 @@ private suspend fun callTrekkopplysningAsync(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
+    syfoMeldingService: SyfoMeldingService,
     call: RoutingCall
 ) {
     val result: Either<Throwable, Unit> = either {
@@ -110,7 +114,8 @@ private suspend fun callTrekkopplysningAsync(
             sendInRequest,
             prometheusMeterRegistry,
             eventRegistrationService,
-            trekkopplysningService
+            trekkopplysningService,
+            syfoMeldingService
         ).bind()
     }
 
@@ -137,16 +142,45 @@ private suspend fun callTrekkopplysningAsync(
 }
 
 fun Route.verifyMq(
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    syfoMeldingService: SyfoMeldingService
 ) {
     get("/testMq") {
         log.info("Testing MQ......")
+        var message = ""
         try {
             trekkopplysningService.verifyConnection()
-            log.info("MQ connection OK")
-            call.respond("MQ connection OK")
+            message = "MQ connection for Trekkopplysning OK"
+            log.info(message)
         } catch (e: Exception) {
-            log.error("Error testing MQ", e)
+            message = "Error when testing MQ connection for Trekkopplysning: " + e.localizedMessage ?: e.javaClass.simpleName
+            log.error(message, e)
+        }
+        try {
+            syfoMeldingService.verifyConnection()
+            message = message + ", MQ connection for Sykmelding OK"
+            log.info(message)
+        } catch (e: Exception) {
+            message = message + ", Error when testing MQ connection for Sykmelding: " + e.localizedMessage ?: e.javaClass.simpleName
+            log.error(message, e)
+        }
+        call.respond(message)
+    }
+}
+
+fun Route.sendTestSykmelding(
+    syfoMeldingService: SyfoMeldingService
+) {
+    get("/testSykmelding") {
+        log.info("Sending Sykmelding test message......")
+        try {
+            val fellesformatXml = this::class.java.classLoader.getResourceAsStream("tmp_testsykemelding.xml")!!.readAllBytes().decodeToString()
+            log.info("Will send Sykmelding: " + fellesformatXml)
+            syfoMeldingService.sendMessage(fellesformatXml)
+            log.info("Sykmelding sent")
+            call.respond("Sykmelding sent")
+        } catch (e: Exception) {
+            log.error("Error sending Sykmelding", e)
             call.respond(e.localizedMessage ?: e.javaClass.simpleName)
         }
     }

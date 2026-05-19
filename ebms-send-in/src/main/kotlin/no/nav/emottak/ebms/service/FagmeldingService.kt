@@ -13,6 +13,7 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
+import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
@@ -21,6 +22,7 @@ import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
+import no.nav.emottak.trekkopplysning.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
@@ -108,13 +110,19 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
         eventRegistrationService: EventRegistrationService,
-        trekkopplysningService: TrekkopplysningService
+        trekkopplysningService: TrekkopplysningService,
+        syfoMeldingService: SyfoMeldingService
     ): Either<Throwable, Unit> = either {
         when (sendInRequest.addressing.service.toSupportedAsyncService()) {
             SupportedAsyncServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
                     log.info("Trekkopplysning is processed asynchronously")
                     sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                }
+            SupportedAsyncServiceType.Sykmelding ->
+                timed(meterRegistry, "Sykmelding") {
+                    log.info("Sykmelding is processed asynchronously")
+                    sendSykmelding(sendInRequest, eventRegistrationService, syfoMeldingService)
                 }
             SupportedAsyncServiceType.Unsupported ->
                 throw NotImplementedError(
@@ -266,6 +274,22 @@ object FagmeldingService {
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
             trekkopplysningService.trekkopplysning(this).also {
+                eventRegistrationService.registerEvent(
+                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                    sendInRequest.requestId.parseOrGenerateUuid(),
+                    sendInRequest.messageId
+                )
+            }
+        }
+    }.bind()
+
+    private fun Raise<Throwable>.sendSykmelding(
+        sendInRequest: SendInRequest,
+        eventRegistrationService: EventRegistrationService,
+        syfoMeldingService: SyfoMeldingService
+    ) = Either.catch {
+        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
+            syfoMeldingService.sykmelding(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),

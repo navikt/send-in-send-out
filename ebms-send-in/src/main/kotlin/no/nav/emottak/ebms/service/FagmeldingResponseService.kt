@@ -44,6 +44,8 @@ object FagmeldingResponseService {
             when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
                 SupportedAsyncServiceType.Trekkopplysning ->
                     "Fordringshaver"
+                SupportedAsyncServiceType.Sykmelding ->
+                    "Sykmelder"
                 SupportedAsyncServiceType.Unsupported ->
                     throw NotImplementedError(
                         "Service: ${fellesFormatResponse.mottakenhetBlokk.ebService} is not implemented"

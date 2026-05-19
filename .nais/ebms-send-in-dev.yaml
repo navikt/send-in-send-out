@@ -91,3 +91,9 @@ spec:
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"
     - name: NAV_HER_ID
       value: "79768"
+    - name: SYFO_MQ_HOST
+      value: "mqls04.preprod.local"
+    - name: SYFO_MQ_QMGR
+      value: "MQLS04"
+    - name: SYFO_MQ_QUEUE
+      value: "QA.Q1_SYFOSMMOTTAK.INPUT"

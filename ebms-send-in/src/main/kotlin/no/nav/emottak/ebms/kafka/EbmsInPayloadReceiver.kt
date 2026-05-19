@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingService
+import no.nav.emottak.trekkopplysning.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -31,7 +32,8 @@ fun CoroutineScope.launchEbmsInPayloadReceiver(
     config: Config,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    syfoMeldingService: SyfoMeldingService
 ) {
     if (config.ebmsInPayloadReceiver.active) {
         launch(Dispatchers.IO) {
@@ -40,7 +42,8 @@ fun CoroutineScope.launchEbmsInPayloadReceiver(
                 config.kafka,
                 eventRegistrationService,
                 prometheusMeterRegistry,
-                trekkopplysningService
+                trekkopplysningService,
+                syfoMeldingService
             )
         }
     }
@@ -51,7 +54,8 @@ private suspend fun startEbmsInPayloadReceiver(
     kafka: Kafka,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    syfoMeldingService: SyfoMeldingService
 ) {
     log.info("Starting EbmsInPayload receiver on topic: {} with groupId: {} bootstrapServers: {} autoOffsetReset: Earliest", topic, kafka.groupId, kafka.bootstrapServers)
     val receiverSettings = ReceiverSettings<String, ByteArray>(
@@ -78,7 +82,7 @@ private suspend fun startEbmsInPayloadReceiver(
             )
             withContext(MDCContext(mapOf("record_key" to recordKey))) {
                 runCatching {
-                    processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService)
+                    processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService, syfoMeldingService)
                 }.onFailure {
                     log.error("Error processing EbmsInPayload message", it)
                 }
@@ -93,7 +97,8 @@ private suspend fun processMessage(
     payload: ByteArray,
     eventRegistrationService: EventRegistrationService,
     prometheusMeterRegistry: PrometheusMeterRegistry,
-    trekkopplysningService: TrekkopplysningService
+    trekkopplysningService: TrekkopplysningService,
+    syfoMeldingService: SyfoMeldingService
 ) {
     log.info("EbmsInPayload received asynchronously, processing message")
     val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
@@ -111,7 +116,8 @@ private suspend fun processMessage(
             sendInRequest,
             prometheusMeterRegistry,
             eventRegistrationService,
-            trekkopplysningService
+            trekkopplysningService,
+            syfoMeldingService
         ).fold(
             { error ->
                 log.error("EbmsInPayload ${sendInRequest.payloadId} async forwarding failed", error)
