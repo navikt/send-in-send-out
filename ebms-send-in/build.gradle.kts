@@ -136,7 +136,6 @@ dependencies {
     implementation(libs.ibm.mq.allclient)
     implementation(libs.kotlinx.coroutines.slf4j)
     implementation(libs.kotlinx.datetime)
-    implementation(libs.stacktrace.decoroutinator.jvm)
     implementation(libs.jaxb.api)
     implementation(libs.javax.activation)
     implementation(libs.kafka.clients)

@@ -23,7 +23,6 @@ logback-classic = "1.5.18"
 logback-logstash = "8.1"
 micrometer-registry-prometheus = "1.12.4"
 saaj-impl = "1.5.1"
-stacktrace-decoroutinator-jvm = "2.3.8"
 suspendapp = "0.5.0"
 token-validation-ktor = "5.0.15"
 
@@ -73,7 +72,6 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 logback-logstash = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logback-logstash" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer-registry-prometheus" }
 saaj-impl = { module = "com.sun.xml.messaging.saaj:saaj-impl", version.ref = "saaj-impl" }
-stacktrace-decoroutinator-jvm = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator-jvm" }
 token-validation-ktor-v3 = { module = "no.nav.security:token-validation-ktor-v3", version.ref = "token-validation-ktor" }
 
 [bundles]
