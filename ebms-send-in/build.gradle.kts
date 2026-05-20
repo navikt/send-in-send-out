@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.kotlin.dsl.testLibs
 
@@ -48,9 +49,10 @@ sourceSets {
 
 tasks {
     shadowJar {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         mergeServiceFiles()
         transform(AppendingTransformer::class.java) {
-            this.resource = "META-INF/cxf/bus-extensions.txt"
+            resource.set("META-INF/cxf/bus-extensions.txt")
         }
         archiveFileName.set("app.jar")
     }
