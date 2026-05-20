@@ -1,0 +1,17 @@
+[versions]
+junit = "5.9.2"
+junit-platform = "1.9.2"
+ktor-server-test = "3.0.3"
+mock-oauth2-server = "2.1.2"
+mockk = "1.13.10"
+testcontainers = "1.19.0"
+
+[libraries]
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-server-test" }
+mock-oauth2-server = { module = "no.nav.security:mock-oauth2-server", version.ref = "mock-oauth2-server" }
+mockk-dsl-jvm = { module = "io.mockk:mockk-dsl-jvm", version.ref = "mockk" }
+mockk-jvm = { module = "io.mockk:mockk-jvm", version.ref = "mockk" }
+testcontainers-kafka = { module = "org.testcontainers:kafka", version.ref = "testcontainers" }

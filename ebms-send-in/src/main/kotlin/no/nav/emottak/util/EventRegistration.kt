@@ -59,7 +59,9 @@ class EventRegistrationServiceImpl(
         log.debug("Registering event: {}", event)
 
         scope.launch {
-            eventLoggingService.logEvent(event).onSuccess {
+            runCatching {
+                eventLoggingService.logEvent(event)
+            }.onSuccess {
                 log.debug("Event registered successfully")
             }.onFailure { e ->
                 log.error("Error while registering event: ${Exception(e).getErrorMessage()}", e)
@@ -89,7 +91,9 @@ class EventRegistrationServiceImpl(
         log.debug("Publishing message details: {}", ebmsMessageDetail)
 
         scope.launch {
-            eventLoggingService.logMessageDetails(ebmsMessageDetail).onSuccess {
+            runCatching {
+                eventLoggingService.logMessageDetails(ebmsMessageDetail)
+            }.onSuccess {
                 log.debug("Message details published successfully")
             }.onFailure { e ->
                 log.error("Error while registering message details: ${Exception(e).getErrorMessage()}", e)
