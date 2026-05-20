@@ -1,4 +1,4 @@
-package no.nav.emottak.trekkopplysning
+package no.nav.emottak.ebms.service
 
 import com.ibm.mq.jms.MQQueueConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants

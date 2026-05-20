@@ -34,6 +34,13 @@ fun SendInRequest.asEIFellesFormat_Sykmelding(): EIFellesformat =
         logContents(msgHead)
     }
 
+fun SendInRequest.asEIFellesFormat_Legemelding(): EIFellesformat =
+    fellesFormatFactory.createEIFellesformat().apply {
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Legemelding(this@asEIFellesFormat_Legemelding)
+        msgHead = unmarshal(this@asEIFellesFormat_Legemelding.payload.toString(Charsets.UTF_8), MsgHead::class.java)
+        logContents(msgHead)
+    }
+
 fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(this@asEIFellesFormatWithFrikort)
@@ -104,6 +111,30 @@ private fun createFellesFormatMottakEnhetBlokk_Sykmelding(sendInRequest: SendInR
         ediLoggId = sendInRequest.messageId
         meldingsType = "xml"
         this.partnerReferanse = sendInRequest.cpaId
+        avsenderRef = "" // todo OK?
+    }
+}
+
+// todo antar vi legger på dette for å identifisere nye emottak
+const val NYE_EMOTTAK_ID_PREFIX = "nye-emottak-"
+
+// <MottakenhetBlokk ediLoggId="ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" avsender="12345678910" ebXMLSamtaleId="1234"
+// avsenderRef="00123456789" avsenderFnrFraDigSignatur="20086600138" mottattDatotid="2026-04-08T00:00:00.000+02:00"
+// ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
+private fun createFellesFormatMottakEnhetBlokk_Legemelding(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
+    return fellesFormatFactory.createEIFellesformatMottakenhetBlokk().apply {
+        ebXMLSamtaleId = sendInRequest.conversationId
+        ebAction = sendInRequest.addressing.action
+        ebService = sendInRequest.addressing.service
+        ebRole = sendInRequest.addressing.from.role
+//        herIdentifikator = ""
+//        orgNummer = ""
+        avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
+        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA" // todo OK?
+        mottattDatotid = Instant.now().toXmlGregorianCalendar()
+        ediLoggId = NYE_EMOTTAK_ID_PREFIX + sendInRequest.messageId
+//        meldingsType = "xml"
+//        this.partnerReferanse = sendInRequest.cpaId
         avsenderRef = "" // todo OK?
     }
 }

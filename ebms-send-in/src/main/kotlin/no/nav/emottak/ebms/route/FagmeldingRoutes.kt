@@ -19,8 +19,9 @@ import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.receiveEither
+import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.log
-import no.nav.emottak.trekkopplysning.SyfoMeldingService
+import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -34,6 +35,7 @@ fun Route.fagmeldingRoutes(
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
     syfoMeldingService: SyfoMeldingService,
+    legeMeldingService: LegeMeldingService,
     useAsyncIn: Boolean
 ) {
     authenticate(AZURE_AD_AUTH) {
@@ -63,6 +65,7 @@ fun Route.fagmeldingRoutes(
                             eventRegistrationService,
                             trekkopplysningService,
                             syfoMeldingService,
+                            legeMeldingService,
                             call
                         )
                         return@withContext
@@ -107,6 +110,7 @@ private suspend fun callTrekkopplysningAsync(
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
     syfoMeldingService: SyfoMeldingService,
+    legeMeldingService: LegeMeldingService,
     call: RoutingCall
 ) {
     val result: Either<Throwable, Unit> = either {
@@ -115,7 +119,8 @@ private suspend fun callTrekkopplysningAsync(
             prometheusMeterRegistry,
             eventRegistrationService,
             trekkopplysningService,
-            syfoMeldingService
+            syfoMeldingService,
+            legeMeldingService
         ).bind()
     }
 
@@ -143,7 +148,8 @@ private suspend fun callTrekkopplysningAsync(
 
 fun Route.verifyMq(
     trekkopplysningService: TrekkopplysningService,
-    syfoMeldingService: SyfoMeldingService
+    syfoMeldingService: SyfoMeldingService,
+    legeMeldingService: LegeMeldingService
 ) {
     get("/testMq") {
         log.info("Testing MQ......")
@@ -162,6 +168,14 @@ fun Route.verifyMq(
             log.info(message)
         } catch (e: Exception) {
             message = message + ", Error when testing MQ connection for Sykmelding: " + e.localizedMessage ?: e.javaClass.simpleName
+            log.error(message, e)
+        }
+        try {
+            legeMeldingService.verifyConnection()
+            message = message + ", MQ connection for Legemelding OK"
+            log.info(message)
+        } catch (e: Exception) {
+            message = message + ", Error when testing MQ connection for Legemelding: " + e.localizedMessage ?: e.javaClass.simpleName
             log.error(message, e)
         }
         call.respond(message)

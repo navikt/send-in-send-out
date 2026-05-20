@@ -22,7 +22,8 @@ import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
-import no.nav.emottak.trekkopplysning.SyfoMeldingService
+import no.nav.emottak.legemelding.LegeMeldingService
+import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
@@ -111,7 +112,8 @@ object FagmeldingService {
         meterRegistry: MeterRegistry,
         eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService,
-        syfoMeldingService: SyfoMeldingService
+        syfoMeldingService: SyfoMeldingService,
+        legeMeldingService: LegeMeldingService
     ): Either<Throwable, Unit> = either {
         when (sendInRequest.addressing.service.toSupportedAsyncService()) {
             SupportedAsyncServiceType.Trekkopplysning ->
@@ -123,6 +125,11 @@ object FagmeldingService {
                 timed(meterRegistry, "Sykmelding") {
                     log.info("Sykmelding is processed asynchronously")
                     sendSykmelding(sendInRequest, eventRegistrationService, syfoMeldingService)
+                }
+            SupportedAsyncServiceType.Legemelding ->
+                timed(meterRegistry, "Legemelding") {
+                    log.info("Legemelding is processed asynchronously")
+                    sendLegemelding(sendInRequest, eventRegistrationService, legeMeldingService)
                 }
             SupportedAsyncServiceType.Unsupported ->
                 throw NotImplementedError(
@@ -290,6 +297,22 @@ object FagmeldingService {
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Sykmelding()) {
             syfoMeldingService.sykmelding(this).also {
+                eventRegistrationService.registerEvent(
+                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                    sendInRequest.requestId.parseOrGenerateUuid(),
+                    sendInRequest.messageId
+                )
+            }
+        }
+    }.bind()
+
+    private fun Raise<Throwable>.sendLegemelding(
+        sendInRequest: SendInRequest,
+        eventRegistrationService: EventRegistrationService,
+        legeMeldingService: LegeMeldingService
+    ) = Either.catch {
+        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
+            legeMeldingService.legemelding(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),

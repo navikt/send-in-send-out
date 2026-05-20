@@ -74,14 +74,14 @@ spec:
       value: /secret/srvtokt
     - name: SERVICEUSERMQ_SECRET_PATH
       value: /secret/srvemottakmq
-    - name: TREKKOPPL_MQ_HOST
+    - name: MQ_HOST
       value: "mpls04.adeo.no"
-    - name: TREKKOPPL_MQ_PORT
+    - name: MQ_PORT
       value: "1414"
-    - name: TREKKOPPL_MQ_QMGR
-      value: "MPLS04"
-    - name: TREKKOPPL_MQ_CHANNEL
+    - name: MQ_CHANNEL
       value: "P_EMOTTAK_ASYNCH"
+    - name: MQ_QMGR
+      value: "MPLS04"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.P231.OB04_INNRAPP_TREKK"
     - name: NAV_HER_ID

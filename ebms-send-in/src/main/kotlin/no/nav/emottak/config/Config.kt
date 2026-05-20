@@ -15,6 +15,7 @@ data class Config(
     val frikorttjenester: FrikortTjenester,
     val trekkOpplysningMq: MqConfig,
     val syfoMq: MqConfig,
+    val paleMq: MqConfig,
     val azureAuth: AzureAuth
 )
 

@@ -1,11 +1,11 @@
-package no.nav.emottak.trekkopplysning
+package no.nav.emottak.legemelding
 
 import no.nav.emottak.config.MqConfig
 import no.nav.emottak.ebms.service.JmsClient
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
-class TrekkopplysningService(mqConfig: MqConfig, val jmSclient: JmsClient = JmsClient(mqConfig), val queue: String = mqConfig.queue) {
+class LegeMeldingService(syfoMq: MqConfig, val jmSclient: JmsClient = JmsClient(syfoMq), val queue: String = syfoMq.queue) {
 
     fun sendMessage(messageText: String) {
         jmSclient.sendMessage(queue, messageText)
@@ -15,10 +15,10 @@ class TrekkopplysningService(mqConfig: MqConfig, val jmSclient: JmsClient = JmsC
         jmSclient.verifyConnection()
     }
 
-    fun trekkopplysning(fellesformat: EIFellesformat) {
-        val messageBody = marshalTrekkopplysning(fellesformat)
+    fun legemelding(fellesformat: EIFellesformat) {
+        val messageBody = marshalLegemelding(fellesformat)
         log.debug(
-            "Sending in trekkopplysning with body: " + messageBody
+            "Sending in legemelding with body: " + messageBody
         )
 
         sendMessage(messageBody)

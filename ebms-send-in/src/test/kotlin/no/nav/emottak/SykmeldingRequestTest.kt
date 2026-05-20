@@ -2,7 +2,7 @@ package no.nav.emottak
 
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
-import no.nav.emottak.trekkopplysning.marshalSykmelding
+import no.nav.emottak.sykmelding.marshalSykmelding
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party

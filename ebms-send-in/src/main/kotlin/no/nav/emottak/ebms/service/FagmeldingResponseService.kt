@@ -3,6 +3,7 @@ package no.nav.emottak.ebms.service
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.fellesformat.NYE_EMOTTAK_ID_PREFIX
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.utils.common.model.Addressing
@@ -46,15 +47,22 @@ object FagmeldingResponseService {
                     "Fordringshaver"
                 SupportedAsyncServiceType.Sykmelding ->
                     "Sykmelder"
+                SupportedAsyncServiceType.Legemelding ->
+                    "Lege"
                 SupportedAsyncServiceType.Unsupported ->
                     throw NotImplementedError(
                         "Service: ${fellesFormatResponse.mottakenhetBlokk.ebService} is not implemented"
                     )
             }
 
+        // todo foreløpig løsning
+        var refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId
+        if (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService() == SupportedAsyncServiceType.Legemelding) {
+            refToMessageId = refToMessageId.removePrefix(NYE_EMOTTAK_ID_PREFIX)
+        }
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
-            refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId,
+            refToMessageId = refToMessageId,
             conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId ?: "",
             cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse ?: "",
             addressing = Addressing(
@@ -68,6 +76,7 @@ object FagmeldingResponseService {
             ),
             requestId = Uuid.random().toString()
         )
+
         log.asJson(
             LogLevel.DEBUG,
             "Sending SendInResponse",

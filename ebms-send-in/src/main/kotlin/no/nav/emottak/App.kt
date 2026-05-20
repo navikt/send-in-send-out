@@ -21,7 +21,8 @@ import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
-import no.nav.emottak.trekkopplysning.SyfoMeldingService
+import no.nav.emottak.legemelding.LegeMeldingService
+import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceImpl
@@ -69,7 +70,10 @@ suspend fun ResourceScope.setupServer() {
     log.info("Set up Trekkopplysning to use MQ with host ${trekkOpplysningMq.hostname}, port ${trekkOpplysningMq.port}, queueManager ${trekkOpplysningMq.queueManager}, channel ${trekkOpplysningMq.channel}, queue ${trekkOpplysningMq.queue}")
     val syfoMq = config().syfoMq
     val syfoMeldingService = SyfoMeldingService(syfoMq)
-    log.info("Set up Syfomeldinger to use MQ with host ${syfoMq.hostname}, port ${syfoMq.port}, queueManager ${syfoMq.queueManager}, channel ${syfoMq.channel}, queue ${syfoMq.queue}")
+    log.info("Set up Sykemeldinger to use MQ with host ${syfoMq.hostname}, port ${syfoMq.port}, queueManager ${syfoMq.queueManager}, channel ${syfoMq.channel}, queue ${syfoMq.queue}")
+    val paleMq = config().paleMq
+    val legeMeldingService = LegeMeldingService(paleMq)
+    log.info("Set up Legemeldinger to use MQ with host ${paleMq.hostname}, port ${paleMq.port}, queueManager ${paleMq.queueManager}, channel ${paleMq.channel}, queue ${paleMq.queue}")
 
     val outPayloadProducer = EbmsOutPayloadProducer(
         config().ebmsOutPayloadProducer.topic,
@@ -79,7 +83,7 @@ suspend fun ResourceScope.setupServer() {
     val useAsyncIn = getEnvVar(USE_ASYNC_IN_KEY, "false").fixEnvStringFromConfig().toBoolean()
     if (useAsyncIn) {
         log.info("Set up to read asynchronous inbound messages from EbmsInPayload topic")
-        eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService, syfoMeldingService)
+        eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService, syfoMeldingService, legeMeldingService)
     } else {
         log.info("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
     }
@@ -95,7 +99,7 @@ suspend fun ResourceScope.setupServer() {
         Netty,
         port = serverConfig.port.value,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, useAsyncIn) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn) }
     )
 }
 
@@ -104,13 +108,14 @@ internal fun Application.ebmsSendInModule(
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
     syfoMeldingService: SyfoMeldingService,
+    legeMeldingService: LegeMeldingService,
     useAsyncIn: Boolean
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
     configureCoroutineDebugger()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, useAsyncIn)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn)
 }
 
 // Boolske verdier i ekstern NAIS config må/bør være tekst-strenger, ellers kan de ikke redigeres

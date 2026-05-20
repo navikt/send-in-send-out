@@ -1,24 +1,35 @@
-package no.nav.emottak.trekkopplysning
+package no.nav.emottak.legemelding
 
 import no.nav.emottak.util.XmlMarshaller
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import no.trygdeetaten.xml.eiff._1.ObjectFactory
+import org.apache.cxf.common.jaxb.NamespaceMapper
 import org.apache.cxf.staxutils.DelegatingXMLStreamWriter
 import java.io.StringWriter
 import javax.xml.bind.JAXBContext.newInstance
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-val sykmeldingXmlMarshaller = XmlMarshaller(
+val legemeldingXmlMarshaller = XmlMarshaller(
+
     newInstance(
         ObjectFactory::class.java
+    ),
+    NamespaceMapper(
+        mapOf(
+            "" to "http://www.kith.no/xmlstds/msghead/2006-05-24",
+            "ns2" to "http://www.w3.org/2000/09/xmldsig#",
+            "ns3" to "http://www.trygdeetaten.no/xml/eiff/1/",
+            "ns4" to "http://www.kith.no/xmlstds/legeerklaring/2008-06-06"
+        )
     )
 )
 
-fun marshalSykmelding(fellesFormat: EIFellesformat): String {
+fun marshalLegemelding(fellesFormat: EIFellesformat): String {
     val writer = StringWriter()
-    val xmlStreamWriter = SykmeldingWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(writer))
-    sykmeldingXmlMarshaller.marshal(fellesFormat, xmlStreamWriter)
+//    val xmlStreamWriter = LegemeldingWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(writer))
+    val xmlStreamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(writer)
+    legemeldingXmlMarshaller.marshal(fellesFormat, xmlStreamWriter)
     return writer.toString()
 }
 
@@ -26,7 +37,7 @@ fun marshalSykmelding(fellesFormat: EIFellesformat): String {
 // Det brukes IKKE namespace-prefikser, hvert namespace deklareres som default NS inni topp-elementet det hører til
 // Virker som mottakerne må ha det EKSAKT som kodet under
 // --- I tillegg SKAL service-action-role attributtene i MottakenhetBlokk komme i helt spesifikk rekkefølge.
-class SykmeldingWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter(writer) {
+class LegemeldingWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter(writer) {
 
     // I element hvor attributtene skal komme spesialsortert, cacher vi dem til slutt-tagen skal skrives
     var deferAttributeWritingToElementEnd: Boolean = false
