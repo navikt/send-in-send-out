@@ -3,7 +3,6 @@ package no.nav.emottak
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
 import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
-import no.nav.emottak.util.toXmlGregorianCalendar
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
@@ -49,29 +48,9 @@ class TrekkopplysningRequestTest {
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
-    fun removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml: String): String {
-        return xml.replace(">\\s+".toRegex(), ">")
-            .replace("\\s+<".toRegex(), "<")
-            .replace("\\s+".toRegex(), " ")
-    }
-
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("UTC"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
     )
-
-    fun loggDiff(expectedXml: String, xml: String) {
-        val x1 = removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml)
-        val x2 = removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml)
-        var i = 0
-        var j = 0
-        while (i < x1.length && j < x2.length) {
-            if (x1[i] != x2[j]) {
-                println("Mismatch at index $i: expected '${x1[i]}', got '${x2[j]}'")
-            }
-            i++
-            j++
-        }
-    }
 
     val payloadFromExpectedXmlFile = """
     <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">

@@ -55,11 +55,11 @@ object FagmeldingResponseService {
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
             refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId,
-            conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId,
-            cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse,
+            conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId ?: "",
+            cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse ?: "",
             addressing = Addressing(
                 Party(toPartyIds, toRole),
-                Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole),
+                Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole ?: ""),
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction
             ),

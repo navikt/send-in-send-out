@@ -3,7 +3,6 @@ package no.nav.emottak
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.trekkopplysning.marshalSykmelding
-import no.nav.emottak.util.toXmlGregorianCalendar
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
@@ -51,12 +50,6 @@ class SykmeldingRequestTest {
         // Verify that we get expected XML (remove whitespace)
         val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding.xml")!!.readAllBytes().decodeToString()
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    fun removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml: String): String {
-        return xml.replace(">\\s+".toRegex(), ">")
-            .replace("\\s+<".toRegex(), "<")
-            .replace("\\s+".toRegex(), " ")
     }
 
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
