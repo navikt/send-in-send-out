@@ -2,6 +2,7 @@ package no.nav.emottak.trekkopplysning
 
 import no.kith.xmlstds.apprec._2004_11_21.AppRec
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.unmarshal
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.junit.jupiter.api.Test
@@ -60,10 +61,13 @@ class TrekkopplysningMarshallerTest {
         val kvittering = unmarshal(loadResource("trekkopplysning_kvittering.xml"), EIFellesformat::class.java)
         val avvisning = unmarshal(loadResource("trekkopplysning_avvisning.xml"), EIFellesformat::class.java)
 
-        println("=== kvittering (MsgHead) ===")
-        println(msgheadTrekkopplysningMarshaller.marshal(kvittering.msgHead))
+        println("=== kvittering (MsgHead) using old marshaller ===")
+        println(String(FellesFormatXmlMarshaller.marshalToByteArray(kvittering.msgHead)))
 
-        println("=== avvisning (AppRec) via minimalTrekkopplysningAppRecMarshaller ===")
+        println("=== kvittering (MsgHead) ===")
+        println(String(msgheadTrekkopplysningMarshaller.marshalToByteArray(kvittering.msgHead)))
+
+        println("=== avvisning (AppRec) via apprecTrekkopplysningMarshaller ===")
         println(String(apprecTrekkopplysningMarshaller.marshalToByteArray(avvisning.appRec)))
     }
 
