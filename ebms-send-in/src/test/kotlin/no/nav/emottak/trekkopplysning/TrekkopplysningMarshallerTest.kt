@@ -16,6 +16,26 @@ class TrekkopplysningMarshallerTest {
         this::class.java.classLoader.getResourceAsStream("trekkopplysning/$filename")!!
             .readAllBytes().toString(Charsets.UTF_8)
 
+    @Test
+    fun `kvittering - top-level MsgHead element has no namespace prefix`() {
+        val fellesformat = unmarshal(loadResource("trekkopplysning_kvittering.xml"), EIFellesformat::class.java)
+
+        val xml = msgheadTrekkopplysningMarshaller.marshal(fellesformat.msgHead)
+
+        assertTrue(xml.contains("<MsgHead "), "Expected unprefixed <MsgHead> but got:\n$xml")
+        assertTrue(xml.contains("""xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24""""), "Expected default namespace on MsgHead")
+    }
+
+    @Test
+    fun `avvisning - top-level AppRec element has no namespace prefix`() {
+        val fellesformat = unmarshal(loadResource("trekkopplysning_avvisning.xml"), EIFellesformat::class.java)
+
+        val xml = String(apprecTrekkopplysningMarshaller.marshalToByteArray(fellesformat.appRec))
+
+        assertTrue(xml.contains("<AppRec "), "Expected unprefixed <AppRec> but got:\n$xml")
+        assertTrue(xml.contains("""xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21""""), "Expected default namespace on AppRec")
+    }
+
     // kvittering contains a MsgHead inside EI_fellesformat
 
     @Test
