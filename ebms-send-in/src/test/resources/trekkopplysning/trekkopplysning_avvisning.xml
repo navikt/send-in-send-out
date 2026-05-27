@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <AppRec xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21" xmlns:xsd="http://www.w3.org/2001/XMLSchema.xsd"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.kith.no/xmlstds/apprec/2004-11-21 AppRec-v1-2004-11-21.xsd">
+        <MsgType V="APPREC"/>
+        <MIGversion>1.0 2004-11-21</MIGversion>
+        <GenDate>2026-05-04T14:26:03</GenDate>
+        <Id>f2f0f2f6-f0f5-f0f4-f1f4-f2f6f0f3f4f8</Id>
+        <Sender>
+            <Role V="SENDER"/>
+            <HCP>
+                <Inst>
+                    <Name>NAV IKT</Name>
+                    <Id>79768</Id>
+                    <TypeId V="HER" DN="HER-id"/>
+                </Inst>
+            </HCP>
+        </Sender>
+        <Receiver>
+            <Role V="RECEIVER"/>
+            <HCP>
+                <Inst>
+                    <Name>Helseplattformen</Name>
+                    <Id>12345678</Id>
+                    <TypeId V="HER" DN="HER-id"/>
+                    <Dept>
+                        <Name>Meldingsmottak</Name>
+                        <Id>12345678</Id>
+                        <TypeId V="HER" DN="HER-id"/>
+                    </Dept>
+                </Inst>
+            </HCP>
+        </Receiver>
+        <Status V="2" DN="Avvist"/>
+        <Error S="2.16.578.1.12.4.1.1.8124" V="00000404" DN="BAQR1131E: API requester
+        Pdl-Proxy-API_1.0.0.Q1 is not reg"/>
+        <OriginalMsgId>
+            <MsgType V="INNRAPPORTERING_TREKK" DN="Innrapportering av
+        trekk, XML, v1.1"/>
+            <IssueDate>2026-05-04T14:24:55</IssueDate>
+            <Id>1a02f929-7fc9-4e27-98ff-a8f5c29803b7</Id>
+        </OriginalMsgId>
+    </AppRec>
+    <MottakenhetBlokk avsender="12345678"
+                      avsenderRef="OID.2.5.4.97=NTRNO-922307814, CN=HELSEPLATTFORMEN AS TEST, O=HELSEPLATTFORMEN AS, C=NO"
+                      ebAction="Avvisning" ebRole="Ytelsesutbetaler" ebService="Trekkopplysning"
+                      ebXMLSamtaleId="1a02f929-7fc9-4e27-98ff-a8f5c29803b7" ediLoggId="2605041426hemi32596.1"
+                      herIdentifikator="" meldingsType="xml" mottattDatotid="2026-05-04T14:26:03"
+                      partnerReferanse="17395"/>
+</EI_fellesformat>

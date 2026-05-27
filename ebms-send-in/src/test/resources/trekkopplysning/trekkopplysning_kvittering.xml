@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">
+        <MsgInfo>
+            <Type V="INNRAPPORTERING_TREKK_RETUR" DN="Innrapportering av trekk til NAV retur"/>
+            <MIGversion>v1.2 2006-05-24</MIGversion>
+            <GenDate>2026-04-21T13:25:16</GenDate>
+            <MsgId>f2f0f2f6-f0f4-f2f1-f1f3-f2f5f1f6f9f4</MsgId>
+            <Ack V="N" DN="Nei"/>
+            <ConversationRef>
+                <RefToParent>283bc4b8-019a-4526-9912-fc2ddde2efa2</RefToParent>
+                <RefToConversation>283bc4b8-019a-4526-9912-fc2ddde2efa2</RefToConversation>
+            </ConversationRef>
+            <Sender>
+                <Organisation>
+                    <OrganisationName>NAV IKT</OrganisationName>
+                    <Ident>
+                        <Id>79768</Id>
+                        <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                    </Ident>
+                </Organisation>
+            </Sender>
+            <Receiver>
+                <Organisation>
+                    <OrganisationName>TEST AS</OrganisationName>
+                    <Ident>
+                        <Id>12345678</Id>
+                        <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                    </Ident>
+                    <Organisation>
+                        <OrganisationName>Økonomi og oppgjør</OrganisationName>
+                        <Ident>
+                            <Id>12345678</Id>
+                            <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                        </Ident>
+                    </Organisation>
+                </Organisation>
+            </Receiver>
+            <Patient>
+                <FamilyName>RETNINGSLINJE</FamilyName>
+                <GivenName>KONSEKVENT</GivenName>
+                <Sex V="1" DN="Mann"/>
+                <Ident>
+                    <Id>***********</Id>
+                    <TypeId V="FNR" S="2.16.578.1.12.4.1.1.8116" DN="Fødselsnummer"/>
+                </Ident>
+            </Patient>
+        </MsgInfo>
+        <Document>
+            <ContentDescription>SV:SV:Innrapportering av trekk til NAV</ContentDescription>
+            <RefDoc>
+                <IssueDate V="2026-04-21T11:24:55Z"/>
+                <MsgType V="XML" DN="XML-instans"/>
+                <Content>
+                    <InnrapporteringTrekk
+                            xsi:schemaLocation="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04 InnrapporteringTrekk-2010-02-04.xsd"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xmlns="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04"
+                            xmlns:fk1="http://www.kith.no/xmlstds/felleskomponent1">
+                        <Identifisering>
+                            <KreditorTrekkId>787e4fe2-70f0-40d1-9799-14be30fb421</KreditorTrekkId>
+                            <NavTrekkId>0014035554</NavTrekkId>
+                            <DebitorId>
+                                <fk1:Id>***********</fk1:Id>
+                                <fk1:TypeId V="FNR"/>
+                            </DebitorId>
+                        </Identifisering>
+                        <Periode>
+                            <PeriodeFomDato>2026-06-01</PeriodeFomDato>
+                        </Periode>
+                        <Kreditor>
+                            <TSSId>***********</TSSId>
+                            <OrgNr>
+                                <fk1:Id>***********</fk1:Id>
+                                <fk1:TypeId V=""/>
+                            </OrgNr>
+                            <Navn>TEST TEST</Navn>
+                            <Adresse>
+                                <fk1:StreetAdr>postboks 145</fk1:StreetAdr>
+                                <fk1:PostalCode>5701</fk1:PostalCode>
+                            </Adresse>
+                            <Ref></Ref>
+                            <Kontonr>***********</Kontonr>
+                            <KID></KID>
+                        </Kreditor>
+                    </InnrapporteringTrekk>
+                </Content>
+            </RefDoc>
+        </Document>
+    </MsgHead>
+    <MottakenhetBlokk ediLoggId="3fec5045-7c58-488f-8e47-7ad7468bb372" avsender="12345678"
+                      ebXMLSamtaleId="e2623e62-56e7-41ea-b18e-0046d1ba853f" meldingsType="xml" avsenderRef=""
+                      mottattDatotid="2026-04-21T11:25:16.872Z" orgNummer="Ukjent" partnerReferanse="nav:qass:36181"
+                      herIdentifikator="12345678" ebAction="Kvittering" ebRole="Ytelsesutbetaler"
+                      ebService="Trekkopplysning"/>
+</EI_fellesformat>
+
+

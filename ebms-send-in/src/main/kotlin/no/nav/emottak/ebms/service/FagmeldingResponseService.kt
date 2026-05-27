@@ -3,6 +3,8 @@ package no.nav.emottak.ebms.service
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.trekkopplysning.apprecTrekkopplysningMarshaller
+import no.nav.emottak.trekkopplysning.msgheadTrekkopplysningMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.utils.common.model.Addressing
@@ -50,6 +52,16 @@ object FagmeldingResponseService {
                     )
             }
 
+        val xmlMarshaller = when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
+            SupportedAsyncServiceType.Trekkopplysning ->
+                if (fellesFormatResponse.msgHead != null) {
+                    msgheadTrekkopplysningMarshaller
+                } else {
+                    apprecTrekkopplysningMarshaller
+                }
+            SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
+        }
+
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
             refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId,
@@ -61,7 +73,7 @@ object FagmeldingResponseService {
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = xmlMarshaller.marshalToByteArray(
                 fellesFormatResponse.msgHead ?: fellesFormatResponse.appRec
             ),
             requestId = Uuid.random().toString()
