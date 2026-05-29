@@ -16,13 +16,13 @@ jna = "5.12.1"
 kafka-clients = "3.5.1"
 kotlin-kafka = "0.4.1"
 kotlinx-coroutines-slf4j = "1.7.3"
-kotlinx-datetime = "0.8.0"
-ktor = "3.5.0"
+ktor = "3.1.3"
 labai-jsr305x-annotations = "0.0.2"
 logback-classic = "1.5.18"
 logback-logstash = "8.1"
 micrometer-registry-prometheus = "1.12.4"
 saaj-impl = "1.5.1"
+stacktrace-decoroutinator-jvm = "2.3.8"
 suspendapp = "0.5.0"
 token-validation-ktor = "5.0.15"
 
@@ -53,7 +53,6 @@ jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
 kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka-clients" }
 kotlin-kafka = { module = "io.github.nomisrev:kotlin-kafka", version.ref = "kotlin-kafka" }
 kotlinx-coroutines-slf4j = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-slf4j", version.ref = "kotlinx-coroutines-slf4j" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-cio-jvm = { module = "io.ktor:ktor-client-cio-jvm", version.ref = "ktor" }
@@ -72,6 +71,7 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 logback-logstash = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logback-logstash" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer-registry-prometheus" }
 saaj-impl = { module = "com.sun.xml.messaging.saaj:saaj-impl", version.ref = "saaj-impl" }
+stacktrace-decoroutinator-jvm = { module = "dev.reformator.stacktracedecoroutinator:stacktrace-decoroutinator-jvm", version.ref = "stacktrace-decoroutinator-jvm" }
 token-validation-ktor-v3 = { module = "no.nav.security:token-validation-ktor-v3", version.ref = "token-validation-ktor" }
 
 [bundles]
