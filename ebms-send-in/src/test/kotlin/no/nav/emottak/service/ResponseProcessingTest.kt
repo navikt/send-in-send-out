@@ -12,8 +12,8 @@ import no.nav.emottak.fellesformat.unmarshal
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.uuid.Uuid
 
 class ResponseProcessingTest {
