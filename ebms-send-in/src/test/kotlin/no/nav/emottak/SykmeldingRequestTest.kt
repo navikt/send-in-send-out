@@ -25,9 +25,7 @@ class SykmeldingRequestTest {
     @Test
     fun verifyRequestAsXml() {
         // Set up request with values that fit example file sykemelding.xml
-        // Removed unnecessary duplicated name space defs from orig file
-        // Also these, which are not really redundant:  xmlns="http://www.kith.no/xmlstds/felleskomponent1",
-        //  xmlns="http://www.kith.no/xmlstds/base64container",  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+        // Removed xsd locations, removed NS "http://www.kith.no/xmlstds/felleskomponent1"
         // Also removed some signature stuff with difficult formatting
         // CHanged sequence of attributes in MottakEnhetBlokk, blanked some attrs also
         val request = SendInRequest(
@@ -50,6 +48,7 @@ class SykmeldingRequestTest {
         // Verify that we get expected XML (remove whitespace)
         val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding.xml")!!.readAllBytes().decodeToString()
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+//        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
@@ -57,14 +56,14 @@ class SykmeldingRequestTest {
     )
 
     val payloadFromExpectedXmlFile = """
-    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">
+    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <MsgInfo>
             <Type DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
             <MIGversion>v1.2 2006-05-24</MIGversion>
             <GenDate>2026-04-15T09:12:12</GenDate>
             <MsgId>042e41d8-c28a-4e04-b6e6-d3b4670d9558</MsgId>
             <Ack DN="Ja" V="J"/>
-            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <ComMethod DN="EDI" V="EDI"/>
                 <Organisation>
                     <OrganisationName>Pridok Test 5</OrganisationName>
@@ -104,7 +103,7 @@ class SykmeldingRequestTest {
                     </HealthcareProfessional>
                 </Organisation>
             </Sender>
-            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <ComMethod DN="EDI" V="EDI"/>
                 <Organisation>
                     <OrganisationName>NAV IKT</OrganisationName>
@@ -134,14 +133,14 @@ class SykmeldingRequestTest {
                 <MsgType DN="XML-instans" V="XML"/>
                 <Id>19412bc0-d1ed-45f2-8f67-00282b064347</Id>
                 <Content>
-                    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                         <MsgInfo>
                             <Type DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
                             <MIGversion>v1.2 2006-05-24</MIGversion>
                             <GenDate>2026-04-15T09:11:35</GenDate>
                             <MsgId>042e41d8-c28a-4e04-b6e6-d3b4670d9558</MsgId>
                             <Ack DN="Ja" V="J"/>
-                            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                                 <ComMethod DN="EDI" V="EDI"/>
                                 <Organisation>
                                     <OrganisationName>Pridok Test 5</OrganisationName>
@@ -181,7 +180,7 @@ class SykmeldingRequestTest {
                                     </HealthcareProfessional>
                                 </Organisation>
                             </Sender>
-                            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                                 <ComMethod DN="EDI" V="EDI"/>
                                 <Organisation>
                                     <OrganisationName>NAV IKT</OrganisationName>
@@ -205,7 +204,7 @@ class SykmeldingRequestTest {
                                     </TeleCom>
                                 </Organisation>
                             </Receiver>
-                            <Patient xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Patient xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                                 <FamilyName>Akrobat</FamilyName>
                                 <GivenName>Selvhjulpen</GivenName>
                                 <Ident>
@@ -226,7 +225,7 @@ class SykmeldingRequestTest {
                                 <MsgType DN="XML-instans" V="XML"/>
                                 <Id>19412bc0-d1ed-45f2-8f67-00282b064347</Id>
                                 <Content>
-                                    <HelseOpplysningerArbeidsuforhet xmlns="http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                    <HelseOpplysningerArbeidsuforhet xmlns="http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                                         <RegelSettVersjon>2</RegelSettVersjon>
                                         <SyketilfelleStartDato>2026-04-15</SyketilfelleStartDato>
                                         <Pasient>
@@ -235,12 +234,12 @@ class SykmeldingRequestTest {
                                                 <Fornavn>Selvhjulpen</Fornavn>
                                             </Navn>
                                             <Fodselsnummer>
-                                                <Id xmlns="http://www.kith.no/xmlstds/felleskomponent1">07706830752</Id>
-                                                <TypeId xmlns="http://www.kith.no/xmlstds/felleskomponent1" DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
+                                                <Id>07706830752</Id>
+                                                <TypeId DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
                                             </Fodselsnummer>
                                             <KontaktInfo>
-                                                <TypeTelecom xmlns="http://www.kith.no/xmlstds/felleskomponent1" DN="Mobiltelefon " V="MC "/>
-                                                <TeleAddress xmlns="http://www.kith.no/xmlstds/felleskomponent1" V="mob:48157585"/>
+                                                <TypeTelecom DN="Mobiltelefon " V="MC "/>
+                                                <TeleAddress V="mob:48157585"/>
                                             </KontaktInfo>
                                             <NavnFastlege>FYLDIG OVERGANG</NavnFastlege>
                                         </Pasient>
@@ -278,17 +277,17 @@ class SykmeldingRequestTest {
                                                 <Fornavn>FYLDIG</Fornavn>
                                             </Navn>
                                             <Id>
-                                                <Id xmlns="http://www.kith.no/xmlstds/felleskomponent1">16707590312</Id>
-                                                <TypeId xmlns="http://www.kith.no/xmlstds/felleskomponent1" DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
+                                                <Id>16707590312</Id>
+                                                <TypeId DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
                                             </Id>
                                             <Id>
-                                                <Id xmlns="http://www.kith.no/xmlstds/felleskomponent1">565600304</Id>
-                                                <TypeId xmlns="http://www.kith.no/xmlstds/felleskomponent1" DN="HPR-nummer" S="2.16.578.1.12.4.1.1.8116" V="HPR"/>
+                                                <Id>565600304</Id>
+                                                <TypeId DN="HPR-nummer" S="2.16.578.1.12.4.1.1.8116" V="HPR"/>
                                             </Id>
                                             <Adresse/>
                                             <KontaktInfo>
-                                                <TypeTelecom xmlns="http://www.kith.no/xmlstds/felleskomponent1" DN="Hovedtelefon" V="HP"/>
-                                                <TeleAddress xmlns="http://www.kith.no/xmlstds/felleskomponent1" V="tel:12345678"/>
+                                                <TypeTelecom DN="Hovedtelefon" V="HP"/>
+                                                <TeleAddress V="tel:12345678"/>
                                             </KontaktInfo>
                                         </Behandler>
                                         <AvsenderSystem>
@@ -359,11 +358,14 @@ class SykmeldingRequestTest {
                         </Transform>
                         <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
                     </Transforms>
-                    <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"
-                    />
+                    <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
                     <DigestValue>NE1PGnSZ1QAL9lEUnEcjI+eebrk6FZrm2BYt/J48150=</DigestValue>
                 </Reference>
             </SignedInfo>
+           <KeyInfo>
+                <X509Data>
+                </X509Data>
+            </KeyInfo>
         </Signature>
     </MsgHead>
     """

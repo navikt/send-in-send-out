@@ -33,24 +33,42 @@ class SykmeldingWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter(writ
     val cachedAttributesWithValues: MutableMap<String, String> = mutableMapOf()
 
     // Attributtene som skal sorteres, i ønsket rekkefølge
-    val attributesToSort = listOf("DN", "S", "V")
+    val attributesToSort = listOf("DN", "S", "V", "avsender", "ediLoggId")
 
     override fun writeStartElement(namespaceURI: String?, localName: String?, prefix: String?) {
         if (localName == "EI_fellesformat") {
             super.writeStartElement("", "EI_fellesformat", "")
             super.writeDefaultNamespace("http://www.trygdeetaten.no/xml/eiff/1/")
+            super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
         } else if (localName == "MsgHead") {
             super.writeStartElement("", "MsgHead", "")
             super.writeDefaultNamespace("http://www.kith.no/xmlstds/msghead/2006-05-24")
+            super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        } else if (localName == "Sender") {
+            super.writeStartElement("", "Sender", "")
+            super.writeDefaultNamespace("http://www.kith.no/xmlstds/msghead/2006-05-24")
+            super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        } else if (localName == "Receiver") {
+            super.writeStartElement("", "Receiver", "")
+            super.writeDefaultNamespace("http://www.kith.no/xmlstds/msghead/2006-05-24")
+            super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+        } else if (localName == "Patient") {
+            super.writeStartElement("", "Patient", "")
+            super.writeDefaultNamespace("http://www.kith.no/xmlstds/msghead/2006-05-24")
+            super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
         } else if (localName == "Signature") {
             super.writeStartElement("", "Signature", "")
             super.writeDefaultNamespace("http://www.w3.org/2000/09/xmldsig#")
-        } else if (localName == "InnrapporteringTrekk") {
-            super.writeStartElement("", "InnrapporteringTrekk", "")
-            super.writeDefaultNamespace("http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04")
+        } else if (localName == "HelseOpplysningerArbeidsuforhet") {
+            super.writeStartElement("", "HelseOpplysningerArbeidsuforhet", "")
+            super.writeDefaultNamespace("http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01")
             super.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-            // Ser ut til at den under kommer uansett
-//            super.writeAttribute("xsi:schemaLocation", "http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04 InnrapporteringTrekk-2010-02-04.xsd")
+        } else if (localName == "Base64Container") {
+            super.writeStartElement("", "Base64Container", "")
+            super.writeDefaultNamespace("http://www.kith.no/xmlstds/base64container")
+        } else if (localName == "XPath") {
+            super.writeStartElement("", "XPath", "")
+            super.writeAttribute("xmlns:SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/")
         } else {
             super.writeStartElement("", localName, "")
         }
