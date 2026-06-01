@@ -4,6 +4,8 @@ import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.NYE_EMOTTAK_ID_PREFIX
+import no.nav.emottak.trekkopplysning.apprecTrekkopplysningMarshaller
+import no.nav.emottak.trekkopplysning.msgheadTrekkopplysningMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.utils.common.model.Addressing
@@ -55,6 +57,16 @@ object FagmeldingResponseService {
                     )
             }
 
+        val xmlMarshaller = when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
+            SupportedAsyncServiceType.Trekkopplysning ->
+                if (fellesFormatResponse.msgHead != null) {
+                    msgheadTrekkopplysningMarshaller
+                } else {
+                    apprecTrekkopplysningMarshaller
+                }
+            SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
+        }
+
         // todo foreløpig løsning
         var refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId
         if (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService() == SupportedAsyncServiceType.Legemelding) {
@@ -71,7 +83,7 @@ object FagmeldingResponseService {
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = xmlMarshaller.marshalToByteArray(
                 fellesFormatResponse.msgHead ?: fellesFormatResponse.appRec
             ),
             requestId = Uuid.random().toString()
