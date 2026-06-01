@@ -64,6 +64,8 @@ object FagmeldingResponseService {
                 } else {
                     apprecTrekkopplysningMarshaller
                 }
+            SupportedAsyncServiceType.Sykmelding -> FellesFormatXmlMarshaller
+            SupportedAsyncServiceType.Legemelding -> FellesFormatXmlMarshaller
             SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
         }
 
