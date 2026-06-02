@@ -2,7 +2,6 @@ package no.nav.emottak.fellesformat
 
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.nav.emottak.frikort.frikortSporringXmlMarshaller
-import no.nav.emottak.log
 import no.nav.emottak.util.toXmlGregorianCalendar
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -24,21 +23,33 @@ fun SendInRequest.asEIFellesFormat_Trekkopplysning(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Trekkopplysning(this@asEIFellesFormat_Trekkopplysning)
         msgHead = unmarshal(this@asEIFellesFormat_Trekkopplysning.payload.toString(Charsets.UTF_8), MsgHead::class.java)
-        logContents(msgHead)
+    }
+
+fun SendInRequest.asEIFellesFormat_TrekkopplysningWithoutPayload(): EIFellesformat =
+    fellesFormatFactory.createEIFellesformat().apply {
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Trekkopplysning(this@asEIFellesFormat_TrekkopplysningWithoutPayload)
     }
 
 fun SendInRequest.asEIFellesFormat_Sykmelding(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Sykmelding(this@asEIFellesFormat_Sykmelding)
         msgHead = unmarshal(this@asEIFellesFormat_Sykmelding.payload.toString(Charsets.UTF_8), MsgHead::class.java)
-        logContents(msgHead)
+    }
+
+fun SendInRequest.asEIFellesFormat_SykmeldingWithoutPayload(): EIFellesformat =
+    fellesFormatFactory.createEIFellesformat().apply {
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Sykmelding(this@asEIFellesFormat_SykmeldingWithoutPayload)
     }
 
 fun SendInRequest.asEIFellesFormat_Legemelding(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Legemelding(this@asEIFellesFormat_Legemelding)
         msgHead = unmarshal(this@asEIFellesFormat_Legemelding.payload.toString(Charsets.UTF_8), MsgHead::class.java)
-        logContents(msgHead)
+    }
+
+fun SendInRequest.asEIFellesFormat_LegemeldingWithoutPayload(): EIFellesformat =
+    fellesFormatFactory.createEIFellesformat().apply {
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Legemelding(this@asEIFellesFormat_LegemeldingWithoutPayload)
     }
 
 fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
@@ -46,6 +57,20 @@ fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk(this@asEIFellesFormatWithFrikort)
         msgHead = frikortSporringXmlMarshaller.unmarshal(this@asEIFellesFormatWithFrikort.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }
+
+fun insertPayload(xmlWithoutPayload: String, payload: String): String {
+    val tokenWithoutNamespace = "<MottakenhetBlokk "
+    val insertPos = xmlWithoutPayload.indexOf(tokenWithoutNamespace)
+    if (insertPos != -1) return xmlWithoutPayload.substring(0, insertPos) + payload + xmlWithoutPayload.substring(insertPos)
+
+    val tokenWithNamespace = Regex("<ns\\d+:MottakenhetBlokk ")
+    val found = tokenWithNamespace.find(xmlWithoutPayload)
+    if (found != null) {
+        val insertPos = found.range.first
+        return xmlWithoutPayload.substring(0, insertPos) + payload + xmlWithoutPayload.substring(insertPos)
+    }
+    return xmlWithoutPayload
+}
 
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
     return fellesFormatFactory.createEIFellesformatMottakenhetBlokk().apply {
@@ -141,22 +166,3 @@ private fun createFellesFormatMottakEnhetBlokk_Legemelding(sendInRequest: SendIn
 
 private fun List<PartyId>.getIdentifikatorByType(vararg types: String) =
     this.firstOrNull { types.contains(it.type) }?.value ?: UKJENT_ID
-
-private fun logContents(msgHead: MsgHead) {
-    val doc = msgHead.document
-    if (doc.isEmpty()) {
-        log.info("No documents in msgHead")
-    } else {
-        log.info("Docs: " + doc.size)
-        val firstDoc = doc.first()
-        val firstRefDoc = firstDoc.refDoc
-        val firstContent = firstRefDoc.content.any
-        if (firstContent.isEmpty()) {
-            log.info("No content in refDoc")
-        } else {
-            log.info("Content: " + firstContent.size)
-            val firstContentAny = firstContent.first()
-            log.info("Content: " + firstContentAny.toString())
-        }
-    }
-}

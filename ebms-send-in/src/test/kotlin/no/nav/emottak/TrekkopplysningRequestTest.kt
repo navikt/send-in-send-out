@@ -2,6 +2,8 @@ package no.nav.emottak
 
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
+import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
+import no.nav.emottak.fellesformat.insertPayload
 import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
@@ -23,7 +25,7 @@ class TrekkopplysningRequestTest {
     // Verify that a given Trekkopplysning request is converted to the expected Fellesformat XML string
 
     @Test
-    fun verifyRequestAsXml() {
+    fun verifyRequestAsXml_unmarshal_marshal() {
         // Set up request with values that fit example file trekkopplysning.xml
         val request = SendInRequest(
             messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
@@ -46,6 +48,34 @@ class TrekkopplysningRequestTest {
         val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning.xml")!!.readAllBytes().decodeToString()
 //        loggDiff(expectedXml, xml)
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+    }
+
+    @Test
+    fun verifyRequestAsXml_insertPayload() {
+        // Set up request with values that fit example file trekkopplysning.xml
+        val request = SendInRequest(
+            messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
+            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            signedOf = "dummy", payload = "".toByteArray(),
+            addressing = Addressing(
+                service = "Trekkopplysning",
+                action = "Innmelding",
+                from = Party(role = "Fordringshaver", partyId = listOf(PartyId("HER", "8142626"), PartyId("orgnummer", "123456789"))),
+                to = Party(role = "dummy", partyId = listOf())
+            )
+        )
+        // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
+        val fellesformat = request.asEIFellesFormat_TrekkopplysningWithoutPayload()
+        val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
+        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
+        val xml = marshalTrekkopplysning(fellesformat)
+
+        val edited = insertPayload(xml, payloadFromExpectedXmlFile)
+
+        // Verify that we get expected XML (remove whitespace)
+        val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning.xml")!!.readAllBytes().decodeToString()
+//        loggDiff(expectedXml, edited)
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(edited))
     }
 
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(

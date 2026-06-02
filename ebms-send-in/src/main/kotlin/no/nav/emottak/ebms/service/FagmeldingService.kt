@@ -13,8 +13,9 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
-import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
-import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
+import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
+import no.nav.emottak.fellesformat.asEIFellesFormat_SykmeldingWithoutPayload
+import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
 import no.nav.emottak.frikort.frikortsporring
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
@@ -279,8 +280,8 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            trekkopplysningService.trekkopplysning(this).also {
+        with(sendInRequest.asEIFellesFormat_TrekkopplysningWithoutPayload()) {
+            trekkopplysningService.trekkopplysning(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -295,8 +296,8 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService,
         syfoMeldingService: SyfoMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
-            syfoMeldingService.sykmelding(this).also {
+        with(sendInRequest.asEIFellesFormat_SykmeldingWithoutPayload()) {
+            syfoMeldingService.sykmelding(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -311,8 +312,8 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService,
         legeMeldingService: LegeMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
-            legeMeldingService.legemelding(this).also {
+        with(sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload()) {
+            legeMeldingService.legemelding(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),

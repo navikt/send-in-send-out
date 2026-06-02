@@ -1,87 +1,5 @@
-package no.nav.emottak
-
-import kotlinx.datetime.Instant
-import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
-import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
-import no.nav.emottak.fellesformat.insertPayload
-import no.nav.emottak.legemelding.marshalLegemelding
-import no.nav.emottak.utils.common.model.Addressing
-import no.nav.emottak.utils.common.model.EbmsProcessing
-import no.nav.emottak.utils.common.model.Party
-import no.nav.emottak.utils.common.model.PartyId
-import no.nav.emottak.utils.common.model.SendInRequest
-import org.junit.jupiter.api.Test
-import java.time.ZoneId
-import java.util.GregorianCalendar
-import java.util.TimeZone
-import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
-import kotlin.test.assertEquals
-import kotlin.time.ExperimentalTime
-
-@OptIn(ExperimentalTime::class)
-class LegemeldingRequestTest {
-
-    // Verify that a given Legemelding request is converted to the expected Fellesformat XML string
-
-    @Test
-    fun verifyRequestAsXml_unmarshal_marshal() {
-        // Set up request with values that fit example file legemelding.xml
-        // Had to tweak namespaces, and sort attributes alphabetically
-        val request = SendInRequest(
-            messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
-            requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "20086600138", payload = payloadFromExpectedXmlFile.toByteArray(),
-            addressing = Addressing(
-                service = "Legemelding",
-                action = "Legeerklaring",
-                from = Party(role = "Lege", partyId = listOf(PartyId("orgnummer", "12345678910"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
-        val fellesformat = request.asEIFellesFormat_Legemelding()
-        val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalLegemelding(fellesformat)
-        // Verify that we get expected XML (remove whitespace)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemelding.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    @Test
-    fun verifyRequestAsXml_insertPayload() {
-        // Set up request with values that fit example file legemelding.xml
-        // Had to tweak namespaces, and sort attributes alphabetically
-        val request = SendInRequest(
-            messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
-            requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "20086600138", payload = "".toByteArray(),
-            addressing = Addressing(
-                service = "Legemelding",
-                action = "Legeerklaring",
-                from = Party(role = "Lege", partyId = listOf(PartyId("orgnummer", "12345678910"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
-        val fellesformat = request.asEIFellesFormat_LegemeldingWithoutPayload()
-        val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalLegemelding(fellesformat)
-
-        val edited = insertPayload(xml, payloadFromExpectedXmlFile)
-
-        // Verify that we get expected XML (remove whitespace) V2 has ns in MsgHead element (is removed by unmarshal-marshal version)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemeldingV2.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(edited))
-    }
-
-    fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-        GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("+02:00"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
-    )
-
-    val payloadFromExpectedXmlFile = """
+<?xml version='1.0' encoding='UTF-8'?>
+<ns3:EI_fellesformat xmlns:ns4="http://www.kith.no/xmlstds/apprec/2004-11-21"  xmlns:ns3="http://www.trygdeetaten.no/xml/eiff/1/"  xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">
     <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">
         <MsgInfo>
             <Type V="Legerkl.ring ved arbeidsuf.rhet" DN="LEGEERKL"/>
@@ -210,5 +128,7 @@ class LegemeldingRequestTest {
             </RefDoc>
         </Document>
     </MsgHead>
-        """
-}
+    <ns3:MottakenhetBlokk ediLoggId="nye-emottak-ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" avsender="12345678910" ebXMLSamtaleId="1234"
+                          avsenderRef="" avsenderFnrFraDigSignatur="20086600138" mottattDatotid="2026-04-08T00:00:00.000+02:00"
+                          ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
+</ns3:EI_fellesformat>

@@ -98,8 +98,7 @@
             </KeyInfo>
         </Signature>
     </MsgHead>
-    <MottakenhetBlokk
-            ediLoggId="69abb69f-b491-4d34-aeb1-10c02c7b98b6" avsender="8142626"
+    <MottakenhetBlokk ediLoggId="69abb69f-b491-4d34-aeb1-10c02c7b98b6" avsender="8142626"
             ebXMLSamtaleId="91e01f3c-b754-4ea3-98fe-07c249661bba" meldingsType="xml" avsenderRef=""
             mottattDatotid="2026-03-09T15:17:59.199Z" orgNummer="123456789" partnerReferanse="nav:qass:36181" herIdentifikator="8142626"
             ebAction="Innmelding" ebRole="Fordringshaver" ebService="Trekkopplysning"/>
