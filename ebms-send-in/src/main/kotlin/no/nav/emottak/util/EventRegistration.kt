@@ -30,8 +30,11 @@ interface EventRegistrationService {
             val partyId = partyIDs.firstOrNull { it.type == "orgnummer" }
                 ?: partyIDs.firstOrNull { it.type == "HER" }
                 ?: partyIDs.firstOrNull { it.type == "ENH" }
-                ?: partyIDs.first()
+                ?: partyIDs.firstOrNull()
 
+            if (partyId == null) {
+                return ""
+            }
             return "${partyId.type}:${partyId.value}"
         }
     }
