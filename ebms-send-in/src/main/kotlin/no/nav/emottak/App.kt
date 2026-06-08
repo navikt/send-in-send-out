@@ -38,6 +38,13 @@ import org.slf4j.LoggerFactory
 const val USE_ASYNC_IN_KEY = "USE_ASYNC_IN"
 const val USE_ASYNC_OUT_KEY = "USE_ASYNC_OUT"
 
+// todo så lenge vi sender noen Legemeldinger til nye og noen til gamle eMottak,
+//  bruker vi et id-prefiks for å skille ut de som hører til nye eMottak.
+// Når dette skal fjernes:
+// 1) endre asynch-router så ALLE legemeldinger går til nye emottak, uavhengig av prefiks
+// 2) fjern prefikset under og bruken av det
+const val NYE_EMOTTAK_LEGEMELDING_ID_PREFIX = "nye-emottak-"
+
 internal val log = LoggerFactory.getLogger("no.nav.emottak.App")
 
 fun main() = SuspendApp {

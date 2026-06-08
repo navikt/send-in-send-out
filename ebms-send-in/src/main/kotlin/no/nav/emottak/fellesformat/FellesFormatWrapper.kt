@@ -1,6 +1,7 @@
 package no.nav.emottak.fellesformat
 
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
+import no.nav.emottak.NYE_EMOTTAK_LEGEMELDING_ID_PREFIX
 import no.nav.emottak.frikort.frikortSporringXmlMarshaller
 import no.nav.emottak.util.toXmlGregorianCalendar
 import no.nav.emottak.utils.common.model.PartyId
@@ -140,9 +141,6 @@ private fun createFellesFormatMottakEnhetBlokk_Sykmelding(sendInRequest: SendInR
     }
 }
 
-// todo antar vi legger på dette for å identifisere nye emottak
-const val NYE_EMOTTAK_ID_PREFIX = "nye-emottak-"
-
 // <MottakenhetBlokk ediLoggId="ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" avsender="12345678910" ebXMLSamtaleId="1234"
 // avsenderRef="00123456789" avsenderFnrFraDigSignatur="20086600138" mottattDatotid="2026-04-08T00:00:00.000+02:00"
 // ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
@@ -157,7 +155,7 @@ private fun createFellesFormatMottakEnhetBlokk_Legemelding(sendInRequest: SendIn
         avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
         avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA" // todo OK?
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
-        ediLoggId = NYE_EMOTTAK_ID_PREFIX + sendInRequest.messageId
+        ediLoggId = NYE_EMOTTAK_LEGEMELDING_ID_PREFIX + sendInRequest.messageId
 //        meldingsType = "xml"
 //        this.partnerReferanse = sendInRequest.cpaId
         avsenderRef = "" // todo OK?

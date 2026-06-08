@@ -1,9 +1,9 @@
 package no.nav.emottak.ebms.service
 
+import no.nav.emottak.NYE_EMOTTAK_LEGEMELDING_ID_PREFIX
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
-import no.nav.emottak.fellesformat.NYE_EMOTTAK_ID_PREFIX
 import no.nav.emottak.trekkopplysning.apprecTrekkopplysningMarshaller
 import no.nav.emottak.trekkopplysning.msgheadTrekkopplysningMarshaller
 import no.nav.emottak.util.LogLevel
@@ -72,7 +72,7 @@ object FagmeldingResponseService {
         // todo foreløpig løsning
         var refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId
         if (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService() == SupportedAsyncServiceType.Legemelding) {
-            refToMessageId = refToMessageId.removePrefix(NYE_EMOTTAK_ID_PREFIX)
+            refToMessageId = refToMessageId.removePrefix(NYE_EMOTTAK_LEGEMELDING_ID_PREFIX)
         }
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
