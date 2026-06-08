@@ -4,6 +4,10 @@ import no.nav.emottak.NYE_EMOTTAK_LEGEMELDING_ID_PREFIX
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.legemelding.apprecLegemeldingMarshaller
+import no.nav.emottak.legemelding.msgheadLegemeldingMarshaller
+import no.nav.emottak.sykmelding.apprecSykmeldingMarshaller
+import no.nav.emottak.sykmelding.msgheadSykmeldingMarshaller
 import no.nav.emottak.trekkopplysning.apprecTrekkopplysningMarshaller
 import no.nav.emottak.trekkopplysning.msgheadTrekkopplysningMarshaller
 import no.nav.emottak.util.LogLevel
@@ -64,16 +68,24 @@ object FagmeldingResponseService {
                 } else {
                     apprecTrekkopplysningMarshaller
                 }
-            SupportedAsyncServiceType.Sykmelding -> FellesFormatXmlMarshaller
-            SupportedAsyncServiceType.Legemelding -> FellesFormatXmlMarshaller
+            SupportedAsyncServiceType.Sykmelding ->
+                if (fellesFormatResponse.msgHead != null) {
+                    msgheadSykmeldingMarshaller
+                } else {
+                    apprecSykmeldingMarshaller
+                }
+            SupportedAsyncServiceType.Legemelding ->
+                if (fellesFormatResponse.msgHead != null) {
+                    msgheadLegemeldingMarshaller
+                } else {
+                    apprecLegemeldingMarshaller
+                }
             SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
         }
 
-        // todo foreløpig løsning
-        var refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId
-        if (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService() == SupportedAsyncServiceType.Legemelding) {
-            refToMessageId = refToMessageId.removePrefix(NYE_EMOTTAK_LEGEMELDING_ID_PREFIX)
-        }
+        // todo foreløpig løsning, har kun effekt for legemelding-respons
+        val refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId.removePrefix(NYE_EMOTTAK_LEGEMELDING_ID_PREFIX)
+
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
             refToMessageId = refToMessageId,
