@@ -1,0 +1,59 @@
+
+Ved testing har vi oppdaget at fagsystemene har forskjellige krav til bruken av fellesformat.
+Siden utgangspunktet er at vi skal tilpasse oss til fagsystemene og ikke forvente noen endringer eller forbedringer i dem,
+må vi klare å generere fellesformat-XML og akseptere respons-XML nøyaktig slik fagsystemene krever det.
+Derfor er koden for hver meldingstype helt skreddersydd og kan inneholde sære "regler".
+
+
+Trekkopplysning
+===============
+
+Fagsystemet bruker egenskrevet "parsing" hvor detaljer som
+bruk av namespace og rekkefølge på attributter er vesentlige.
+
+- Det brukes IKKE namespace-prefikser, hvert namespace deklareres som default NS inni topp-elementet det hører til
+- Attributtene i MottakenhetBlokk MÅ komme i denne rekkefølgen: "ebAction", "ebRole", "ebService"
+  Uvisst hvilke krav som evt gjelder andre attributter.
+  Virker ikke som fagsystemet bruker verdiene annet enn å endre action + role i responsen
+- ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId
+
+
+Sykmelding
+==========
+
+TODO rediger dette når vi har testet
+(Basert på melding funnet på http://10.33.43.58:8000/mq/admin/msgs/MQLS04/Q1_SYFOSMMOTTAK.INPUT_BOQ,
+lagret som sykemelding.xml i resources)
+Responser funnet i loggen til asynch-router.
+
+- Ser heller ikke ut til å bruke namespace-prefikser
+- Eksempel på MottakenhetBlokk:
+    <MottakenhetBlokk avsender="912719103" avsenderFnrFraDigSignatur="06828399789"
+                      avsenderRef="OID.2.5.4.97=NTRNO-912719103, CN=PRIDOK AS - TEST, O=PRIDOK AS, C=NO"
+                      ebAction="Registrering" ebRole="Sykmelder" ebService="Sykmelding" ebXMLSamtaleId="a219014c-9739-4263-983a-6dd9fc82f8f1"
+                      ediLoggId="2604160914prid26694.1" herIdentifikator="" meldingsType="xml" mottattDatotid="2026-04-16T09:14:27"
+                      partnerReferanse="22517"/>
+  Uvisst hvilke av attributtene som brukes av fagsystem, eller om det er krav til dem
+  Svar-blokken er enklere, kun få attributter:
+    <MottakenhetBlokk ediLoggId="2604291036test30876.1" ebRole="Saksbehandler" ebService="Sykmelding" ebAction="Svar"/>
+- ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId ?
+
+
+Legemelding
+===========
+
+TODO rediger dette når vi har testet
+(Basert på melding funnet på http://10.33.43.58:8000/mq/admin/msgs/MQLS04/Q1_PALE_2.INPUT_BOQ,
+lagret som legemelding.xml i resources)
+Responser funnet i loggen til asynch-router.
+
+- Ser ut til å tåle/bruke namespace-prefikser
+- Eksempel på MottakenhetBlokk:
+    <MottakenhetBlokk ediLoggId="ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" avsender="12345678910" ebXMLSamtaleId="1234"
+                      avsenderRef="00123456789" avsenderFnrFraDigSignatur="20086600138" mottattDatotid="2026-04-08T00:00:00.000+02:00"
+                      ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
+  Uvisst hvilke av attributtene som brukes av fagsystem, eller om det er krav til dem
+  Svar-blokken er enklere, kun få attributter:
+    <MottakenhetBlokk ediLoggId="2a4a4a1e-f2e7-41af-8db0-83de06d0fda3" ebRole="Nav" ebService="Legemelding"
+                      ebAction="Svarmelding"/>
+- ediLoggId fra gamle eMottak er UUID, todo må finne annen løsning på å identifisere gammel/ny

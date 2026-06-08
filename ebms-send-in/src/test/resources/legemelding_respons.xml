@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/"
+                 xmlns:ns2="http://www.kith.no/xmlstds/apprec/2004-11-21">
+    <MottakenhetBlokk ediLoggId="nye-emottak-2a4a4a1e-f2e7-41af-8db0-83de06d0fda3" ebRole="Nav" ebService="Legemelding"
+                      ebAction="Svarmelding"/>
+    <ns2:AppRec>
+        <ns2:MsgType V="APPREC"/>
+        <ns2:MIGversion>1.0 2004-11-21</ns2:MIGversion>
+        <ns2:GenDate>2026-05-07T14:27:22.894655420</ns2:GenDate>
+        <ns2:Id>2a4a4a1e-f2e7-41af-8db0-83de06d0fda3</ns2:Id>
+        <ns2:Sender>
+            <ns2:HCP>
+                <ns2:Inst>
+                    <ns2:Name>NAV</ns2:Name>
+                    <ns2:Id>12668</ns2:Id>
+                    <ns2:TypeId V="HER" DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)"/>
+                    <ns2:AdditionalId>
+                        <ns2:Id>123456789</ns2:Id>
+                        <ns2:Type V="ENH" DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)"/>
+                    </ns2:AdditionalId>
+                </ns2:Inst>
+            </ns2:HCP>
+        </ns2:Sender>
+        <ns2:Receiver>
+            <ns2:HCP>
+                <ns2:Inst>
+                    <ns2:Name>Kule helsetjenester AS</ns2:Name>
+                    <ns2:Id>223456789</ns2:Id>
+                    <ns2:TypeId V="ENH" DN="Organisasjonsnummeret i Enhetsregister (Brønnøysund)"/>
+                    <ns2:AdditionalId>
+                        <ns2:Id>0123</ns2:Id>
+                        <ns2:Type V="HER" DN="Identifikator fra Helsetjenesteenhetsregisteret (HER-id)"/>
+                    </ns2:AdditionalId>
+                    <ns2:HCPerson>
+                        <ns2:Name>Kveldsmat Aktuell</ns2:Name>
+                        <ns2:Id>***********</ns2:Id>
+                        <ns2:TypeId V="FNR" DN="Fødselsnummer"/>
+                    </ns2:HCPerson>
+                </ns2:Inst>
+            </ns2:HCP>
+        </ns2:Receiver>
+        <ns2:Status V="1" DN="OK"/>
+        <ns2:OriginalMsgId>
+            <ns2:MsgType V="Legerklæring ved arbeidsuførhet" DN="LEGEERKL"/>
+            <ns2:IssueDate>2026-05-07T14:27:20.759479299</ns2:IssueDate>
+            <ns2:Id>dc97c48a-70f2-4ff2-af91-f005648dee4c</ns2:Id>
+        </ns2:OriginalMsgId>
+    </ns2:AppRec>
+</EI_fellesformat>
