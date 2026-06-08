@@ -181,21 +181,3 @@ fun Route.verifyMq(
         call.respond(message)
     }
 }
-
-fun Route.sendTestSykmelding(
-    syfoMeldingService: SyfoMeldingService
-) {
-    get("/testSykmelding") {
-        log.info("Sending Sykmelding test message......")
-        try {
-            val fellesformatXml = this::class.java.classLoader.getResourceAsStream("tmp_testsykemelding.xml")!!.readAllBytes().decodeToString()
-            log.info("Will send Sykmelding: " + fellesformatXml)
-            syfoMeldingService.sendMessage(fellesformatXml)
-            log.info("Sykmelding sent")
-            call.respond("Sykmelding sent")
-        } catch (e: Exception) {
-            log.error("Error sending Sykmelding", e)
-            call.respond(e.localizedMessage ?: e.javaClass.simpleName)
-        }
-    }
-}
