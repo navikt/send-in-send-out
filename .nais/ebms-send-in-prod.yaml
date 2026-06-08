@@ -86,3 +86,7 @@ spec:
       value: "QA.P231.OB04_INNRAPP_TREKK"
     - name: NAV_HER_ID
       value: "79768"
+    - name: SYFO_MQ_QUEUE
+      value: "QA.P_SYFOSMMOTTAK.INPUT"
+    - name: PALE_MQ_QUEUE
+      value: "QA.P_PALE.INPUT"
