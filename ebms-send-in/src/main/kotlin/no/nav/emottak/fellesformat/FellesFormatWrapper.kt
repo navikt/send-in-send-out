@@ -79,14 +79,10 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         ebAction = sendInRequest.addressing.action
         ebService = sendInRequest.addressing.service
         ebRole = sendInRequest.addressing.from.role
-        avsender = "TODO1" // Hentes fra from. Usikker på hvilket felt siden det kan være flere.
-        avsenderRef =
-            "TODO2" // Hentet fra cert: Eksempelverdi: "SERIALNUMBER=132547698, CN=Blå &amp; Bjørnebær AS, O=Blå &amp; Bjørnebær AS, C=NO"
         mottaksId = sendInRequest.messageId
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
         avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
-        avsenderOrgNrFraDigSignatur = "TODO4"
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
         orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         meldingsType = "xml"
