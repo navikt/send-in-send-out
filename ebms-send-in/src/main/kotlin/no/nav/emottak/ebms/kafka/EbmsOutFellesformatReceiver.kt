@@ -120,7 +120,7 @@ suspend fun processMessage(
         eventRegistrationService.registerEventMessageDetails(sendInResponse)
 
         // Skip trekkopplysningsduplikater pga. rekjøring.
-        if (getEnvVar("DISABLE_TREKKOPPLYSNING_DUPLICATE", "false").takeIf { it.isNotBlank() }?.fixEnvStringFromConfig().toBoolean() &&
+        if (getEnvVar("DISABLE_TREKKOPPLYSNING_AVVISNING_RESPONSE", "false").takeIf { it.isNotBlank() }?.fixEnvStringFromConfig().toBoolean() &&
             fellesformat.appRec != null && // Implisitt avvisning
             fellesformat.mottakenhetBlokk.ebService == "Trekkopplysning" &&
             fellesformat.mottakenhetBlokk.ebAction == "Avvisning"
