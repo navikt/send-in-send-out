@@ -71,7 +71,9 @@ class SykmeldingRequestTest {
         val timestamp: Instant = Instant.parse("2026-04-16T09:14:27Z")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val xml = marshalSykmelding(fellesformat)
-        val edited = insertPayload(xml, payloadFromExpectedXmlFile)
+        // Verify that it works OK also with prolog
+        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
+        val edited = insertPayload(xml, completePayload)
 
         // Verify that we get expected XML (remove whitespace)
         val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding.xml")!!.readAllBytes().decodeToString()
