@@ -23,8 +23,7 @@ class TrekkopplysningService(
         sendMessage(messageBody)
         meterRegistry?.recordMqMessage(
             queue = queue,
-            service = fellesformat.mottakenhetBlokk.ebService ?: "unknown",
-            action = fellesformat.mottakenhetBlokk.ebAction ?: "unknown"
+            eiFellesformat = fellesformat
         )
     }
 }
