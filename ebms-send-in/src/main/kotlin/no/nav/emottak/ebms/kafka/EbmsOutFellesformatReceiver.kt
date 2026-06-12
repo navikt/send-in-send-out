@@ -12,13 +12,11 @@ import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingResponseService
 import no.nav.emottak.fellesformat.unmarshal
-import no.nav.emottak.fixEnvStringFromConfig
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
-import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.kafka.model.EventType
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.apache.kafka.common.serialization.ByteArrayDeserializer

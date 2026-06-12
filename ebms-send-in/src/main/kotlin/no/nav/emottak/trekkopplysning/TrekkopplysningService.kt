@@ -2,7 +2,7 @@ package no.nav.emottak.trekkopplysning
 
 import no.nav.emottak.config.MqConfig
 import no.nav.emottak.ebms.service.JmsClient
-import no.nav.emottak.fellesformat.insertPayload
+import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
