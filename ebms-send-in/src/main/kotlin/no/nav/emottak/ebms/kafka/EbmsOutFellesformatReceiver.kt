@@ -98,6 +98,7 @@ suspend fun processMessage(
     val fellesformat = unmarshal(payload.toString(Charsets.UTF_8), EIFellesformat::class.java)
 
     log.info("EbmsOutFellesformat processing message from fagsystem")
+    log.debug("Fellesformat melding: ${payload.toString(Charsets.UTF_8)}")
 
     val mdcData = mapOf(
         "record_key" to recordKey,
@@ -117,6 +118,7 @@ suspend fun processMessage(
         )
         eventRegistrationService.registerEventMessageDetails(sendInResponse)
 
+        log.debug("Sending SendInResponse: ${Json.encodeToString<SendInResponse>(sendInResponse)}")
         val json = Json.encodeToString<SendInResponse>(sendInResponse).toByteArray()
         ebmsOutPayloadProducer.send(sendInResponse.messageId, json)
         log.info("Message converted to SendInResponse with messageId: ${sendInResponse.messageId} and forwarded to EbmsOutPayload topic")
