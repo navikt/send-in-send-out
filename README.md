@@ -8,8 +8,8 @@ Tjenesten videresender innkommende `SendInRequest`-meldinger til ett av følgend
 
 | Tjeneste | Backend |
 |---|---|
-| `HarBorgerFrikort` | `frikorttjenester` REST API (eller legacy SOAP for `cpaId = nav:70079`) |
-| `HarBorgerEgenandelFritak` | `frikorttjenester` REST API (eller legacy SOAP for `cpaId = nav:70079`) |
+| `HarBorgerFrikort` | `frikorttjenester` REST API |
+| `HarBorgerEgenandelFritak` | `frikorttjenester` REST API |
 | `HarBorgerFrikortMengde` | `frikorttjenester` SOAP/CXF |
 | `Inntektsforesporsel` | Utbetaling SOAP/CXF-tjeneste |
 | `Trekkopplysning` | IBM MQ |
@@ -55,6 +55,6 @@ Docker-imaget er bygget fra en distroless Java 21-versjon.
 
 Eksterne tjenester denne applikasjonen er avhengig av:
 
-- **frikorttjenester** — REST- og SOAP-endepunkter for frikort/egenandel-oppslag
+- **frikorttjenester** — REST-endepunkt for frikort/egenandel-oppslag, og SOAP-endepunkt for mengde-oppslag
 - **IBM MQ** — for Trekkopplysning
 - **Kafka** — for hendelseslogging
