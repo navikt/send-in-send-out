@@ -102,6 +102,10 @@ class TrekkopplysningMarshallerTest {
 
         assertTrue(xml.contains("AppRec"))
         assertTrue(xml.contains("Avvist"))
+        assertTrue(
+            xml.contains("xsi:schemaLocation=\"http://www.kith.no/xmlstds/apprec/2004-11-21 AppRec-v1-2004-11-21.xsd\""),
+            "Expected xsi:schemaLocation in output:\n$xml"
+        )
     }
 
     @Test
