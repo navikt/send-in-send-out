@@ -2,7 +2,7 @@ package no.nav.emottak.sykmelding
 
 import no.nav.emottak.config.MqConfig
 import no.nav.emottak.ebms.service.JmsClient
-import no.nav.emottak.fellesformat.insertPayload
+import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
@@ -17,11 +17,12 @@ class SyfoMeldingService(syfoMq: MqConfig, val jmSclient: JmsClient = JmsClient(
     }
 
     fun sykmelding(fellesformat: EIFellesformat, payload: ByteArray) {
-        var messageBody = marshalSykmelding(fellesformat)
-        messageBody = insertPayload(messageBody, payload.toString(Charsets.UTF_8))
-        log.debug(
-            "Sending in sykmelding with body: " + messageBody
-        )
+        val fellesformatXmlBuilder = FellesformatXmlBuilder()
+        val doc = fellesformatXmlBuilder.buildFellesformatDocument(fellesformat.mottakenhetBlokk, payload)
+        val messageBody = fellesformatXmlBuilder.toXml(doc)
+//        var messageBody = marshalSykmelding(fellesformat)
+//        messageBody = insertPayload(messageBody, payload.toString(Charsets.UTF_8))
+        log.debug("Sending in sykmelding with body: " + messageBody)
 
         sendMessage(messageBody)
     }

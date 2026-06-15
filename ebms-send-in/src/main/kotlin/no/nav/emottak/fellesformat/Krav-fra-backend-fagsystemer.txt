@@ -2,8 +2,15 @@
 Ved testing har vi oppdaget at fagsystemene har forskjellige krav til bruken av fellesformat.
 Siden utgangspunktet er at vi skal tilpasse oss til fagsystemene og ikke forvente noen endringer eller forbedringer i dem,
 må vi klare å generere fellesformat-XML og akseptere respons-XML nøyaktig slik fagsystemene krever det.
-Derfor er koden for hver meldingstype helt skreddersydd og kan inneholde sære "regler".
+Derfor er koden for hver meldingstype ganske skreddersydd og kan inneholde sære "regler".
 
+Ved bruk av unmarshal/marshal (til/fra domeneobjekter) kan namespace-definisjoner og -prefikser bli endret fra original.
+For å overføre payload 100% uendret fra input til output, må man kopiere XML-teksten som den er i input, inn i den nye XML-teksten.
+En mindre "dum" variant er å bygge en DOM av input-XML, og kopiere payload-elementet inn i den nye DOM'en.
+Med denne varianten vil attributt-rekkefølge kunne endres, mens namespace-definisjoner beholdes.
+
+Nederst i denne filen er en beskrivelse av hvilke måter vi har testet å generere XML med, for hver meldingstype.
+I det følgende beskrives den valgte strategien for hver enkelt meldingstype.
 
 Trekkopplysning
 ===============
@@ -14,8 +21,9 @@ bruk av namespace og rekkefølge på attributter er vesentlige.
 - Det brukes IKKE namespace-prefikser, hvert namespace deklareres som default NS inni topp-elementet det hører til
 - Attributtene i MottakenhetBlokk MÅ komme i denne rekkefølgen: "ebAction", "ebRole", "ebService"
   Uvisst hvilke krav som evt gjelder andre attributter.
-  Virker ikke som fagsystemet bruker verdiene annet enn å endre action + role i responsen
 - ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId
+- Det fungerer IKKE å bruke input-payload som den er, vi MÅ sørge for "riktig" attributt-rekkefølge og bruk av namespaces.
+  Dermed håndteres trekkopplysninger med unmarshalling og skreddersydd marshalling.
 
 
 Sykmelding
@@ -57,3 +65,19 @@ Responser funnet i loggen til asynch-router.
     <MottakenhetBlokk ediLoggId="2a4a4a1e-f2e7-41af-8db0-83de06d0fda3" ebRole="Nav" ebService="Legemelding"
                       ebAction="Svarmelding"/>
 - ediLoggId fra gamle eMottak er UUID, todo må finne annen løsning på å identifisere gammel/ny
+
+
+
+TESTING
+=======
+
+Trekkopplysning testet med:
+- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
+  Fungerte ikke, antagelig pga. krav til sær attributt-rekkefølge i mottakenhetBlokk
+  Forskjeller i payload: rekkefølge på skjema-attr i toppen, rekkefølge attributter
+- Modifisert builder (mottakenhetBlokk insertes som xml-string).
+  Ingen annen måte å få inn MEB med attributt-rekkefølge. Fortsatt "rett fram kopi" av payload.
+  Fungerte ikke, dvs. payload-attributter må også være i gitt rekkefølge.
+- Marshaller MEB, og inserter payload eksakt som i input (XML-string)
+  Virker ikke, dvs payload kan IKKE kopieres som den kommer inn, MÅ marshalles.
+- Mulig MEB kan ha ren alfabetisk attributt-sortering, men ikke så viktig når payload må marshalles.
