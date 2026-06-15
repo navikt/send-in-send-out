@@ -106,8 +106,8 @@ private suspend fun processMessage(
     legeMeldingService: LegeMeldingService
 ) {
     log.info("EbmsInPayload received asynchronously, processing message")
-    log.debug("EbmsInPayload contents: ${payload.decodeToString()}")
     val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
+    log.debug("Inner Payload contents: ${sendInRequest.payload.decodeToString()}")
 
     val mdcData = mapOf(
         "record_key" to recordKey,
