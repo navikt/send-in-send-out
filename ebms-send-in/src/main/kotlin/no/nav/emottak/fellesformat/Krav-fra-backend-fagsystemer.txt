@@ -29,7 +29,6 @@ bruk av namespace og rekkefølge på attributter er vesentlige.
 Sykmelding
 ==========
 
-TODO rediger dette når vi har testet
 (Basert på melding funnet på http://10.33.43.58:8000/mq/admin/msgs/MQLS04/Q1_SYFOSMMOTTAK.INPUT_BOQ,
 lagret som sykemelding.xml i resources)
 Responser funnet i loggen til asynch-router.
@@ -46,11 +45,17 @@ Responser funnet i loggen til asynch-router.
     <MottakenhetBlokk ediLoggId="2604291036test30876.1" ebRole="Saksbehandler" ebService="Sykmelding" ebAction="Svar"/>
 - ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId ?
 
+testet med
+- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
+  Ser OK ut, havner ikke på BOQ, men ikke svar fra fag.
+- tror det har fungert både med marshalling og xml-insert
+- få verifisert at builder-versjon fungerem bruk isåfall denne.
+  Ellers: velg en av de som funker.
+
 
 Legemelding
 ===========
 
-TODO rediger dette når vi har testet
 (Basert på melding funnet på http://10.33.43.58:8000/mq/admin/msgs/MQLS04/Q1_PALE_2.INPUT_BOQ,
 lagret som legemelding.xml i resources)
 Responser funnet i loggen til asynch-router.
@@ -64,8 +69,15 @@ Responser funnet i loggen til asynch-router.
   Svar-blokken er enklere, kun få attributter:
     <MottakenhetBlokk ediLoggId="2a4a4a1e-f2e7-41af-8db0-83de06d0fda3" ebRole="Nav" ebService="Legemelding"
                       ebAction="Svarmelding"/>
-- ediLoggId fra gamle eMottak er UUID, todo må finne annen løsning på å identifisere gammel/ny
+- ediLoggId fra gamle eMottak er UUID, legger på prefiks for nye eMottak
 
+testet med
+- xml-insert funker OK
+
+- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
+- tror det har fungert med marshalling
+- få verifisert at builder-versjon fungerem bruk isåfall denne.
+  Ellers: velg en av de som funker.
 
 
 TESTING
