@@ -55,4 +55,69 @@ class FellesformatXmlBuilder {
         transformer.transform(DOMSource(doc), StreamResult(result))
         return result.toString()
     }
+
+    // -------------------------
+// todo prøv denne, med samme rekkefølge som i syk2 som funker, og se om det funker
+    fun buildFellesformatDocumentWithoutMottakenhetBlokk(payload: ByteArray): Document {
+        val f: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+        val doc = f.newDocumentBuilder().newDocument()
+        doc.xmlStandalone = true
+        val ffElement = doc.createElementNS("http://www.trygdeetaten.no/xml/eiff/1/", "EI_fellesformat")
+        doc.appendChild(ffElement)
+
+        val payloadDoc = f.newDocumentBuilder().parse(ByteArrayInputStream(payload))
+        val payloadElement = payloadDoc.childNodes.item(0) // MsgHead
+        val msgHead = doc.importNode(payloadElement, true)
+        ffElement.appendChild(msgHead)
+
+        return doc
+    }
+
+    fun toXmlAddingMottakenhetBlokk(doc: Document, m: EIFellesformat.MottakenhetBlokk): String {
+        val result = StringWriter()
+        val transformer = TransformerFactory.newInstance().newTransformer()
+        transformer.transform(DOMSource(doc), StreamResult(result))
+        val docXml = result.toString()
+        val mottakenhetBlokkXml = buildXml(m)
+
+        val tokenWithoutNamespace = "</EI_fellesformat>"
+        val insertPos = docXml.indexOf(tokenWithoutNamespace)
+        if (insertPos != -1) return docXml.substring(0, insertPos) + mottakenhetBlokkXml + docXml.substring(insertPos)
+
+        val tokenWithNamespace = Regex("<ns\\d*:/EI_fellesformat>")
+        val found = tokenWithNamespace.find(docXml)
+        if (found != null) {
+            val insertPos = found.range.first
+            return docXml.substring(0, insertPos) + mottakenhetBlokkXml + docXml.substring(insertPos)
+        }
+
+        return docXml
+    }
+
+    fun buildXml(m: EIFellesformat.MottakenhetBlokk): String {
+        var xml = "<MottakenhetBlokk"
+        if (m.ebXMLSamtaleId != null) xml = xml + " ebXMLSamtaleId=\"" + m.ebXMLSamtaleId + "\""
+        if (m.meldingsType != null) xml = xml + " meldingsType=\"" + m.meldingsType + "\""
+        if (m.avsenderRef != null) xml = xml + " avsenderRef=\"" + m.avsenderRef + "\""
+        if (m.avsenderFnrFraDigSignatur != null) xml = xml + " avsenderFnrFraDigSignatur=\"" + m.avsenderFnrFraDigSignatur + "\""
+        if (m.mottattDatotid != null) xml = xml + " mottattDatotid=\"" + m.mottattDatotid.toXMLFormat() + "\""
+        if (m.orgNummer != null) xml = xml + " orgNummer=\"" + m.orgNummer + "\""
+        if (m.partnerReferanse != null) xml = xml + " partnerReferanse=\"" + m.partnerReferanse + "\""
+        if (m.herIdentifikator != null) xml = xml + " herIdentifikator=\"" + m.herIdentifikator + "\""
+        if (m.ebRole != null) xml = xml + " ebRole=\"" + m.ebRole + "\""
+        if (m.ebService != null) xml = xml + " ebService=\"" + m.ebService + "\""
+        if (m.ebAction != null) xml = xml + " ebAction=\"" + m.ebAction + "\""
+        if (m.avsender != null) xml = xml + " avsender=\"" + m.avsender + "\""
+        if (m.ediLoggId != null) xml = xml + " ediLoggId=\"" + m.ediLoggId + "\""
+        xml = xml + "/>"
+        return xml
+    }
+    /* syk2
+    <MottakenhetBlokk ebXMLSamtaleId="c7bf842b-98d6-469b-93e5-7d75bfa1b698" meldingsType="xml" avsenderRef=""
+                      avsenderFnrFraDigSignatur="***********" mottattDatotid="2026-06-15T12:49:44.002Z" orgNummer=""
+                      partnerReferanse="982791952_889640782_011" herIdentifikator="" ebRole="Sykmelder"
+                      ebService="Sykmelding" ebAction="Registrering" avsender="154338"
+                      ediLoggId="c55492fc-7734-4e34-84ae-c0a15179cf25"/>
+
+     */
 }

@@ -50,9 +50,8 @@ testet med
 - FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
   Funker ikke ??
   DIFF: litt forskjell i NS i toppen
-Konklusjonen er at små, gyldige, endringer i XMLen kan føre til at meldingen ikke aksepteres.
-Det betyr at det er risikabelt å bare videresende input-payload som den er, kan komme en variant som refuseres.
-Det tryggeste er dermed å bruke unmarshal+marshal, som vil gi forutsigbart resultat.
+- unmarshal/marshal: funker IKKE, må ha egne NS-definisjoner/prefiks inni fagdokumentet, vanskelig å få til
+
 
 
 Legemelding

@@ -297,7 +297,7 @@ object FagmeldingService {
         syfoMeldingService: SyfoMeldingService
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Sykmelding()) {
-            syfoMeldingService.sykmelding(this).also {
+            syfoMeldingService.sykmelding(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
