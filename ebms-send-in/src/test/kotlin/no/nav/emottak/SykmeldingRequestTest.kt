@@ -10,7 +10,6 @@ import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
-import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 import java.util.GregorianCalendar
