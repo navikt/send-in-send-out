@@ -41,6 +41,8 @@ class FellesformatXmlBuilder {
     // Skreddersydd attributt-sortering, verifisert for trekkopplysning og sykmelding
     fun buildCustomXml(m: EIFellesformat.MottakenhetBlokk): String {
         var xml = "<MottakenhetBlokk"
+        if (m.ediLoggId != null) xml += " ediLoggId=\"${m.ediLoggId}\""
+        if (m.avsender != null) xml += " avsender=\"${m.avsender}\""
         if (m.ebXMLSamtaleId != null) xml += " ebXMLSamtaleId=\"${m.ebXMLSamtaleId}\""
         if (m.meldingsType != null) xml += " meldingsType=\"${m.meldingsType}\""
         if (m.avsenderRef != null) xml += " avsenderRef=\"${m.avsenderRef}\""
@@ -49,11 +51,9 @@ class FellesformatXmlBuilder {
         if (m.orgNummer != null) xml += " orgNummer=\"${m.orgNummer}\""
         if (m.partnerReferanse != null) xml += " partnerReferanse=\"${m.partnerReferanse}\""
         if (m.herIdentifikator != null) xml += " herIdentifikator=\"${m.herIdentifikator}\""
+        if (m.ebAction != null) xml += " ebAction=\"${m.ebAction}\""
         if (m.ebRole != null) xml += " ebRole=\"${m.ebRole}\""
         if (m.ebService != null) xml += " ebService=\"${m.ebService}\""
-        if (m.ebAction != null) xml += " ebAction=\"${m.ebAction}\""
-        if (m.avsender != null) xml += " avsender=\"${m.avsender}\""
-        if (m.ediLoggId != null) xml += " ediLoggId=\"${m.ediLoggId}\""
         xml += "/>"
         return xml
     }

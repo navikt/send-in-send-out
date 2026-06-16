@@ -26,6 +26,11 @@ fun SendInRequest.asEIFellesFormat_Trekkopplysning(): EIFellesformat =
         msgHead = unmarshal(this@asEIFellesFormat_Trekkopplysning.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }
 
+fun SendInRequest.asEIFellesFormat_TrekkopplysningWithoutPayload(): EIFellesformat =
+    fellesFormatFactory.createEIFellesformat().apply {
+        mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Trekkopplysning(this@asEIFellesFormat_TrekkopplysningWithoutPayload)
+    }
+
 fun SendInRequest.asEIFellesFormat_Sykmelding(): EIFellesformat =
     fellesFormatFactory.createEIFellesformat().apply {
         mottakenhetBlokk = createFellesFormatMottakEnhetBlokk_Sykmelding(this@asEIFellesFormat_Sykmelding)
