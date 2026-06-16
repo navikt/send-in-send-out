@@ -82,22 +82,6 @@ class SykmeldingRequestTest {
         loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
-    @Test
-    fun checkDiff() {
-        val xml1 = this::class.java.classLoader.getResourceAsStream("trekk_ok.xml")!!.readAllBytes().decodeToString()
-        val xml2 = this::class.java.classLoader.getResourceAsStream("trekk_ok.xml")!!.readAllBytes().decodeToString()
-        loggDiff(xml1, xml2)
-    }
-
-    @Test
-    fun logAfterDom() {
-        val xml2 = this::class.java.classLoader.getResourceAsStream("syk_insert_ok.xml")!!.readAllBytes().decodeToString()
-        val fellesformatXmlBuilder = FellesformatXmlBuilder()
-        val meb = EIFellesformat.MottakenhetBlokk()
-        val doc = fellesformatXmlBuilder.buildFellesformatDocument(meb, xml2.toByteArray())
-        println(fellesformatXmlBuilder.toXml(doc))
-    }
-
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("UTC"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
     )
