@@ -46,11 +46,13 @@ Responser funnet i loggen til asynch-router.
 - ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId ?
 
 testet med
+- xml-insert funker OK
 - FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
-  Ser OK ut, havner ikke på BOQ, men ikke svar fra fag.
-- tror det har fungert både med marshalling og xml-insert
-- få verifisert at builder-versjon fungerem bruk isåfall denne.
-  Ellers: velg en av de som funker.
+  Funker ikke ??
+  DIFF: litt forskjell i NS i toppen
+Konklusjonen er at små, gyldige, endringer i XMLen kan føre til at meldingen ikke aksepteres.
+Det betyr at det er risikabelt å bare videresende input-payload som den er, kan komme en variant som refuseres.
+Det tryggeste er dermed å bruke unmarshal+marshal, som vil gi forutsigbart resultat.
 
 
 Legemelding
@@ -73,11 +75,7 @@ Responser funnet i loggen til asynch-router.
 
 testet med
 - xml-insert funker OK
-
-- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
-- tror det har fungert med marshalling
-- få verifisert at builder-versjon fungerem bruk isåfall denne.
-  Ellers: velg en av de som funker.
+Velger unmarshal+marshal for alle.
 
 
 TESTING
@@ -93,3 +91,9 @@ Trekkopplysning testet med:
 - Marshaller MEB, og inserter payload eksakt som i input (XML-string)
   Virker ikke, dvs payload kan IKKE kopieres som den kommer inn, MÅ marshalles.
 - Mulig MEB kan ha ren alfabetisk attributt-sortering, men ikke så viktig når payload må marshalles.
+
+Sykmelding testet med:
+- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
+  Fungerte ikke
+- Modifisert builder (mottakenhetBlokk insertes som xml-string).
+  Fungerte med det dokumentet som ble brukt, kan ikke garantere at det vil fungere for alle.
