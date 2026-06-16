@@ -2,6 +2,7 @@ package no.nav.emottak.trekkopplysning
 
 import no.nav.emottak.config.MqConfig
 import no.nav.emottak.ebms.service.JmsClient
+import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
@@ -15,8 +16,12 @@ class TrekkopplysningService(mqConfig: MqConfig, val jmSclient: JmsClient = JmsC
         jmSclient.verifyConnection()
     }
 
-    fun trekkopplysning(fellesformat: EIFellesformat) {
-        val messageBody = marshalTrekkopplysning(fellesformat)
+    fun trekkopplysning(fellesformat: EIFellesformat, payload: ByteArray) {
+        val fellesformatXmlBuilder = FellesformatXmlBuilder()
+        val doc = fellesformatXmlBuilder.buildFellesformatDocumentWithoutMottakenhetBlokk(payload)
+        val messageBody = fellesformatXmlBuilder.toXmlAddingMottakenhetBlokk(doc, fellesformat.mottakenhetBlokk)
+        // virker ok
+//        val messageBody = marshalTrekkopplysning(fellesformat)
         log.debug("Sending in trekkopplysning with body: " + messageBody)
 
         sendMessage(messageBody)

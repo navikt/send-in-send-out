@@ -281,7 +281,7 @@ object FagmeldingService {
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            trekkopplysningService.trekkopplysning(this).also {
+            trekkopplysningService.trekkopplysning(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
