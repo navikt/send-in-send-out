@@ -18,10 +18,7 @@ class TrekkopplysningService(mqConfig: MqConfig, val jmSclient: JmsClient = JmsC
 
     fun trekkopplysning(fellesformat: EIFellesformat, payload: ByteArray) {
         val fellesformatXmlBuilder = FellesformatXmlBuilder()
-        val doc = fellesformatXmlBuilder.buildFellesformatDocumentWithoutMottakenhetBlokk(payload)
-        val messageBody = fellesformatXmlBuilder.toXmlAddingMottakenhetBlokk(doc, fellesformat.mottakenhetBlokk)
-        // virker ok
-//        val messageBody = marshalTrekkopplysning(fellesformat)
+        val messageBody = fellesformatXmlBuilder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, payload)
         log.debug("Sending in trekkopplysning with body: " + messageBody)
 
         sendMessage(messageBody)

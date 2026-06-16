@@ -22,8 +22,9 @@ bruk av namespace og rekkefølge på attributter er vesentlige.
 - Attributtene i MottakenhetBlokk MÅ komme i denne rekkefølgen: "ebAction", "ebRole", "ebService"
   Uvisst hvilke krav som evt gjelder andre attributter.
 - ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId
-- Det fungerer IKKE å bruke input-payload som den er, vi MÅ sørge for "riktig" attributt-rekkefølge og bruk av namespaces.
-  Dermed håndteres trekkopplysninger med unmarshalling og skreddersydd marshalling.
+
+Det ser ut til at input-payload kan importeres som DOM, men MottakenhetBlokk må være skreddersydd XML pga attributt-rekkefølge.
+Beholder marshal-varianten til dette er bekreftet med mer testing.
 
 
 Sykmelding
@@ -48,11 +49,10 @@ Responser funnet i loggen til asynch-router.
 testet med
 - xml-insert funker OK
 - FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
-  Funker ikke ??
-  DIFF: litt forskjell i NS i toppen
+  Funker ikke med standard mottakenhetBlokk, funker med skreddersøm-sortering av attributtene.
 - unmarshal/marshal: funker IKKE, må ha egne NS-definisjoner/prefiks inni fagdokumentet, vanskelig å få til
 
-
+Bruk Builder, men insert mottakenhetBlokk-XML med skreddersydd rekkefølge
 
 Legemelding
 ===========

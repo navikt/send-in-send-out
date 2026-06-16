@@ -18,14 +18,7 @@ class SyfoMeldingService(syfoMq: MqConfig, val jmSclient: JmsClient = JmsClient(
 
     fun sykmelding(fellesformat: EIFellesformat, payload: ByteArray) {
         val fellesformatXmlBuilder = FellesformatXmlBuilder()
-        // VIRKER !!
-        val doc = fellesformatXmlBuilder.buildFellesformatDocumentWithoutMottakenhetBlokk(payload)
-        val messageBody = fellesformatXmlBuilder.toXmlAddingMottakenhetBlokk(doc, fellesformat.mottakenhetBlokk)
-        // VIRKER IKKE !!
-//        val doc = fellesformatXmlBuilder.buildFellesformatDocument(fellesformat.mottakenhetBlokk, payload)
-//        val messageBody = fellesformatXmlBuilder.toXml(doc)
-//        var messageBody = marshalSykmelding(fellesformat)
-//        messageBody = insertPayload(messageBody, payload.toString(Charsets.UTF_8))
+        val messageBody = fellesformatXmlBuilder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, payload)
         log.debug("Sending in sykmelding with body: " + messageBody)
 
         sendMessage(messageBody)
