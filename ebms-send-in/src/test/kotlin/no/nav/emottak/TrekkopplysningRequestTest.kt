@@ -74,6 +74,7 @@ class TrekkopplysningRequestTest {
         val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
         val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
         // Verify that we get expected XML (remove whitespace)
+        // sortedattr file has alphabetically sorted attributes in payload
         val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning_sortedattr.xml")!!.readAllBytes().decodeToString()
 //        loggDiff(expectedXml, xml)
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))

@@ -16,6 +16,7 @@ import java.util.GregorianCalendar
 import java.util.TimeZone
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
+import kotlin.test.assertEquals
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
@@ -48,11 +49,11 @@ class SykmeldingRequestTest {
 
         // Verify that we get expected XML (remove whitespace)
         val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding.xml")!!.readAllBytes().decodeToString()
-//        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+//        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
-//    @Test
+    @Test
     fun verifyRequestAsXml_withBuilder() {
         val request = SendInRequest(
             messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
@@ -74,11 +75,12 @@ class SykmeldingRequestTest {
         // Verify that it works OK also with prolog
         val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
         val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
-// sykemelding er opprinnelig, 2 er med rekkefølge for trekkopplysning
+
+        // sykemelding.xml er opprinnelig, sykemelding2.xml er med rekkefølge for trekkopplysning, fjernet NS i indre doc
         // Verify that we get expected XML (remove whitespace)
         val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding2.xml")!!.readAllBytes().decodeToString()
-//        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+//        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(

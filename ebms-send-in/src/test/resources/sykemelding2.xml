@@ -1,4 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?><EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+<?xml version="1.0" encoding="UTF-8"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
     <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <MsgInfo>
             <Type DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
@@ -76,14 +77,14 @@
                 <MsgType DN="XML-instans" V="XML"/>
                 <Id>19412bc0-d1ed-45f2-8f67-00282b064347</Id>
                 <Content>
-                    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <MsgHead>
                         <MsgInfo>
                             <Type DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
                             <MIGversion>v1.2 2006-05-24</MIGversion>
                             <GenDate>2026-04-15T09:11:35</GenDate>
                             <MsgId>042e41d8-c28a-4e04-b6e6-d3b4670d9558</MsgId>
                             <Ack DN="Ja" V="J"/>
-                            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Sender>
                                 <ComMethod DN="EDI" V="EDI"/>
                                 <Organisation>
                                     <OrganisationName>Pridok Test 5</OrganisationName>
@@ -123,7 +124,7 @@
                                     </HealthcareProfessional>
                                 </Organisation>
                             </Sender>
-                            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Receiver>
                                 <ComMethod DN="EDI" V="EDI"/>
                                 <Organisation>
                                     <OrganisationName>NAV IKT</OrganisationName>
@@ -147,7 +148,7 @@
                                     </TeleCom>
                                 </Organisation>
                             </Receiver>
-                            <Patient xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Patient>
                                 <FamilyName>Akrobat</FamilyName>
                                 <GivenName>Selvhjulpen</GivenName>
                                 <Ident>
@@ -168,7 +169,7 @@
                                 <MsgType DN="XML-instans" V="XML"/>
                                 <Id>19412bc0-d1ed-45f2-8f67-00282b064347</Id>
                                 <Content>
-                                    <HelseOpplysningerArbeidsuforhet xmlns="http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                    <HelseOpplysningerArbeidsuforhet xmlns="http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01">
                                         <RegelSettVersjon>2</RegelSettVersjon>
                                         <SyketilfelleStartDato>2026-04-15</SyketilfelleStartDato>
                                         <Pasient>
