@@ -66,7 +66,7 @@ Responser funnet i loggen til asynch-router.
                       ebAction="Svarmelding"/>
 - ediLoggId fra gamle eMottak er UUID, legger på prefiks for nye eMottak
 
-Bruk DOM/Builder, med skreddersydd mottakenhetBlokk-XML
+Bruk DOM/Builder for hele meldingen (ikke skreddersydd mottakenhetBlokk-XML)
 
 
 TESTING
@@ -86,7 +86,10 @@ Trekkopplysning testet med:
 Sykmelding testet med:
 - xml-insert funker OK
 - FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
-  Funker ikke med standard mottakenhetBlokk, funker med skreddersøm-sortering av attributtene.
+  Funker IKKE med standard mottakenhetBlokk, funker med skreddersøm-sortering av attributtene.
 - unmarshal/marshal: funker IKKE, må ha egne NS-definisjoner/prefiks inni fagdokumentet, vanskelig å få til
 
-
+Legemelding testet med:
+- xml-insert funker OK
+- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
+  Funker både med standard mottakenhetBlokk og skreddersøm-sortering av attributtene.

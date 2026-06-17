@@ -108,6 +108,36 @@ class LegemeldingRequestTest {
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
+    @Test
+    fun verifyRequestAsXml_withBuilderForCompleteDocument() {
+        // Set up request with values that fit example file legemelding.xml
+        // Had to tweak namespaces, and sort attributes alphabetically
+        val request = SendInRequest(
+            messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
+            requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            signedOf = "20086600138", payload = "".toByteArray(),
+            addressing = Addressing(
+                service = "Legemelding",
+                action = "Legeerklaring",
+                from = Party(role = "Lege", partyId = listOf(PartyId("orgnummer", "12345678910"))),
+                to = Party(role = "dummy", partyId = listOf())
+            )
+        )
+        // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
+        val fellesformat = request.asEIFellesFormat_LegemeldingWithoutPayload()
+        val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
+        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
+        val builder = FellesformatXmlBuilder()
+
+        // Verify that it works OK also with prolog
+        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
+        val xml = builder.buildXml(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
+
+        // Verify that we get expected XML (remove whitespace) V4 as V3 but mottakenhetblokk has sorted attributes
+        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemeldingV4.xml")!!.readAllBytes().decodeToString()
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+    }
+
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
         GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("+02:00"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
     )

@@ -6,7 +6,7 @@ import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.log
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
-class TrekkopplysningService(mqConfig: MqConfig, val jmSclient: JmsClient = JmsClient(mqConfig), val queue: String = mqConfig.queue) {
+class TrekkopplysningService(mqConfig: MqConfig, val useDomBuilder: Boolean, val jmSclient: JmsClient = JmsClient(mqConfig), val queue: String = mqConfig.queue) {
 
     fun sendMessage(messageText: String) {
         jmSclient.sendMessage(queue, messageText)
@@ -17,8 +17,12 @@ class TrekkopplysningService(mqConfig: MqConfig, val jmSclient: JmsClient = JmsC
     }
 
     fun trekkopplysning(fellesformat: EIFellesformat, payload: ByteArray) {
-        val fellesformatXmlBuilder = FellesformatXmlBuilder()
-        val messageBody = fellesformatXmlBuilder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, payload)
+        val messageBody = if (useDomBuilder) {
+            val fellesformatXmlBuilder = FellesformatXmlBuilder()
+            fellesformatXmlBuilder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, payload)
+        } else {
+            marshalTrekkopplysning(fellesformat)
+        }
         log.debug("Sending in trekkopplysning with body: " + messageBody)
 
         sendMessage(messageBody)

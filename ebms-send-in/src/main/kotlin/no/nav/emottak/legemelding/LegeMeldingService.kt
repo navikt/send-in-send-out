@@ -18,7 +18,6 @@ class LegeMeldingService(syfoMq: MqConfig, val jmSclient: JmsClient = JmsClient(
 
     fun legemelding(fellesformat: EIFellesformat, payload: ByteArray) {
         val fellesformatXmlBuilder = FellesformatXmlBuilder()
-//        val messageBody = fellesformatXmlBuilder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, payload)
         val messageBody = fellesformatXmlBuilder.buildXml(fellesformat.mottakenhetBlokk, payload)
         log.debug("Sending in legemelding with body: " + messageBody)
 

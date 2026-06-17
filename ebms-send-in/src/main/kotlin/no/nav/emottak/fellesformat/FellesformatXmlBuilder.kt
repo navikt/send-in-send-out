@@ -82,6 +82,7 @@ class FellesformatXmlBuilder {
         if (m.partnerReferanse != null) e.setAttribute("partnerReferanse", m.partnerReferanse)
         if (m.avsender != null) e.setAttribute("avsender", m.avsender)
         if (m.avsenderRef != null) e.setAttribute("avsenderRef", m.avsenderRef)
+        if (m.avsenderFnrFraDigSignatur != null) e.setAttribute("avsenderFnrFraDigSignatur", m.avsenderFnrFraDigSignatur)
         if (m.meldingsType != null) e.setAttribute("meldingsType", m.meldingsType)
         if (m.mottattDatotid != null) e.setAttribute("mottattDatotid", m.mottattDatotid.toXMLFormat())
         return e
