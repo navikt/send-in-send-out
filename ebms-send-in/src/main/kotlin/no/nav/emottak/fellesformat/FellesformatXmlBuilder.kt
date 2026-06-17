@@ -33,11 +33,6 @@ class FellesformatXmlBuilder {
         return toXmlAddingMottakenhetBlokk(doc, mottakenhetBlokk)
     }
 
-    fun buildXmlWithCustomMottakenhetBlokk2(mottakenhetBlokk: EIFellesformat.MottakenhetBlokk, payload: ByteArray): String {
-        val doc = buildFellesformatDocumentWithoutMottakenhetBlokk(payload)
-        return toXmlAddingMottakenhetBlokk(doc, mottakenhetBlokk)
-    }
-
     // Skreddersydd attributt-sortering, verifisert for trekkopplysning og sykmelding
     fun buildCustomXml(m: EIFellesformat.MottakenhetBlokk): String {
         var xml = "<MottakenhetBlokk"

@@ -7,7 +7,7 @@ Derfor er koden for hver meldingstype ganske skreddersydd og kan inneholde sære
 Ved bruk av unmarshal/marshal (til/fra domeneobjekter) kan namespace-definisjoner og -prefikser bli endret fra original.
 For å overføre payload 100% uendret fra input til output, må man kopiere XML-teksten som den er i input, inn i den nye XML-teksten.
 En mindre "dum" variant er å bygge en DOM av input-XML, og kopiere payload-elementet inn i den nye DOM'en.
-Med denne varianten vil attributt-rekkefølge kunne endres, mens namespace-definisjoner beholdes.
+Med denne varianten vil attributt-rekkefølge kunne endres, mens namespace-definisjoner stort sett beholdes.
 
 Nederst i denne filen er en beskrivelse av hvilke måter vi har testet å generere XML med, for hver meldingstype.
 I det følgende beskrives den valgte strategien for hver enkelt meldingstype.
@@ -24,7 +24,7 @@ bruk av namespace og rekkefølge på attributter er vesentlige.
 - ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId
 
 Det ser ut til at input-payload kan importeres som DOM, men MottakenhetBlokk må være skreddersydd XML pga attributt-rekkefølge.
-Beholder marshal-varianten til dette er bekreftet med mer testing.
+Bruker DOM/Builder, men beholder marshal-koden til dette er bekreftet med mer testing.
 
 
 Sykmelding
@@ -46,13 +46,7 @@ Responser funnet i loggen til asynch-router.
     <MottakenhetBlokk ediLoggId="2604291036test30876.1" ebRole="Saksbehandler" ebService="Sykmelding" ebAction="Svar"/>
 - ediLoggId fra gamle eMottak er ikke UUID, slik at man kan identifisere gammel/ny ved format på ediLoggId ?
 
-testet med
-- xml-insert funker OK
-- FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
-  Funker ikke med standard mottakenhetBlokk, funker med skreddersøm-sortering av attributtene.
-- unmarshal/marshal: funker IKKE, må ha egne NS-definisjoner/prefiks inni fagdokumentet, vanskelig å få til
-
-Bruk Builder, men insert mottakenhetBlokk-XML med skreddersydd rekkefølge
+Bruk DOM/Builder, med skreddersydd mottakenhetBlokk-XML
 
 Legemelding
 ===========
@@ -72,9 +66,7 @@ Responser funnet i loggen til asynch-router.
                       ebAction="Svarmelding"/>
 - ediLoggId fra gamle eMottak er UUID, legger på prefiks for nye eMottak
 
-testet med
-- xml-insert funker OK
-Velger unmarshal+marshal for alle.
+Bruk DOM/Builder, med skreddersydd mottakenhetBlokk-XML
 
 
 TESTING
@@ -92,7 +84,9 @@ Trekkopplysning testet med:
 - Mulig MEB kan ha ren alfabetisk attributt-sortering, men ikke så viktig når payload må marshalles.
 
 Sykmelding testet med:
+- xml-insert funker OK
 - FellesformatXmlBuilder (payload-XML importeres i DOM, mottakenhetBlokk legges til DOM som xml-element).
-  Fungerte ikke
-- Modifisert builder (mottakenhetBlokk insertes som xml-string).
-  Fungerte med det dokumentet som ble brukt, kan ikke garantere at det vil fungere for alle.
+  Funker ikke med standard mottakenhetBlokk, funker med skreddersøm-sortering av attributtene.
+- unmarshal/marshal: funker IKKE, må ha egne NS-definisjoner/prefiks inni fagdokumentet, vanskelig å få til
+
+
