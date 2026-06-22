@@ -40,7 +40,7 @@ fun Route.fagmeldingRoutes(
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
-            log.info("EbmsInPayload received synchronously, processing message")
+            log.debug("EbmsInPayload received synchronously, processing message")
             val sendInRequest = call.receiveEither<SendInRequest>().getOrElse { error ->
                 log.error("SendInRequest mapping error", error)
                 call.respond(HttpStatusCode.BadRequest, error.localizedMessage ?: "Mapping error")
