@@ -53,8 +53,8 @@ class FellesformatXmlBuilder {
         return xml
     }
 
-    fun buildFellesformatDocument(mottakenhetBlokk: EIFellesformat.MottakenhetBlokk, payload: ByteArray): Document {
-        val f: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+    fun buildFellesformatDocument(mottakenhetBlokk: EIFellesformat.MottakenhetBlokk?, payload: ByteArray): Document {
+        val f: DocumentBuilderFactory = createDocumentBuilderFactory()
         val doc = f.newDocumentBuilder().newDocument()
         doc.xmlStandalone = true
         val ffElement = doc.createElementNS("http://www.trygdeetaten.no/xml/eiff/1/", "EI_fellesformat")
@@ -65,9 +65,15 @@ class FellesformatXmlBuilder {
         val msgHead = doc.importNode(payloadElement, true)
         ffElement.appendChild(msgHead)
 
-        ffElement.appendChild(buildMottakenhetBlokkElement(doc, mottakenhetBlokk))
+        if (mottakenhetBlokk != null) {
+            ffElement.appendChild(buildMottakenhetBlokkElement(doc, mottakenhetBlokk))
+        }
 
         return doc
+    }
+
+    fun buildFellesformatDocumentWithoutMottakenhetBlokk(payload: ByteArray): Document {
+        return buildFellesformatDocument(null, payload)
     }
 
     fun buildMottakenhetBlokkElement(doc: Document, m: EIFellesformat.MottakenhetBlokk): Element {
@@ -95,21 +101,6 @@ class FellesformatXmlBuilder {
         return result.toString()
     }
 
-    fun buildFellesformatDocumentWithoutMottakenhetBlokk(payload: ByteArray): Document {
-        val f: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-        val doc = f.newDocumentBuilder().newDocument()
-        doc.xmlStandalone = true
-        val ffElement = doc.createElementNS("http://www.trygdeetaten.no/xml/eiff/1/", "EI_fellesformat")
-        doc.appendChild(ffElement)
-
-        val payloadDoc = f.newDocumentBuilder().parse(ByteArrayInputStream(payload))
-        val payloadElement = payloadDoc.childNodes.item(0) // MsgHead
-        val msgHead = doc.importNode(payloadElement, true)
-        ffElement.appendChild(msgHead)
-
-        return doc
-    }
-
     fun toXmlAddingMottakenhetBlokk(doc: Document, mottakenhetBlokk: EIFellesformat.MottakenhetBlokk): String {
         val result = StringWriter()
         val transformer = TransformerFactory.newInstance().newTransformer()
@@ -121,7 +112,7 @@ class FellesformatXmlBuilder {
         val insertPos = docXml.indexOf(tokenWithoutNamespace)
         if (insertPos != -1) return docXml.substring(0, insertPos) + mottakenhetBlokkXml + docXml.substring(insertPos)
 
-        val tokenWithNamespace = Regex("<ns\\d*:/EI_fellesformat>")
+        val tokenWithNamespace = Regex("</ns\\d*:EI_fellesformat>")
         val found = tokenWithNamespace.find(docXml)
         if (found != null) {
             val insertPos = found.range.first
@@ -130,4 +121,15 @@ class FellesformatXmlBuilder {
 
         return docXml
     }
+
+    private fun createDocumentBuilderFactory(): DocumentBuilderFactory =
+        DocumentBuilderFactory.newInstance().apply {
+            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+            setFeature("http://xml.org/sax/features/external-general-entities", false)
+            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+            isXIncludeAware = false
+            isExpandEntityReferences = false
+            isNamespaceAware = true
+        }
 }

@@ -59,24 +59,6 @@ fun SendInRequest.asEIFellesFormatWithFrikort(): EIFellesformat =
         msgHead = frikortSporringXmlMarshaller.unmarshal(this@asEIFellesFormatWithFrikort.payload.toString(Charsets.UTF_8), MsgHead::class.java)
     }
 
-fun insertPayload(xmlWithoutPayload: String, payload: String): String {
-    // Payload may contain <?xml ...> prolog, must be removed
-    val afterPrologPos = payload.indexOf("<MsgHead ")
-    val payloadWithoutProlog = if (afterPrologPos != -1) payload.substring(afterPrologPos) else payload
-
-    val tokenWithoutNamespace = "<MottakenhetBlokk "
-    val insertPos = xmlWithoutPayload.indexOf(tokenWithoutNamespace)
-    if (insertPos != -1) return xmlWithoutPayload.substring(0, insertPos) + payloadWithoutProlog + xmlWithoutPayload.substring(insertPos)
-
-    val tokenWithNamespace = Regex("<ns\\d+:MottakenhetBlokk ")
-    val found = tokenWithNamespace.find(xmlWithoutPayload)
-    if (found != null) {
-        val insertPos = found.range.first
-        return xmlWithoutPayload.substring(0, insertPos) + payloadWithoutProlog + xmlWithoutPayload.substring(insertPos)
-    }
-    return xmlWithoutPayload
-}
-
 private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
     return fellesFormatFactory.createEIFellesformatMottakenhetBlokk().apply {
         ebXMLSamtaleId = sendInRequest.conversationId
