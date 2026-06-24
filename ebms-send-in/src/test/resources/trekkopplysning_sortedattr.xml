@@ -1,108 +1,24 @@
-package no.nav.emottak
-
-import kotlinx.datetime.Instant
-import no.nav.emottak.fellesformat.FellesformatXmlBuilder
-import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
-import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
-import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
-import no.nav.emottak.utils.common.model.Addressing
-import no.nav.emottak.utils.common.model.EbmsProcessing
-import no.nav.emottak.utils.common.model.Party
-import no.nav.emottak.utils.common.model.PartyId
-import no.nav.emottak.utils.common.model.SendInRequest
-import org.junit.jupiter.api.Test
-import java.time.ZoneId
-import java.util.GregorianCalendar
-import java.util.TimeZone
-import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
-import kotlin.test.assertEquals
-import kotlin.time.ExperimentalTime
-
-@OptIn(ExperimentalTime::class)
-class TrekkopplysningRequestTest {
-
-    // Verify that a given Trekkopplysning request is converted to the expected Fellesformat XML string
-
-    @Test
-    fun verifyRequestAsXml_unmarshal_marshal() {
-        // Set up request with values that fit example file trekkopplysning.xml
-        val request = SendInRequest(
-            messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "dummy", payload = payloadFromExpectedXmlFile.toByteArray(),
-            addressing = Addressing(
-                service = "Trekkopplysning",
-                action = "Innmelding",
-                from = Party(role = "Fordringshaver", partyId = listOf(PartyId("HER", "8142626"), PartyId("orgnummer", "123456789"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
-        val fellesformat = request.asEIFellesFormat_Trekkopplysning()
-        val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalTrekkopplysning(fellesformat)
-
-        // Verify that we get expected XML (remove whitespace)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning.xml")!!.readAllBytes().decodeToString()
-//        loggDiff(expectedXml, xml)
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    @Test
-    fun verifyRequestAsXml_withBuilder() {
-        // Set up request with values that fit example file trekkopplysning.xml
-        val request = SendInRequest(
-            messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "dummy", payload = "".toByteArray(),
-            addressing = Addressing(
-                service = "Trekkopplysning",
-                action = "Innmelding",
-                from = Party(role = "Fordringshaver", partyId = listOf(PartyId("HER", "8142626"), PartyId("orgnummer", "123456789"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
-        val fellesformat = request.asEIFellesFormat_TrekkopplysningWithoutPayload()
-        val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val builder = FellesformatXmlBuilder()
-
-        // Verify that it works OK also with prolog
-        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
-        val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
-        // Verify that we get expected XML (remove whitespace)
-        // sortedattr file has alphabetically sorted attributes in payload
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning_sortedattr.xml")!!.readAllBytes().decodeToString()
-//        loggDiff(expectedXml, xml)
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-    fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-        GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("UTC"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
-    )
-
-    val payloadFromExpectedXmlFile = """
+<?xml version="1.0" encoding="UTF-8"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
     <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">
         <MsgInfo>
-            <Type V="INNRAPPORTERING_TREKK" DN="Innrapportering av trekk til NAV"/>
+            <Type DN="Innrapportering av trekk til NAV" V="INNRAPPORTERING_TREKK"/>
             <MIGversion>v1.2 2006-05-24</MIGversion>
             <GenDate>2026-03-06T15:22:35Z</GenDate>
             <MsgId>7f41c4e9-b6bd-44a3-822b-622332b4e421</MsgId>
-            <Ack V="N" DN="Nei"/>
+            <Ack DN="Nei" V="N"/>
             <Sender>
                 <Organisation>
                     <OrganisationName>AIDN AS</OrganisationName>
                     <Ident>
                         <Id>8139944</Id>
-                        <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                        <TypeId DN="HER-id" S="2.16.578.1.12.4.1.1.9051" V="HER"/>
                     </Ident>
                     <Organisation>
                         <OrganisationName>Økonomi og oppgjør</OrganisationName>
                         <Ident>
                             <Id>8142626</Id>
-                            <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                            <TypeId DN="HER-id" S="2.16.578.1.12.4.1.1.9051" V="HER"/>
                         </Ident>
                     </Organisation>
                 </Organisation>
@@ -112,17 +28,17 @@ class TrekkopplysningRequestTest {
                     <OrganisationName>NAV IKT</OrganisationName>
                     <Ident>
                         <Id>79768</Id>
-                        <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                        <TypeId DN="HER-id" S="2.16.578.1.12.4.1.1.9051" V="HER"/>
                     </Ident>
                 </Organisation>
             </Receiver>
             <Patient>
                 <FamilyName>SEILBÅT</FamilyName>
                 <GivenName>DEMOKRATISK</GivenName>
-                <Sex V="2" DN="Kvinne"/>
+                <Sex DN="Kvinne" V="2"/>
                 <Ident>
                     <Id>***********</Id>
-                    <TypeId V="FNR" S="2.16.578.1.12.4.1.1.8116" DN="Fødselsnummer"/>
+                    <TypeId DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
                 </Ident>
             </Patient>
         </MsgInfo>
@@ -130,7 +46,7 @@ class TrekkopplysningRequestTest {
             <ContentDescription>SV:Innrapportering av trekk til NAV</ContentDescription>
             <RefDoc>
                 <IssueDate V="2026-03-06T15:22:35Z"/>
-                <MsgType V="XML" DN="XML-instans"/>
+                <MsgType DN="XML-instans" V="XML"/>
                 <Content>
                     <InnrapporteringTrekk xmlns="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04"
                                           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -181,6 +97,9 @@ class TrekkopplysningRequestTest {
                 </X509Data>
             </KeyInfo>
         </Signature>
-    </MsgHead>        
-    """
-}
+    </MsgHead>
+    <MottakenhetBlokk ediLoggId="69abb69f-b491-4d34-aeb1-10c02c7b98b6" avsender="8142626"
+                      ebXMLSamtaleId="91e01f3c-b754-4ea3-98fe-07c249661bba" meldingsType="xml" avsenderRef=""
+                      mottattDatotid="2026-03-09T15:17:59.199Z" orgNummer="123456789" partnerReferanse="nav:qass:36181" herIdentifikator="8142626"
+                      ebAction="Innmelding" ebRole="Fordringshaver" ebService="Trekkopplysning"/>
+</EI_fellesformat>

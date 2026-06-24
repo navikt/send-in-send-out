@@ -1,93 +1,5 @@
-package no.nav.emottak
-
-import kotlinx.datetime.Instant
-import no.nav.emottak.fellesformat.FellesformatXmlBuilder
-import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
-import no.nav.emottak.fellesformat.asEIFellesFormat_SykmeldingWithoutPayload
-import no.nav.emottak.sykmelding.marshalSykmelding
-import no.nav.emottak.utils.common.model.Addressing
-import no.nav.emottak.utils.common.model.EbmsProcessing
-import no.nav.emottak.utils.common.model.Party
-import no.nav.emottak.utils.common.model.PartyId
-import no.nav.emottak.utils.common.model.SendInRequest
-import org.junit.jupiter.api.Test
-import java.time.ZoneId
-import java.util.GregorianCalendar
-import java.util.TimeZone
-import javax.xml.datatype.DatatypeFactory
-import javax.xml.datatype.XMLGregorianCalendar
-import kotlin.test.assertEquals
-import kotlin.time.ExperimentalTime
-
-@OptIn(ExperimentalTime::class)
-class SykmeldingRequestTest {
-
-    // Verify that a given Sykmelding request is converted to the expected Fellesformat XML string
-
-    @Test
-    fun verifyRequestAsXml_unmarshal_marshal() {
-        // Set up request with values that fit example file sykemelding.xml
-        // Removed xsd locations, removed NS "http://www.kith.no/xmlstds/felleskomponent1"
-        // Also removed some signature stuff with difficult formatting
-        // CHanged sequence of attributes in MottakEnhetBlokk, blanked some attrs also
-        val request = SendInRequest(
-            messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "06828399789", payload = payloadFromExpectedXmlFile.toByteArray(),
-            addressing = Addressing(
-                service = "Sykmelding",
-                action = "Registrering",
-                from = Party(role = "Sykmelder", partyId = listOf(PartyId("orgnummer", "912719103"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from sykemelding.xml
-        val fellesformat = request.asEIFellesFormat_Sykmelding()
-        val timestamp: Instant = Instant.parse("2026-04-16T09:14:27Z")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalSykmelding(fellesformat)
-
-        // Verify that we get expected XML (remove whitespace)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-//        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    @Test
-    fun verifyRequestAsXml_withBuilder() {
-        val request = SendInRequest(
-            messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "06828399789", payload = "".toByteArray(),
-            addressing = Addressing(
-                service = "Sykmelding",
-                action = "Registrering",
-                from = Party(role = "Sykmelder", partyId = listOf(PartyId("orgnummer", "912719103"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from sykemelding.xml
-        val fellesformat = request.asEIFellesFormat_SykmeldingWithoutPayload()
-        val timestamp: Instant = Instant.parse("2026-04-16T09:14:27Z")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val builder = FellesformatXmlBuilder()
-
-        // Verify that it works OK also with prolog
-        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
-        val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
-
-        // sykemelding.xml er opprinnelig, sykemelding2.xml er med rekkefølge for trekkopplysning, fjernet NS i indre doc
-        // Verify that we get expected XML (remove whitespace)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding2.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-//        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-        GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("UTC"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
-    )
-
-    val payloadFromExpectedXmlFile = """
+<?xml version="1.0" encoding="UTF-8"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
     <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <MsgInfo>
             <Type DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
@@ -95,7 +7,7 @@ class SykmeldingRequestTest {
             <GenDate>2026-04-15T09:12:12</GenDate>
             <MsgId>042e41d8-c28a-4e04-b6e6-d3b4670d9558</MsgId>
             <Ack DN="Ja" V="J"/>
-            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Sender>
                 <ComMethod DN="EDI" V="EDI"/>
                 <Organisation>
                     <OrganisationName>Pridok Test 5</OrganisationName>
@@ -135,7 +47,7 @@ class SykmeldingRequestTest {
                     </HealthcareProfessional>
                 </Organisation>
             </Sender>
-            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Receiver>
                 <ComMethod DN="EDI" V="EDI"/>
                 <Organisation>
                     <OrganisationName>NAV IKT</OrganisationName>
@@ -165,14 +77,14 @@ class SykmeldingRequestTest {
                 <MsgType DN="XML-instans" V="XML"/>
                 <Id>19412bc0-d1ed-45f2-8f67-00282b064347</Id>
                 <Content>
-                    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <MsgHead>
                         <MsgInfo>
                             <Type DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
                             <MIGversion>v1.2 2006-05-24</MIGversion>
                             <GenDate>2026-04-15T09:11:35</GenDate>
                             <MsgId>042e41d8-c28a-4e04-b6e6-d3b4670d9558</MsgId>
                             <Ack DN="Ja" V="J"/>
-                            <Sender xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Sender>
                                 <ComMethod DN="EDI" V="EDI"/>
                                 <Organisation>
                                     <OrganisationName>Pridok Test 5</OrganisationName>
@@ -212,7 +124,7 @@ class SykmeldingRequestTest {
                                     </HealthcareProfessional>
                                 </Organisation>
                             </Sender>
-                            <Receiver xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Receiver>
                                 <ComMethod DN="EDI" V="EDI"/>
                                 <Organisation>
                                     <OrganisationName>NAV IKT</OrganisationName>
@@ -236,7 +148,7 @@ class SykmeldingRequestTest {
                                     </TeleCom>
                                 </Organisation>
                             </Receiver>
-                            <Patient xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                            <Patient>
                                 <FamilyName>Akrobat</FamilyName>
                                 <GivenName>Selvhjulpen</GivenName>
                                 <Ident>
@@ -257,7 +169,7 @@ class SykmeldingRequestTest {
                                 <MsgType DN="XML-instans" V="XML"/>
                                 <Id>19412bc0-d1ed-45f2-8f67-00282b064347</Id>
                                 <Content>
-                                    <HelseOpplysningerArbeidsuforhet xmlns="http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                                    <HelseOpplysningerArbeidsuforhet xmlns="http://www.kith.no/xmlstds/HelseOpplysningerArbeidsuforhet/2013-10-01">
                                         <RegelSettVersjon>2</RegelSettVersjon>
                                         <SyketilfelleStartDato>2026-04-15</SyketilfelleStartDato>
                                         <Pasient>
@@ -394,10 +306,14 @@ class SykmeldingRequestTest {
                     <DigestValue>NE1PGnSZ1QAL9lEUnEcjI+eebrk6FZrm2BYt/J48150=</DigestValue>
                 </Reference>
             </SignedInfo>
-           <KeyInfo>
+            <KeyInfo>
                 <X509Data/>
             </KeyInfo>
         </Signature>
     </MsgHead>
-    """
-}
+    <MottakenhetBlokk ediLoggId="2604160914prid26694.1" avsender="912719103"
+                      ebXMLSamtaleId="a219014c-9739-4263-983a-6dd9fc82f8f1" meldingsType="xml" avsenderRef=""
+                      avsenderFnrFraDigSignatur="06828399789" mottattDatotid="2026-04-16T09:14:27.000Z"
+                      orgNummer="" partnerReferanse="nav:qass:36181" herIdentifikator=""
+                      ebAction="Registrering" ebRole="Sykmelder" ebService="Sykmelding"/>
+</EI_fellesformat>

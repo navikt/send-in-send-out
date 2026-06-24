@@ -14,7 +14,7 @@ import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
-import no.nav.emottak.fellesformat.asEIFellesFormat_SykmeldingWithoutPayload
+import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
@@ -238,7 +238,7 @@ object FagmeldingService {
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            trekkopplysningService.trekkopplysning(this).also {
+            trekkopplysningService.trekkopplysning(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -253,7 +253,7 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService,
         syfoMeldingService: SyfoMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_SykmeldingWithoutPayload()) {
+        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
             syfoMeldingService.sykmelding(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
