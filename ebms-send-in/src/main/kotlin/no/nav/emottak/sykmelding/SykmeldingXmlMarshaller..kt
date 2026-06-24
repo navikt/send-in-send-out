@@ -41,7 +41,7 @@ fun marshalSykmelding(fellesFormat: EIFellesformat): String {
 // Denne XML-writeren overstyrer normal serialisering for å få XML a la gamle eMottak:
 // Det brukes IKKE namespace-prefikser, hvert namespace deklareres som default NS inni topp-elementet det hører til
 // Virker som mottakerne må ha det EKSAKT som kodet under
-// --- I tillegg SKAL service-action-role attributtene i MottakenhetBlokk komme i helt spesifikk rekkefølge.
+// --- I tillegg noen attributter komme i helt spesifikk rekkefølge.
 class SykmeldingWriter(writer: XMLStreamWriter) : DelegatingXMLStreamWriter(writer) {
 
     // I element hvor attributtene skal komme spesialsortert, cacher vi dem til slutt-tagen skal skrives
