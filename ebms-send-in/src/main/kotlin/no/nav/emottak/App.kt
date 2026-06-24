@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory
 // (Se https://console.nav.cloud.nais.io/team/team-emottak/dev-fss/config/ebms-send-in)
 const val USE_ASYNC_IN_KEY = "USE_ASYNC_IN"
 const val USE_ASYNC_OUT_KEY = "USE_ASYNC_OUT"
+const val USE_DOMBUILDER_TREKKOPPLYSNING_KEY = "USE_DOMBUILDER"
 
 // todo så lenge vi sender noen Legemeldinger til nye og noen til gamle eMottak,
 //  bruker vi et id-prefiks for å skille ut de som hører til nye eMottak.
@@ -73,7 +74,9 @@ suspend fun ResourceScope.setupServer() {
     val eventRegistrationService = EventRegistrationServiceImpl(eventLoggingService, eventRegistrationScope)
 
     val trekkOpplysningMq = config().trekkOpplysningMq
-    val trekkopplysningService = TrekkopplysningService(trekkOpplysningMq)
+    val useDomBuilderForTrekkopplysning = getEnvVar(USE_DOMBUILDER_TREKKOPPLYSNING_KEY, "false").fixEnvStringFromConfig().toBoolean()
+    log.info("Set up Trekkopplysning to use DOM builder to generate XML: $useDomBuilderForTrekkopplysning")
+    val trekkopplysningService = TrekkopplysningService(trekkOpplysningMq, useDomBuilderForTrekkopplysning)
     log.info("Set up Trekkopplysning to use MQ with host ${trekkOpplysningMq.hostname}, port ${trekkOpplysningMq.port}, queueManager ${trekkOpplysningMq.queueManager}, channel ${trekkOpplysningMq.channel}, queue ${trekkOpplysningMq.queue}")
     val syfoMq = config().syfoMq
     val syfoMeldingService = SyfoMeldingService(syfoMq)

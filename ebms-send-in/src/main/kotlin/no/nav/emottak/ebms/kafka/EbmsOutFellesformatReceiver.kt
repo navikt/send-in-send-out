@@ -12,13 +12,11 @@ import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingResponseService
 import no.nav.emottak.fellesformat.unmarshal
-import no.nav.emottak.fixEnvStringFromConfig
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
-import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.kafka.model.EventType
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -100,6 +98,7 @@ suspend fun processMessage(
     val fellesformat = unmarshal(payload.toString(Charsets.UTF_8), EIFellesformat::class.java)
 
     log.info("EbmsOutFellesformat processing message from fagsystem")
+    log.debug("Fellesformat melding: ${payload.toString(Charsets.UTF_8)}")
 
     val mdcData = mapOf(
         "record_key" to recordKey,
@@ -118,19 +117,6 @@ suspend fun processMessage(
             conversationId = sendInResponse.conversationId
         )
         eventRegistrationService.registerEventMessageDetails(sendInResponse)
-
-        // Skip trekkopplysningsduplikater pga. rekjøring.
-        if (getEnvVar("DISABLE_TREKKOPPLYSNING_AVVISNING_RESPONSE", "false").takeIf { it.isNotBlank() }?.fixEnvStringFromConfig().toBoolean() &&
-            fellesformat.appRec != null && // Implisitt avvisning
-            fellesformat.mottakenhetBlokk.ebService == "Trekkopplysning" &&
-            fellesformat.mottakenhetBlokk.ebAction == "Avvisning"
-        ) {
-            log.warn(
-                "Skipper utsending av avvisning. Feilmelding: [${fellesformat.appRec.error}] " +
-                    "Record key: $recordKey, conversationId: ${sendInResponse.conversationId}, messageId: ${sendInResponse.messageId}"
-            )
-            return@withContext
-        }
 
         val json = Json.encodeToString<SendInResponse>(sendInResponse).toByteArray()
         ebmsOutPayloadProducer.send(sendInResponse.messageId, json)

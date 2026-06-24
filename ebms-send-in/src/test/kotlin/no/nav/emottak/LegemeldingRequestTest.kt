@@ -1,9 +1,9 @@
 package no.nav.emottak
 
 import kotlinx.datetime.Instant
+import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
-import no.nav.emottak.fellesformat.insertPayload
 import no.nav.emottak.legemelding.marshalLegemelding
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
@@ -50,7 +50,7 @@ class LegemeldingRequestTest {
     }
 
     @Test
-    fun verifyRequestAsXml_insertPayload() {
+    fun verifyRequestAsXml_withBuilder() {
         // Set up request with values that fit example file legemelding.xml
         // Had to tweak namespaces, and sort attributes alphabetically
         val request = SendInRequest(
@@ -68,13 +68,45 @@ class LegemeldingRequestTest {
         val fellesformat = request.asEIFellesFormat_LegemeldingWithoutPayload()
         val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalLegemelding(fellesformat)
+        val builder = FellesformatXmlBuilder()
 
-        val edited = insertPayload(xml, payloadFromExpectedXmlFile)
+        // Verify that it works OK also with prolog
+        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
+        val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
 
-        // Verify that we get expected XML (remove whitespace) V2 has ns in MsgHead element (is removed by unmarshal-marshal version)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemeldingV2.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(edited))
+        // Verify that we get expected XML (remove whitespace) V3 has compact ns definitions, and sorted attributes
+        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemeldingV3.xml")!!.readAllBytes().decodeToString()
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+    }
+
+    @Test
+    fun verifyRequestAsXml_withBuilderForCompleteDocument() {
+        // Set up request with values that fit example file legemelding.xml
+        // Had to tweak namespaces, and sort attributes alphabetically
+        val request = SendInRequest(
+            messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
+            requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            signedOf = "20086600138", payload = "".toByteArray(),
+            addressing = Addressing(
+                service = "Legemelding",
+                action = "Legeerklaring",
+                from = Party(role = "Lege", partyId = listOf(PartyId("orgnummer", "12345678910"))),
+                to = Party(role = "dummy", partyId = listOf())
+            )
+        )
+        // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
+        val fellesformat = request.asEIFellesFormat_LegemeldingWithoutPayload()
+        val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
+        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
+        val builder = FellesformatXmlBuilder()
+
+        // Verify that it works OK also with prolog
+        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
+        val xml = builder.buildXml(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
+
+        // Verify that we get expected XML (remove whitespace) V4 as V3 but mottakenhetblokk has sorted attributes
+        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemeldingV4.xml")!!.readAllBytes().decodeToString()
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
     }
 
     fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
