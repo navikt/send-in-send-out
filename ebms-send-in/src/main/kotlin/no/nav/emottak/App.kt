@@ -74,15 +74,19 @@ suspend fun ResourceScope.setupServer() {
     val eventRegistrationService = EventRegistrationServiceImpl(eventLoggingService, eventRegistrationScope)
 
     val trekkOpplysningMq = config().trekkOpplysningMq
-    val useDomBuilderForTrekkopplysning = getEnvVar(USE_DOMBUILDER_TREKKOPPLYSNING_KEY, "false").fixEnvStringFromConfig().toBoolean()
-    log.info("Set up Trekkopplysning to use DOM builder to generate XML: $useDomBuilderForTrekkopplysning")
-    val trekkopplysningService = TrekkopplysningService(trekkOpplysningMq, useDomBuilderForTrekkopplysning)
+    val trekkopplysningService = TrekkopplysningService(
+        trekkOpplysningMq,
+        getEnvVar(USE_DOMBUILDER_TREKKOPPLYSNING_KEY, "false").fixEnvStringFromConfig().toBoolean().also {
+            log.info("Set up Trekkopplysning to use DOM builder to generate XML: $it")
+        },
+        meterRegistry = prometheusMeterRegistry
+    )
     log.info("Set up Trekkopplysning to use MQ with host ${trekkOpplysningMq.hostname}, port ${trekkOpplysningMq.port}, queueManager ${trekkOpplysningMq.queueManager}, channel ${trekkOpplysningMq.channel}, queue ${trekkOpplysningMq.queue}")
     val syfoMq = config().syfoMq
-    val syfoMeldingService = SyfoMeldingService(syfoMq)
+    val syfoMeldingService = SyfoMeldingService(syfoMq, meterRegistry = prometheusMeterRegistry)
     log.info("Set up Sykemeldinger to use MQ with host ${syfoMq.hostname}, port ${syfoMq.port}, queueManager ${syfoMq.queueManager}, channel ${syfoMq.channel}, queue ${syfoMq.queue}")
     val paleMq = config().paleMq
-    val legeMeldingService = LegeMeldingService(paleMq)
+    val legeMeldingService = LegeMeldingService(paleMq, meterRegistry = prometheusMeterRegistry)
     log.info("Set up Legemeldinger to use MQ with host ${paleMq.hostname}, port ${paleMq.port}, queueManager ${paleMq.queueManager}, channel ${paleMq.channel}, queue ${paleMq.queue}")
 
     val outPayloadProducer = EbmsOutPayloadProducer(
