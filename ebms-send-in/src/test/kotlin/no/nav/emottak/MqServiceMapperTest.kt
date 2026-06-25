@@ -8,7 +8,10 @@ import no.nav.emottak.ebms.utils.AsyncRoutingAction.Companion.toAsyncRoutingActi
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import org.junit.jupiter.api.Test
+import java.lang.RuntimeException
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MqServiceMapperTest {
@@ -30,6 +33,12 @@ class MqServiceMapperTest {
         assertEquals(service2, mapper.get("Sykmelding".toSupportedAsyncService()))
         assertEquals(service3, mapper.get("Kvittering".toAsyncRoutingAction("DialogmoteInnkalling".toSupportedAsyncService())))
         assertEquals(service4, mapper.get("MoteRespons".toAsyncRoutingAction("DialogmoteInnkalling".toSupportedAsyncService())))
+        assertNull(mapper.get("Unknown".toSupportedAsyncService()))
+        assertNull(mapper.get("Unknown".toAsyncRoutingAction("DialogmoteInnkalling".toSupportedAsyncService())))
+        assertNull(mapper.get("Kvittering".toAsyncRoutingAction("Trekkopplysning".toSupportedAsyncService())))
+        assertFailsWith<RuntimeException> {
+            mapper.get("DialogmoteInnkalling".toSupportedAsyncService())
+        }
     }
 
     @Test

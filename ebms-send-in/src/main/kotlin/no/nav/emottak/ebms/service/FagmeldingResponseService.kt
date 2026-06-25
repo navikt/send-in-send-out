@@ -16,6 +16,8 @@ import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
 
+// NB: denne er kun ment brukt for RESPONS-meldinger (sendt som respons på en melding TIL NAV), ikke meldinger som oppstår fra NAV uten å være svar.
+// Meldinger som ikke er svar, må ha fullstendig innhold i MottakenhetBlokken, bl.a. toRole (hvilket felt??) og har ingen refToMessageId.
 object FagmeldingResponseService {
 
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingResponseService")
@@ -42,6 +44,7 @@ object FagmeldingResponseService {
 
     fun getResponse(fellesFormatResponse: EIFellesformat): SendInResponse {
         val toPartyIds = getToPartyId(fellesFormatResponse.mottakenhetBlokk)
+        // todo toRole kan evt være blank her, hvis man alltid fyller ut felter fra innkommende melding i ebms-async (får da toRole fra fromRole i den)
         val toRole =
             when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
                 SupportedAsyncServiceType.Trekkopplysning ->
