@@ -15,14 +15,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
+import no.nav.emottak.ebms.MqServiceMapper
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.receiveEither
-import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.log
-import no.nav.emottak.sykmelding.SyfoMeldingService
-import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
@@ -33,9 +31,7 @@ import no.nav.emottak.utils.serialization.toEventDataJson
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService,
-    syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
+    mqServiceMapper: MqServiceMapper,
     useAsyncIn: Boolean
 ) {
     authenticate(AZURE_AD_AUTH) {
@@ -55,7 +51,7 @@ fun Route.fagmeldingRoutes(
             )
 
             withContext(Dispatchers.IO + MDCContext(mdcData)) {
-                // midlertidig hack til vi har async kall fra ebmxl-prosessor
+                // midlertidig hack til vi har async kall fra ebmxl-prosessor FJERN DETTE NÅ ??
                 if (useAsyncIn) {
                     if (sendInRequest.addressing.service.toSupportedAsyncService() == SupportedAsyncServiceType.Trekkopplysning) {
                         log.warn("Trekkopplysning is received synchronously, and will be further processed asynchronously. However the synchronous response will be empty and probably regarded as an error.")
@@ -63,9 +59,7 @@ fun Route.fagmeldingRoutes(
                             sendInRequest,
                             prometheusMeterRegistry,
                             eventRegistrationService,
-                            trekkopplysningService,
-                            syfoMeldingService,
-                            legeMeldingService,
+                            mqServiceMapper = mqServiceMapper,
                             call
                         )
                         return@withContext
@@ -108,9 +102,7 @@ private suspend fun callTrekkopplysningAsync(
     sendInRequest: SendInRequest,
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService,
-    syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
+    mqServiceMapper: MqServiceMapper,
     call: RoutingCall
 ) {
     val result: Either<Throwable, Unit> = either {
@@ -118,9 +110,7 @@ private suspend fun callTrekkopplysningAsync(
             sendInRequest,
             prometheusMeterRegistry,
             eventRegistrationService,
-            trekkopplysningService,
-            syfoMeldingService,
-            legeMeldingService
+            mqServiceMapper
         ).bind()
     }
 
@@ -147,36 +137,19 @@ private suspend fun callTrekkopplysningAsync(
 }
 
 fun Route.verifyMq(
-    trekkopplysningService: TrekkopplysningService,
-    syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService
+    mqServiceMapper: MqServiceMapper
 ) {
     get("/testMq") {
         log.info("Testing MQ......")
         var message = ""
-        try {
-            trekkopplysningService.verifyConnection()
-            message = "MQ connection for Trekkopplysning OK"
-            log.info(message)
-        } catch (e: Exception) {
-            message = "Error when testing MQ connection for Trekkopplysning: " + (e.localizedMessage ?: e.javaClass.simpleName)
-            log.error(message, e)
-        }
-        try {
-            syfoMeldingService.verifyConnection()
-            message += ", MQ connection for Sykmelding OK"
-            log.info(message)
-        } catch (e: Exception) {
-            message = message + ", Error when testing MQ connection for Sykmelding: " + (e.localizedMessage ?: e.javaClass.simpleName)
-            log.error(message, e)
-        }
-        try {
-            legeMeldingService.verifyConnection()
-            message += ", MQ connection for Legemelding OK"
-            log.info(message)
-        } catch (e: Exception) {
-            message = message + ", Error when testing MQ connection for Legemelding: " + (e.localizedMessage ?: e.javaClass.simpleName)
-            log.error(message, e)
+        mqServiceMapper.list().forEach { mqService ->
+            try {
+                mqService.verifyConnection()
+                message += " MQ connection for ${mqService.javaClass.simpleName} OK."
+            } catch (e: Exception) {
+                message += " Error when testing MQ connection for ${mqService.javaClass.simpleName}: " + (e.localizedMessage ?: e.javaClass.simpleName)
+                log.error(message, e)
+            }
         }
         call.respond(message)
     }

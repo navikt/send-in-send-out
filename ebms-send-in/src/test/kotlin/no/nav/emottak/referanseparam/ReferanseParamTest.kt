@@ -1,6 +1,6 @@
 package no.nav.emottak.referanseparam
 
-import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.fellesformat.asEIFellesFormat_FrikortMengde
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.validSendInHarBorgerEgenandelFritakRequest
 import no.nav.emottak.validSendInHarBorgerFrikortMengdeRequest
@@ -14,7 +14,7 @@ class ReferanseParamTest {
     @Test
     fun `Wrap HarBorgerFrikort in Fellesformat`() {
         val sendInRequest = validSendInHarBorgerFrikortRequest.value
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         val refParam = fellesFormat.extractReferenceParameter()
         assertEquals("123456", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
@@ -23,7 +23,7 @@ class ReferanseParamTest {
     @Test
     fun `Wrap HarBorgerEgenadelMengde in Fellesformat`() {
         val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         val refParam = fellesFormat.extractReferenceParameter()
         assertEquals("2", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
@@ -32,7 +32,7 @@ class ReferanseParamTest {
     @Test
     fun `Wrap HarBorgerEgenadelFritak in Fellesformat`() {
         val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         val refParam = fellesFormat.extractReferenceParameter()
         assertEquals("123456", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
@@ -41,7 +41,7 @@ class ReferanseParamTest {
     @Test
     fun `Wrap Inntektsforesporsel in Fellesformat`() {
         val sendInRequest = validSendInInntektforesporselRequest.value
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         val refParam = fellesFormat.extractReferenceParameter()
         assertEquals("******", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)

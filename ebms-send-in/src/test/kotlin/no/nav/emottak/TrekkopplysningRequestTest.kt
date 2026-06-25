@@ -2,8 +2,8 @@ package no.nav.emottak
 
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.FellesformatXmlBuilder
-import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
-import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
+import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.fellesformat.asEIFellesFormat_WithoutPayload
 import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
@@ -39,7 +39,7 @@ class TrekkopplysningRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
-        val fellesformat = request.asEIFellesFormat_Trekkopplysning()
+        val fellesformat = request.asEIFellesFormat()
         val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val xml = marshalTrekkopplysning(fellesformat)
@@ -65,7 +65,7 @@ class TrekkopplysningRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
-        val fellesformat = request.asEIFellesFormat_TrekkopplysningWithoutPayload()
+        val fellesformat = request.asEIFellesFormat_WithoutPayload()
         val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val builder = FellesformatXmlBuilder()

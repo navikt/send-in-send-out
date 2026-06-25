@@ -1,8 +1,9 @@
 package no.nav.emottak.ebms
 
 import no.nav.emottak.ebms.service.JmsClient
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
-open class MqService(val jmSclient: JmsClient, val queue: String) {
+abstract class MqService(val jmSclient: JmsClient, val queue: String) {
 
     fun sendMessage(messageText: String) {
         jmSclient.sendMessage(queue, messageText)
@@ -11,4 +12,6 @@ open class MqService(val jmSclient: JmsClient, val queue: String) {
     fun verifyConnection() {
         jmSclient.verifyConnection()
     }
+
+    abstract fun buildAndSend(fellesformat: EIFellesformat, payload: ByteArray)
 }
