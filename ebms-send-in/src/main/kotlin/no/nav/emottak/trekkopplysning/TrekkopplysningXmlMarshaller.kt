@@ -15,22 +15,6 @@ val trekkopplysningXmlMarshaller = XmlMarshaller(
     )
 )
 
-val msgheadTrekkopplysningMarshaller = XmlMarshaller(
-    newInstance(
-        no.kith.xmlstds.msghead._2006_05_24.ObjectFactory::class.java,
-        org.w3._1999.xlink.ObjectFactory::class.java,
-        org.w3._2009.xmldsig11_.ObjectFactory::class.java
-    )
-)
-
-val apprecTrekkopplysningMarshaller = XmlMarshaller(
-    newInstance(
-        no.kith.xmlstds.apprec._2004_11_21.ObjectFactory::class.java,
-        org.w3._1999.xlink.ObjectFactory::class.java,
-        org.w3._2009.xmldsig11_.ObjectFactory::class.java
-    )
-)
-
 fun marshalTrekkopplysning(fellesFormat: EIFellesformat): String {
     val writer = StringWriter()
     val xmlStreamWriter = TrekkopplysningWriter(XMLOutputFactory.newFactory().createXMLStreamWriter(writer))

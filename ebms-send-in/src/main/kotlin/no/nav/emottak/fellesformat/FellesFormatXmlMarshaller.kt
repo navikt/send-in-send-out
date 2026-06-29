@@ -2,6 +2,7 @@ package no.nav.emottak.fellesformat
 
 import no.nav.emottak.util.XmlMarshaller
 import javax.xml.bind.JAXBContext
+import javax.xml.bind.JAXBContext.newInstance
 
 val FellesFormatXmlMarshaller = XmlMarshaller(
 /* NB! Forsiktig med å marshalle fagmeldingen.
@@ -42,3 +43,19 @@ val MessageContentMarshaller = XmlMarshaller(
 fun marshal(objekt: Any) = FellesFormatXmlMarshaller.marshal(objekt)
 
 fun <T> unmarshal(xml: String, clazz: Class<T>) = FellesFormatXmlMarshaller.unmarshal(xml, clazz)
+
+val msgheadMarshaller = XmlMarshaller(
+    newInstance(
+        no.kith.xmlstds.msghead._2006_05_24.ObjectFactory::class.java,
+        org.w3._1999.xlink.ObjectFactory::class.java,
+        org.w3._2009.xmldsig11_.ObjectFactory::class.java
+    )
+)
+
+val apprecMarshaller = XmlMarshaller(
+    newInstance(
+        no.kith.xmlstds.apprec._2004_11_21.ObjectFactory::class.java,
+        org.w3._1999.xlink.ObjectFactory::class.java,
+        org.w3._2009.xmldsig11_.ObjectFactory::class.java
+    )
+)

@@ -79,6 +79,8 @@ spec:
       value: /secret/srvtokt
     - name: SERVICEUSERMQ_SECRET_PATH
       value: /secret/srvemottakmq
+    - name: NAV_HER_ID
+      value: "79768"
     - name: MQ_HOST
       value: "mqls04.preprod.local"
     - name: MQ_PORT
@@ -89,9 +91,17 @@ spec:
       value: "MQLS04"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"
-    - name: NAV_HER_ID
-      value: "79768"
     - name: SYFO_MQ_QUEUE
       value: "QA.Q1_SYFOSMMOTTAK.INPUT"
     - name: PALE_MQ_QUEUE
       value: "QA.Q1_PALE.INPUT"
+    - name: OPPGJOR_MQ_QUEUE
+      value: "QA.Q414.FS06_KONTROLL_OPPGJOR"
+    - name: ERESEPT_M18_MQ_QUEUE
+      value: "QA.Q2216.ERESEPT_M18_MDB"
+    - name: ERESEPT_APPREC_MQ_QUEUE
+      value: "QA.Q2216.ERESEPT_APPREC_MDB"
+    - name: EIA_MQ_QUEUE
+      value: "QA.Q414.FS06_EIA_MELDINGER"
+    - name: DIALOG_MQ_QUEUE
+      value: "QA.Q1_DIALOGFORDELER.DIALOGMELDINGER"

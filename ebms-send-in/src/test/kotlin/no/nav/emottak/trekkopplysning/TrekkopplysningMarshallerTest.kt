@@ -3,6 +3,8 @@ package no.nav.emottak.trekkopplysning
 import no.kith.xmlstds.apprec._2004_11_21.AppRec
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.fellesformat.apprecMarshaller
+import no.nav.emottak.fellesformat.msgheadMarshaller
 import no.nav.emottak.fellesformat.unmarshal
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.junit.jupiter.api.Test
@@ -20,7 +22,7 @@ class TrekkopplysningMarshallerTest {
     fun `kvittering - top-level MsgHead element has no namespace prefix`() {
         val fellesformat = unmarshal(loadResource("trekkopplysning_kvittering.xml"), EIFellesformat::class.java)
 
-        val xml = msgheadTrekkopplysningMarshaller.marshal(fellesformat.msgHead)
+        val xml = msgheadMarshaller.marshal(fellesformat.msgHead)
 
         assertTrue(xml.contains("<MsgHead "), "Expected unprefixed <MsgHead> but got:\n$xml")
         assertTrue(xml.contains("""xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24""""), "Expected default namespace on MsgHead")
@@ -30,7 +32,7 @@ class TrekkopplysningMarshallerTest {
     fun `avvisning - top-level AppRec element has no namespace prefix`() {
         val fellesformat = unmarshal(loadResource("trekkopplysning_avvisning.xml"), EIFellesformat::class.java)
 
-        val xml = String(apprecTrekkopplysningMarshaller.marshalToByteArray(fellesformat.appRec))
+        val xml = String(apprecMarshaller.marshalToByteArray(fellesformat.appRec))
 
         assertTrue(xml.contains("<AppRec "), "Expected unprefixed <AppRec> but got:\n$xml")
         assertTrue(xml.contains("""xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21""""), "Expected default namespace on AppRec")
@@ -43,7 +45,7 @@ class TrekkopplysningMarshallerTest {
         val fellesformat = unmarshal(loadResource("trekkopplysning_kvittering.xml"), EIFellesformat::class.java)
         val msgHead = fellesformat.msgHead
 
-        val xml = msgheadTrekkopplysningMarshaller.marshal(msgHead)
+        val xml = msgheadMarshaller.marshal(msgHead)
 
         assertTrue(xml.contains("http://www.kith.no/xmlstds/msghead/2006-05-24"))
         assertTrue(xml.contains("MsgHead"))
@@ -54,8 +56,8 @@ class TrekkopplysningMarshallerTest {
         val fellesformat = unmarshal(loadResource("trekkopplysning_kvittering.xml"), EIFellesformat::class.java)
         val msgHead = fellesformat.msgHead
 
-        val xml = msgheadTrekkopplysningMarshaller.marshal(msgHead)
-        val restored = msgheadTrekkopplysningMarshaller.unmarshal(xml, MsgHead::class.java)
+        val xml = msgheadMarshaller.marshal(msgHead)
+        val restored = msgheadMarshaller.unmarshal(xml, MsgHead::class.java)
 
         assertNotNull(restored.msgInfo)
         assertEquals("f2f0f2f6-f0f4-f2f1-f1f3-f2f5f1f6f9f4", restored.msgInfo.msgId)
@@ -70,7 +72,7 @@ class TrekkopplysningMarshallerTest {
         val fellesformat = unmarshal(loadResource("trekkopplysning_kvittering.xml"), EIFellesformat::class.java)
         val msgHead = fellesformat.msgHead
 
-        val bytes = msgheadTrekkopplysningMarshaller.marshalToByteArray(msgHead)
+        val bytes = msgheadMarshaller.marshalToByteArray(msgHead)
 
         assertTrue(bytes.isNotEmpty())
         assertTrue(String(bytes).contains("f2f0f2f6-f0f4-f2f1-f1f3-f2f5f1f6f9f4"))
@@ -85,10 +87,10 @@ class TrekkopplysningMarshallerTest {
         println(String(FellesFormatXmlMarshaller.marshalToByteArray(kvittering.msgHead)))
 
         println("=== kvittering (MsgHead) ===")
-        println(String(msgheadTrekkopplysningMarshaller.marshalToByteArray(kvittering.msgHead)))
+        println(String(msgheadMarshaller.marshalToByteArray(kvittering.msgHead)))
 
         println("=== avvisning (AppRec) via apprecTrekkopplysningMarshaller ===")
-        println(String(apprecTrekkopplysningMarshaller.marshalToByteArray(avvisning.appRec)))
+        println(String(apprecMarshaller.marshalToByteArray(avvisning.appRec)))
     }
 
     // avvisning contains an AppRec inside EI_fellesformat
@@ -98,7 +100,7 @@ class TrekkopplysningMarshallerTest {
         val fellesformat = unmarshal(loadResource("trekkopplysning_avvisning.xml"), EIFellesformat::class.java)
         val appRec = fellesformat.appRec
 
-        val xml = String(apprecTrekkopplysningMarshaller.marshalToByteArray(appRec))
+        val xml = String(apprecMarshaller.marshalToByteArray(appRec))
 
         assertTrue(xml.contains("AppRec"))
         assertTrue(xml.contains("Avvist"))
@@ -109,8 +111,8 @@ class TrekkopplysningMarshallerTest {
         val fellesformat = unmarshal(loadResource("trekkopplysning_avvisning.xml"), EIFellesformat::class.java)
         val appRec = fellesformat.appRec
 
-        val xml = String(apprecTrekkopplysningMarshaller.marshalToByteArray(appRec))
-        val restored = apprecTrekkopplysningMarshaller.unmarshal(xml, AppRec::class.java)
+        val xml = String(apprecMarshaller.marshalToByteArray(appRec))
+        val restored = apprecMarshaller.unmarshal(xml, AppRec::class.java)
 
         assertEquals("f2f0f2f6-f0f5-f0f4-f1f4-f2f6f0f3f4f8", restored.id)
         assertEquals("2", restored.status.v)

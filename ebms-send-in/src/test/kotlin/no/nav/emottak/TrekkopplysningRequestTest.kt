@@ -2,8 +2,8 @@ package no.nav.emottak
 
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.FellesformatXmlBuilder
-import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
-import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
+import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.fellesformat.asEIFellesFormat_WithoutPayload
 import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
@@ -30,7 +30,7 @@ class TrekkopplysningRequestTest {
         val request = SendInRequest(
             messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
             requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "dummy", payload = payloadFromExpectedXmlFile.toByteArray(),
+            payload = payloadFromExpectedXmlFile.toByteArray(),
             addressing = Addressing(
                 service = "Trekkopplysning",
                 action = "Innmelding",
@@ -39,7 +39,7 @@ class TrekkopplysningRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
-        val fellesformat = request.asEIFellesFormat_Trekkopplysning()
+        val fellesformat = request.asEIFellesFormat()
         val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val xml = marshalTrekkopplysning(fellesformat)
@@ -56,7 +56,7 @@ class TrekkopplysningRequestTest {
         val request = SendInRequest(
             messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
             requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "dummy", payload = "".toByteArray(),
+            payload = "".toByteArray(),
             addressing = Addressing(
                 service = "Trekkopplysning",
                 action = "Innmelding",
@@ -65,7 +65,7 @@ class TrekkopplysningRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
-        val fellesformat = request.asEIFellesFormat_TrekkopplysningWithoutPayload()
+        val fellesformat = request.asEIFellesFormat_WithoutPayload()
         val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val builder = FellesformatXmlBuilder()

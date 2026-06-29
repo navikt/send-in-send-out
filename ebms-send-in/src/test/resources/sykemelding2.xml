@@ -314,6 +314,6 @@
     <MottakenhetBlokk ediLoggId="2604160914prid26694.1" avsender="912719103"
                       ebXMLSamtaleId="a219014c-9739-4263-983a-6dd9fc82f8f1" meldingsType="xml" avsenderRef=""
                       avsenderFnrFraDigSignatur="06828399789" mottattDatotid="2026-04-16T09:14:27.000Z"
-                      orgNummer="" partnerReferanse="nav:qass:36181" herIdentifikator=""
+                      orgNummer="912719103" partnerReferanse="nav:qass:36181" herIdentifikator=""
                       ebAction="Registrering" ebRole="Sykmelder" ebService="Sykmelding"/>
 </EI_fellesformat>
