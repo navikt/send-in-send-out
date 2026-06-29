@@ -61,6 +61,10 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         meldingsType = "xml"
         this.partnerReferanse = sendInRequest.cpaId
         avsenderRef = ""
+        // todo når vi får meldingstyper som skal være signert av org må vi velge å sette avsenderOrgNrFraDigSignatur
+        if (sendInRequest.signedOf != null) {
+            avsenderFnrFraDigSignatur = sendInRequest.signedOf
+        }
     }
 }
 
@@ -73,7 +77,7 @@ private fun createFellesFormatMottakEnhetBlokk_Frikort(sendInRequest: SendInRequ
     }
 }
 
-// usikker på om de er nødvendige
+// Kan fjernes når vi tar inn fnr uansett ?
 private fun createFellesFormatMottakEnhetBlokk_Sykmelding(sendInRequest: SendInRequest): EIFellesformat.MottakenhetBlokk {
     return createFellesFormatMottakEnhetBlokk(sendInRequest).apply {
         avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"

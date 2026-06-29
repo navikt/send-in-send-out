@@ -30,7 +30,7 @@ class TrekkopplysningRequestTest {
         val request = SendInRequest(
             messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
             requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "dummy", payload = payloadFromExpectedXmlFile.toByteArray(),
+            payload = payloadFromExpectedXmlFile.toByteArray(),
             addressing = Addressing(
                 service = "Trekkopplysning",
                 action = "Innmelding",
@@ -56,7 +56,7 @@ class TrekkopplysningRequestTest {
         val request = SendInRequest(
             messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
             requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "dummy", payload = "".toByteArray(),
+            payload = "".toByteArray(),
             addressing = Addressing(
                 service = "Trekkopplysning",
                 action = "Innmelding",
