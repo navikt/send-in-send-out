@@ -1,6 +1,5 @@
 package no.nav.emottak.frikort.rest
 
-import kotlinx.datetime.Clock
 import no.helsedir.frikort.frikorttjenester.model.CS
 import no.helsedir.frikort.frikorttjenester.model.Content
 import no.helsedir.frikort.frikorttjenester.model.Document
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import kotlin.time.Clock
 
 class FrikortRestModelToKithXmlModelMapperTest {
 

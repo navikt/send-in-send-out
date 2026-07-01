@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.transformers.AppendingTransformer
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.kotlin.dsl.testLibs
 
@@ -12,7 +13,7 @@ plugins {
     application
     id("io.ktor.plugin")
     id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
-    id("org.openapi.generator") version "7.6.0"
+    id("org.openapi.generator") version "7.22.0"
 }
 
 openApiGenerate {
@@ -48,9 +49,10 @@ sourceSets {
 
 tasks {
     shadowJar {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         mergeServiceFiles()
         transform(AppendingTransformer::class.java) {
-            this.resource = "META-INF/cxf/bus-extensions.txt"
+            resource.set("META-INF/cxf/bus-extensions.txt")
         }
         archiveFileName.set("app.jar")
     }
@@ -135,7 +137,7 @@ dependencies {
     implementation(libs.jakarta.jms.api)
     implementation(libs.ibm.mq.allclient)
     implementation(libs.kotlinx.coroutines.slf4j)
-    implementation(libs.stacktrace.decoroutinator.jvm)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.jaxb.api)
     implementation(libs.javax.activation)
     implementation(libs.kafka.clients)
