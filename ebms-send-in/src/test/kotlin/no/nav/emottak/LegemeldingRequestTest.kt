@@ -10,13 +10,13 @@ import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInRequest
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.ZoneId
 import java.util.GregorianCalendar
 import java.util.TimeZone
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
-import kotlin.test.assertEquals
 import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalTime::class)
