@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+    <MottakenhetBlokk ediLoggId="2605071803vakl34068.1" ebRole="Saksbehandler" ebService="Sykmelding" ebAction="Svar"/>
+    <AppRec xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21">
+        <MsgType V="APPREC"/>
+        <MIGversion>1.0 2004-11-21
+        </MIGversion>
+        <GenDate>2026-05-07T16:03:39.530273151Z</GenDate>
+        <Id>2605071803vakl34068.1</Id>
+        <Sender>
+            <HCP>
+                <Inst>
+                    <Name>NAV</Name>
+                    <Id>79768</Id>
+                    <TypeId DN="HER-id" V="HER"/>
+                </Inst>
+            </HCP>
+        </Sender>
+        <Receiver>
+            <HCP>
+                <Inst>
+                    <Name>WebMed Ekstern Test - VAKLENDE TAUS KATT AMBOLT</Name>
+                    <Id>8139670</Id>
+                    <TypeId DN="HER-id" V="HER"/>
+                    <AdditionalId>
+                        <Id>311029568</Id>
+                        <Type DN="Organisasjonsnummeret i Enhetsregister" V="ENH"/>
+                    </AdditionalId>
+                    <HCPerson>
+                        <Name>Webmed Admin</Name>
+                        <Id>565601003</Id>
+                        <TypeId DN="HPR-nummer" V="HPR"/>
+                        <AdditionalId>
+                            <Id>8143656</Id>
+                            <Type DN="HER-id" V="HER"/>
+                        </AdditionalId>
+                    </HCPerson>
+                </Inst>
+            </HCP>
+        </Receiver>
+        <Status DN="Avvist" V="2"/>
+        <Error DN="Sykmeldingen kan ikke rettes, det må skrives en ny.Pasienten har ikke fått beskjed, men venter på ny sykmelding fra deg. Grunnet følgende:Pasienten er ikke registrert i folkeregisteret"
+                S="2.16.578.1.12.4.1.1.8221" V="X99"/>
+        <OriginalMsgId>
+            <MsgType DN="Vurdering av arbeidsmulighet / sykmelding" V="SYKMELD"/>
+            <IssueDate>2026-05-07T18:03:05+02:00</IssueDate>
+            <Id>fc41c7c2-dd53-4e9d-8615-446ffd748c06</Id>
+        </OriginalMsgId>
+    </AppRec>
+</EI_fellesformat>

@@ -79,15 +79,19 @@ spec:
       value: /secret/srvtokt
     - name: SERVICEUSERMQ_SECRET_PATH
       value: /secret/srvemottakmq
-    - name: TREKKOPPL_MQ_HOST
+    - name: MQ_HOST
       value: "mqls04.preprod.local"
-    - name: TREKKOPPL_MQ_PORT
+    - name: MQ_PORT
       value: "1413"
-    - name: TREKKOPPL_MQ_QMGR
-      value: "MQLS04"
-    - name: TREKKOPPL_MQ_CHANNEL
+    - name: MQ_CHANNEL
       value: "Q1_EMOTTAK_ASYNCH"
+    - name: MQ_QMGR
+      value: "MQLS04"
     - name: TREKKOPPL_MQ_QUEUE
       value: "QA.Q1_231.OB04_INNRAPP_TREKK"
     - name: NAV_HER_ID
       value: "79768"
+    - name: SYFO_MQ_QUEUE
+      value: "QA.Q1_SYFOSMMOTTAK.INPUT"
+    - name: PALE_MQ_QUEUE
+      value: "QA.Q1_PALE.INPUT"

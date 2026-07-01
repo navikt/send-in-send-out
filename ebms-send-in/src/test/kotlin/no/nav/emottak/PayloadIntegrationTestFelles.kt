@@ -17,6 +17,8 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.auth.AuthConfig
+import no.nav.emottak.legemelding.LegeMeldingService
+import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceFake
@@ -82,8 +84,10 @@ abstract class PayloadIntegrationTestFelles(
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
             val trekkopplysningService: TrekkopplysningService = mockk()
+            val syfoMeldingService: SyfoMeldingService = mockk()
+            val legeMeldingService: LegeMeldingService = mockk()
             application {
-                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, false)
+                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, false)
             }
             testBlock(eventRegistrationService)
         }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/">
+    <MottakenhetBlokk ediLoggId="2604291036test30876.1" ebRole="Saksbehandler" ebService="Sykmelding" ebAction="Svar"/>
+    <AppRec xmlns="http://www.kith.no/xmlstds/apprec/2004-11-21">
+        <MsgType V="APPREC"/>
+        <MIGversion>1.0 2004-11-21</MIGversion>
+        <GenDate>2026-04-29T08:36:12.784111045Z</GenDate>
+        <Id>2604291036test30876.1</Id>
+        <Sender>
+            <HCP>
+                <Inst>
+                    <Name>NAV IKT</Name>
+                    <Id>79768</Id>
+                    <TypeId DN="HER-id" V="HER"/>
+                    <AdditionalId>
+                        <Id>990983291</Id>
+                        <Type DN="Organisasjonsnummeret i Enhetsregister" V="ENH"/>
+                    </AdditionalId>
+                </Inst>
+            </HCP>
+        </Sender>
+        <Receiver>
+            <HCP>
+                <Inst>
+                    <Name>PRIDOK AS</Name>
+                    <Id>122469</Id>
+                    <TypeId DN="HER-id" V="HER"/>
+                    <AdditionalId>
+                        <Id>912719103</Id>
+                        <Type DN="Organisasjonsnummeret i Enhetsregister" V="ENH"/>
+                    </AdditionalId>
+                    <HCPerson>
+                        <Name>GREVLING KVART</Name>
+                        <Id>164936</Id>
+                        <TypeId DN="HER-id" V="HER"/>
+                        <AdditionalId>
+                            <Id>565505933</Id>
+                            <Type DN="HPR-nummer" V="HPR"/>
+                        </AdditionalId>
+                    </HCPerson>
+                </Inst>
+            </HCP>
+        </Receiver>
+        <Status DN="OK" V="1"/>
+        <OriginalMsgId>
+            <MsgType DN="Medisinsk vurdering av arbeidsmulighet ved sykdom, sykmelding" V="SYKMELD"/>
+            <IssueDate>2026-04-29T10:35:23</IssueDate>
+            <Id>b0315ebc-febe-4185-9e8c-aba994375a6f</Id>
+        </OriginalMsgId>
+    </AppRec>
+</EI_fellesformat>

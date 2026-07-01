@@ -2,6 +2,8 @@ package no.nav.emottak.ebms.utils
 
 internal enum class SupportedAsyncServiceType(val service: String) {
     Trekkopplysning("Trekkopplysning"),
+    Sykmelding("Sykmelding"),
+    Legemelding("Legemelding"),
     Unsupported("Unsupported");
 
     companion object {
