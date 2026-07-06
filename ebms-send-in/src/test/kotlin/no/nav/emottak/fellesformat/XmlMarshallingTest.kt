@@ -5,9 +5,9 @@ import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.msghead._2006_05_24.MsgInfo
 import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.w3._2000._09.xmldsig_.SignatureType
-import kotlin.test.assertEquals
 
 class XmlMarshallingTest {
 
