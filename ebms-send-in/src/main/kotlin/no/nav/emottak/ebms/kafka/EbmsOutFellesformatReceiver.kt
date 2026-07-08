@@ -98,6 +98,7 @@ suspend fun processMessage(
     val fellesformat = unmarshal(payload.toString(Charsets.UTF_8), EIFellesformat::class.java)
 
     log.info("EbmsOutFellesformat processing message from fagsystem")
+    log.debug("Fellesformat melding: ${payload.toString(Charsets.UTF_8)}")
 
     val mdcData = mapOf(
         "record_key" to recordKey,

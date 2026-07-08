@@ -1,8 +1,13 @@
 package no.nav.emottak.ebms.service
 
+import no.nav.emottak.NYE_EMOTTAK_LEGEMELDING_ID_PREFIX
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
+import no.nav.emottak.legemelding.apprecLegemeldingMarshaller
+import no.nav.emottak.legemelding.msgheadLegemeldingMarshaller
+import no.nav.emottak.sykmelding.apprecSykmeldingMarshaller
+import no.nav.emottak.sykmelding.msgheadSykmeldingMarshaller
 import no.nav.emottak.trekkopplysning.apprecTrekkopplysningMarshaller
 import no.nav.emottak.trekkopplysning.msgheadTrekkopplysningMarshaller
 import no.nav.emottak.util.LogLevel
@@ -46,6 +51,10 @@ object FagmeldingResponseService {
             when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
                 SupportedAsyncServiceType.Trekkopplysning ->
                     "Fordringshaver"
+                SupportedAsyncServiceType.Sykmelding ->
+                    "Sykmelder"
+                SupportedAsyncServiceType.Legemelding ->
+                    "Lege"
                 SupportedAsyncServiceType.Unsupported ->
                     throw NotImplementedError(
                         "Service: ${fellesFormatResponse.mottakenhetBlokk.ebService} is not implemented"
@@ -59,17 +68,32 @@ object FagmeldingResponseService {
                 } else {
                     apprecTrekkopplysningMarshaller
                 }
+            SupportedAsyncServiceType.Sykmelding ->
+                if (fellesFormatResponse.msgHead != null) {
+                    msgheadSykmeldingMarshaller
+                } else {
+                    apprecSykmeldingMarshaller
+                }
+            SupportedAsyncServiceType.Legemelding ->
+                if (fellesFormatResponse.msgHead != null) {
+                    msgheadLegemeldingMarshaller
+                } else {
+                    apprecLegemeldingMarshaller
+                }
             SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
         }
 
+        // todo foreløpig løsning, har kun effekt for legemelding-respons
+        val refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId.removePrefix(NYE_EMOTTAK_LEGEMELDING_ID_PREFIX)
+
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
-            refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId,
-            conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId,
-            cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse,
+            refToMessageId = refToMessageId,
+            conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId ?: "",
+            cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse ?: "",
             addressing = Addressing(
                 Party(toPartyIds, toRole),
-                Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole),
+                Party(listOf(PartyId(HER_ID_TYPE, navHerId)), fellesFormatResponse.mottakenhetBlokk.ebRole ?: ""),
                 fellesFormatResponse.mottakenhetBlokk.ebService,
                 fellesFormatResponse.mottakenhetBlokk.ebAction
             ),
@@ -78,6 +102,7 @@ object FagmeldingResponseService {
             ),
             requestId = Uuid.random().toString()
         )
+
         log.asJson(
             LogLevel.DEBUG,
             "Sending SendInResponse",

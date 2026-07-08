@@ -1,0 +1,186 @@
+package no.nav.emottak
+
+import kotlinx.datetime.Instant
+import no.nav.emottak.fellesformat.FellesformatXmlBuilder
+import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
+import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
+import no.nav.emottak.trekkopplysning.marshalTrekkopplysning
+import no.nav.emottak.utils.common.model.Addressing
+import no.nav.emottak.utils.common.model.EbmsProcessing
+import no.nav.emottak.utils.common.model.Party
+import no.nav.emottak.utils.common.model.PartyId
+import no.nav.emottak.utils.common.model.SendInRequest
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import java.time.ZoneId
+import java.util.GregorianCalendar
+import java.util.TimeZone
+import javax.xml.datatype.DatatypeFactory
+import javax.xml.datatype.XMLGregorianCalendar
+import kotlin.time.ExperimentalTime
+
+@OptIn(ExperimentalTime::class)
+class TrekkopplysningRequestTest {
+
+    // Verify that a given Trekkopplysning request is converted to the expected Fellesformat XML string
+
+    @Test
+    fun verifyRequestAsXml_unmarshal_marshal() {
+        // Set up request with values that fit example file trekkopplysning.xml
+        val request = SendInRequest(
+            messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
+            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            signedOf = "dummy", payload = payloadFromExpectedXmlFile.toByteArray(),
+            addressing = Addressing(
+                service = "Trekkopplysning",
+                action = "Innmelding",
+                from = Party(role = "Fordringshaver", partyId = listOf(PartyId("HER", "8142626"), PartyId("orgnummer", "123456789"))),
+                to = Party(role = "dummy", partyId = listOf())
+            )
+        )
+        // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
+        val fellesformat = request.asEIFellesFormat_Trekkopplysning()
+        val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
+        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
+        val xml = marshalTrekkopplysning(fellesformat)
+
+        // Verify that we get expected XML (remove whitespace)
+        val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning.xml")!!.readAllBytes().decodeToString()
+//        loggDiff(expectedXml, xml)
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+    }
+
+    @Test
+    fun verifyRequestAsXml_withBuilder() {
+        // Set up request with values that fit example file trekkopplysning.xml
+        val request = SendInRequest(
+            messageId = "69abb69f-b491-4d34-aeb1-10c02c7b98b6", conversationId = "91e01f3c-b754-4ea3-98fe-07c249661bba",
+            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            signedOf = "dummy", payload = "".toByteArray(),
+            addressing = Addressing(
+                service = "Trekkopplysning",
+                action = "Innmelding",
+                from = Party(role = "Fordringshaver", partyId = listOf(PartyId("HER", "8142626"), PartyId("orgnummer", "123456789"))),
+                to = Party(role = "dummy", partyId = listOf())
+            )
+        )
+        // Perform conversion to XMl and override the generated timestamp with value from trekkopplysning.xml
+        val fellesformat = request.asEIFellesFormat_TrekkopplysningWithoutPayload()
+        val timestamp: Instant = Instant.parse("2026-03-09T15:17:59.199Z")
+        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
+        val builder = FellesformatXmlBuilder()
+
+        // Verify that it works OK also with prolog
+        val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
+        val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
+        // Verify that we get expected XML (remove whitespace)
+        // sortedattr file has alphabetically sorted attributes in payload
+        val expectedXml = this::class.java.classLoader.getResourceAsStream("trekkopplysning_sortedattr.xml")!!.readAllBytes().decodeToString()
+//        loggDiff(expectedXml, xml)
+        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
+    }
+    fun toXmlGregorianCalendar(timestamp: Instant): XMLGregorianCalendar = DatatypeFactory.newInstance().newXMLGregorianCalendar(
+        GregorianCalendar(TimeZone.getTimeZone(ZoneId.of("UTC"))).apply { this.setTimeInMillis(timestamp.toEpochMilliseconds()) }
+    )
+
+    val payloadFromExpectedXmlFile = """
+    <MsgHead xmlns="http://www.kith.no/xmlstds/msghead/2006-05-24">
+        <MsgInfo>
+            <Type V="INNRAPPORTERING_TREKK" DN="Innrapportering av trekk til NAV"/>
+            <MIGversion>v1.2 2006-05-24</MIGversion>
+            <GenDate>2026-03-06T15:22:35Z</GenDate>
+            <MsgId>7f41c4e9-b6bd-44a3-822b-622332b4e421</MsgId>
+            <Ack V="N" DN="Nei"/>
+            <Sender>
+                <Organisation>
+                    <OrganisationName>AIDN AS</OrganisationName>
+                    <Ident>
+                        <Id>8139944</Id>
+                        <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                    </Ident>
+                    <Organisation>
+                        <OrganisationName>Økonomi og oppgjør</OrganisationName>
+                        <Ident>
+                            <Id>8142626</Id>
+                            <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                        </Ident>
+                    </Organisation>
+                </Organisation>
+            </Sender>
+            <Receiver>
+                <Organisation>
+                    <OrganisationName>NAV IKT</OrganisationName>
+                    <Ident>
+                        <Id>79768</Id>
+                        <TypeId V="HER" S="2.16.578.1.12.4.1.1.9051" DN="HER-id"/>
+                    </Ident>
+                </Organisation>
+            </Receiver>
+            <Patient>
+                <FamilyName>SEILBÅT</FamilyName>
+                <GivenName>DEMOKRATISK</GivenName>
+                <Sex V="2" DN="Kvinne"/>
+                <Ident>
+                    <Id>***********</Id>
+                    <TypeId V="FNR" S="2.16.578.1.12.4.1.1.8116" DN="Fødselsnummer"/>
+                </Ident>
+            </Patient>
+        </MsgInfo>
+        <Document>
+            <ContentDescription>SV:Innrapportering av trekk til NAV</ContentDescription>
+            <RefDoc>
+                <IssueDate V="2026-03-06T15:22:35Z"/>
+                <MsgType V="XML" DN="XML-instans"/>
+                <Content>
+                    <InnrapporteringTrekk xmlns="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04"
+                                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                          xsi:schemaLocation="http://www.kith.no/xmlstds/nav/innrapporteringtrekk/2010-02-04/InnrapporteringTrekk-2010-02-04.xsd">
+                        <Aksjonskode DN="Nytt trekk" V="NY"/>
+                        <Identifisering>
+                            <KreditorTrekkId>ee387905-4b77-47c2-9fba-e21847525c3e</KreditorTrekkId>
+                            <DebitorId>
+                                <Id>***********</Id>
+                                <TypeId DN="Fødselsnummer" S="2.16.578.1.12.4.1.1.8116" V="FNR"/>
+                            </DebitorId>
+                        </Identifisering>
+                        <Trekk>
+                            <KodeTrekktype DN="Vederlagstrekk" V="VEDE"/>
+                            <KodeTrekkAlternativ DN="Løpende trekk månedssats" V="LOPM"/>
+                            <Sats V="21573"/>
+                        </Trekk>
+                        <Periode><PeriodeFomDato>2026-04-01</PeriodeFomDato>
+                        </Periode>
+                        <Kreditor><TSSId>***********</TSSId>
+                        </Kreditor>
+                    </InnrapporteringTrekk>
+                </Content>
+            </RefDoc>
+        </Document>
+        <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+            <SignedInfo>
+                <CanonicalizationMethod
+                        Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+                <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+                <Reference URI="">
+                    <Transforms>
+                        <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                        <Transform Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315"/>
+                    </Transforms>
+                    <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+                    <DigestValue>Dm5UaJd9OuYXXHspvAFzEDRPzF9SlEIXzHiyUv93vzk=</DigestValue>
+                </Reference>
+            </SignedInfo>
+            <SignatureValue>
+                ASLO2quWhsyEY5g8zhDlLoyza/EhfkeQeZLpMSGZKnowkiwRCaS8kPugNcZzWT5I2MgAKLJdC/H9ng8wbXrp3bh6GspiaIDuQL7RLMmksIhRYdbkEG699a462Z1TD/I2lPde8Vm/e1KgHte5erhLob/9iHocWkEYkZig2qlBr1RPGjAWBPL4Dw4hPb5KNO3eYlp91D2Gnqo76ZTDXOyrkpzIZOs5xONRSh5U9fQFtzBskje+t7V9huAJTZVkpr/2B1WhJpnIxB7s4tNBnWUbvBnZVxgUJiRz2mObnUS3WeHA9fq7+/CPdgjtjg5/tAbXZ7Q4o0IRhupBKFPERhtDbd1JBTvApVp63myKmPTFjUJK2IY7IBAfjvsvnB+YdtdP4h4yj5CKDdUngfbg929hLtCkJYEUsaLjas3rOsEatIkmSRSLMLqA3gAoHM7Dm/0uf+A2Wj3mOqfcK26WH4Gns7N8pKMCpJ9BAsSbJ4tSB64NRFDsi4Qbgr8PsxXiRKhc
+            </SignatureValue>
+            <KeyInfo>
+                <X509Data>
+                    <X509Certificate>
+                        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
+                    </X509Certificate>
+                </X509Data>
+            </KeyInfo>
+        </Signature>
+    </MsgHead>        
+    """
+}

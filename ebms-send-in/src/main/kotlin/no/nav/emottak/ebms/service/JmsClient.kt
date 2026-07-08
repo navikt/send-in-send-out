@@ -1,15 +1,15 @@
-package no.nav.emottak.trekkopplysning
+package no.nav.emottak.ebms.service
 
 import com.ibm.mq.jms.MQQueueConnectionFactory
 import com.ibm.msg.client.wmq.WMQConstants
-import no.nav.emottak.config.TrekkopplysningMq
+import no.nav.emottak.config.MqConfig
 import no.nav.emottak.log
 import no.nav.emottak.utils.environment.getEnvVar
 import no.nav.emottak.utils.environment.getSecret
 import javax.jms.Session
 
 class JmsClient(
-    config: TrekkopplysningMq,
+    config: MqConfig,
     val factory: MQQueueConnectionFactory = MQQueueConnectionFactory(),
     val secretPath: String = getEnvVar("SERVICEUSERMQ_SECRET_PATH", "/dummy/path"),
     var username: String = getSecret("$secretPath/username", "testUsername"),
@@ -24,10 +24,10 @@ class JmsClient(
     There is no Channel defined in Fasit for old eMottak, only the queuemanager (MQLS04 in Q1).
      */
     init {
-        factory.setHostName(config.hostname.value)
-        factory.setPort(config.port)
-        factory.setQueueManager(config.queueManager)
-        factory.setChannel(config.channel)
+        factory.hostName = config.hostname.value
+        factory.port = config.port
+        factory.queueManager = config.queueManager
+        factory.channel = config.channel
         factory.setIntProperty(WMQConstants.WMQ_CONNECTION_MODE, WMQConstants.WMQ_CM_CLIENT)
         log.debug("MQ User: $username")
     }
@@ -43,6 +43,6 @@ class JmsClient(
     // Har tydeligvis ikke lov til å opprette en Browser (write-only rettigheter?),
     // finner ingen måte å pinge køen på, må nøye oss med å verifisere at vi får opprettet connection.
     fun verifyConnection() {
-        factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)
+        factory.createContext(username, password, Session.AUTO_ACKNOWLEDGE)?.use { }
     }
 }

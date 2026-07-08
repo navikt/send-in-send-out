@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/"
+                 xmlns:ns2="http://www.kith.no/xmlstds/apprec/2004-11-21">
+    <MottakenhetBlokk ediLoggId="2604241035umak29259.1" ebRole="Nav" ebService="Legemelding" ebAction="Svarmelding"/>
+    <ns2:AppRec>
+        <ns2:MsgType V="APPREC"/>
+        <ns2:MIGversion>1.0 2004-11-21</ns2:MIGversion>
+        <ns2:GenDate>2026-04-24T10:35:04.962494029</ns2:GenDate>
+        <ns2:Id>2604241035umak29259.1</ns2:Id>
+        <ns2:Sender>
+            <ns2:HCP>
+                <ns2:Inst>
+                    <ns2:Name>NAV</ns2:Name>
+                    <ns2:Id>79768</ns2:Id>
+                    <ns2:TypeId V="HER" DN="HER-id"/>
+                </ns2:Inst>
+            </ns2:HCP>
+        </ns2:Sender>
+        <ns2:Receiver>
+            <ns2:HCP>
+                <ns2:Inst>
+                    <ns2:Name>WebMed Testing Next(Liasion)</ns2:Name>
+                    <ns2:Id>8132673</ns2:Id>
+                    <ns2:TypeId V="HER" DN="HER-id"/>
+                    <ns2:AdditionalId>
+                        <ns2:Id>312820137</ns2:Id>
+                        <ns2:Type V="ENH" DN="Organisasjonsnummeret i Enhetsregister"/>
+                    </ns2:AdditionalId>
+                    <ns2:HCPerson>
+                        <ns2:Name>Vits Grønn</ns2:Name>
+                        <ns2:Id>565501872</ns2:Id>
+                        <ns2:TypeId V="HPR" DN="HPR-nummer"/>
+                        <ns2:AdditionalId>
+                            <ns2:Id>8142731</ns2:Id>
+                            <ns2:Type V="HER" DN="HER-id"/>
+                        </ns2:AdditionalId>
+                    </ns2:HCPerson>
+                </ns2:Inst>
+            </ns2:HCP>
+        </ns2:Receiver>
+        <ns2:Status V="2" DN="Avvist"/>
+        <ns2:Error V="2.16.578.1.12.4.1.1.8221" S="X99" DN="Pasienten er ikkje registrert i folkeregisteret"/>
+        <ns2:OriginalMsgId>
+            <ns2:MsgType V="LEGEERKL" DN="Legerklæring ved arbeidsuførhet"/>
+            <ns2:IssueDate>2026-04-24T10:34:41+02:00</ns2:IssueDate>
+            <ns2:Id>775aebec-270c-4bd4-9d2d-a6c86738bb50</ns2:Id>
+        </ns2:OriginalMsgId>
+    </ns2:AppRec>
+</EI_fellesformat>
