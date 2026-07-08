@@ -7,12 +7,11 @@ import no.nav.emottak.ebms.utils.AsyncRoutingAction
 import no.nav.emottak.ebms.utils.AsyncRoutingAction.Companion.toAsyncRoutingAction
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.lang.RuntimeException
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import org.junit.jupiter.api.assertThrows
 
 class MqServiceMapperTest {
 
@@ -36,9 +35,11 @@ class MqServiceMapperTest {
         assertNull(mapper.get("Unknown".toSupportedAsyncService()))
         assertNull(mapper.get("Unknown".toAsyncRoutingAction("DialogmoteInnkalling".toSupportedAsyncService())))
         assertNull(mapper.get("Kvittering".toAsyncRoutingAction("Trekkopplysning".toSupportedAsyncService())))
-        assertFailsWith<RuntimeException> {
-            mapper.get("DialogmoteInnkalling".toSupportedAsyncService())
+        val service = "DialogmoteInnkalling".toSupportedAsyncService()
+        val exception = assertThrows<RuntimeException> {
+            mapper.get(service)
         }
+        assertEquals("Multiple MQ services found for $service, action must be specified", exception.message)
     }
 
     @Test

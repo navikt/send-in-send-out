@@ -16,7 +16,7 @@ enum class SupportedAsyncServiceType(val service: String) {
     companion object {
         fun String.toSupportedAsyncService(): SupportedAsyncServiceType = try {
             SupportedAsyncServiceType.valueOf(this)
-        } catch (e: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             Unsupported
         }
         fun SupportedAsyncServiceType.isSupportedService(): Boolean = this != Unsupported
