@@ -19,7 +19,6 @@ import no.nav.emottak.ebms.kafka.launchEbmsInPayloadReceiver
 import no.nav.emottak.ebms.kafka.launchEbmsOutFellesformatReceiver
 import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
-import no.nav.emottak.ebms.plugin.configureCoroutineDebugger
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
 import no.nav.emottak.ebms.service.GeneralServiceUsingMq
@@ -170,7 +169,6 @@ internal fun Application.ebmsSendInModule(
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
-    configureCoroutineDebugger()
     configureRoutes(prometheusMeterRegistry, eventRegistrationService, mqServiceMapper, useAsyncIn)
 }
 

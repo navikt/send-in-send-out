@@ -7,10 +7,10 @@ import no.nav.emottak.fellesformat.apprecMarshaller
 import no.nav.emottak.fellesformat.msgheadMarshaller
 import no.nav.emottak.fellesformat.unmarshal
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 class TrekkopplysningMarshallerTest {
 
