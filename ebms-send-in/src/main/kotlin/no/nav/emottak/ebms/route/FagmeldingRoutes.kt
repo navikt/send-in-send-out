@@ -159,23 +159,23 @@ fun Route.verifyMq(
             message = "MQ connection for Trekkopplysning OK"
             log.info(message)
         } catch (e: Exception) {
-            message = "Error when testing MQ connection for Trekkopplysning: " + e.localizedMessage ?: e.javaClass.simpleName
+            message = "Error when testing MQ connection for Trekkopplysning: " + (e.localizedMessage ?: e.javaClass.simpleName)
             log.error(message, e)
         }
         try {
             syfoMeldingService.verifyConnection()
-            message = message + ", MQ connection for Sykmelding OK"
+            message += ", MQ connection for Sykmelding OK"
             log.info(message)
         } catch (e: Exception) {
-            message = message + ", Error when testing MQ connection for Sykmelding: " + e.localizedMessage ?: e.javaClass.simpleName
+            message = message + ", Error when testing MQ connection for Sykmelding: " + (e.localizedMessage ?: e.javaClass.simpleName)
             log.error(message, e)
         }
         try {
             legeMeldingService.verifyConnection()
-            message = message + ", MQ connection for Legemelding OK"
+            message += ", MQ connection for Legemelding OK"
             log.info(message)
         } catch (e: Exception) {
-            message = message + ", Error when testing MQ connection for Legemelding: " + e.localizedMessage ?: e.javaClass.simpleName
+            message = message + ", Error when testing MQ connection for Legemelding: " + (e.localizedMessage ?: e.javaClass.simpleName)
             log.error(message, e)
         }
         call.respond(message)
