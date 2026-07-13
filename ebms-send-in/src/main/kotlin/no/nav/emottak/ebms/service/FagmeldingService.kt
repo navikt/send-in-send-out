@@ -129,7 +129,7 @@ object FagmeldingService {
                 }
 
             // Se under, alle som har "standard" MottakenhetBlokk-.XML, kan bruke sendMessageViaMQ(),
-            // med GenerallServiceUsingMq som parameter, konfigurert med riktig MQ-kø.
+            // med GeneralServiceUsingMq som parameter, konfigurert med riktig MQ-kø.
             SupportedAsyncServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
