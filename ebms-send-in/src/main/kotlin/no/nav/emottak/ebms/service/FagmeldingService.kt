@@ -5,6 +5,9 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
 import kotlinx.serialization.json.Json
+import no.nav.emottak.ebms.MqService
+import no.nav.emottak.ebms.MqServiceMapper
+import no.nav.emottak.ebms.utils.AsyncRoutingAction.Companion.toAsyncRoutingAction
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.SupportedSyncServiceType
@@ -13,18 +16,16 @@ import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
-import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
+import no.nav.emottak.fellesformat.asEIFellesFormat_FrikortMengde
+import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
-import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
+import no.nav.emottak.fellesformat.asEIFellesFormat_WithoutPayload
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
 import no.nav.emottak.frikort.rest.postHarBorgerFrikort
 import no.nav.emottak.frikort.rest.toFrikortsporringRequest
 import no.nav.emottak.frikort.rest.toMsgHead
-import no.nav.emottak.legemelding.LegeMeldingService
-import no.nav.emottak.sykmelding.SyfoMeldingService
-import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
@@ -93,26 +94,42 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
         eventRegistrationService: EventRegistrationService,
-        trekkopplysningService: TrekkopplysningService,
-        syfoMeldingService: SyfoMeldingService,
-        legeMeldingService: LegeMeldingService
+        mqServiceMapper: MqServiceMapper
     ): Either<Throwable, Unit> = either {
-        when (sendInRequest.addressing.service.toSupportedAsyncService()) {
+        val serviceType = sendInRequest.addressing.service.toSupportedAsyncService()
+        when (serviceType) {
             SupportedAsyncServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
                     log.info("Trekkopplysning is processed asynchronously")
-                    sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                    sendTrekkopplysning(sendInRequest, eventRegistrationService, mqServiceMapper.get(serviceType)!!)
                 }
             SupportedAsyncServiceType.Sykmelding ->
                 timed(meterRegistry, "Sykmelding") {
                     log.info("Sykmelding is processed asynchronously")
-                    sendSykmelding(sendInRequest, eventRegistrationService, syfoMeldingService)
+                    sendSykmelding(sendInRequest, eventRegistrationService, mqServiceMapper.get(serviceType)!!)
                 }
             SupportedAsyncServiceType.Legemelding ->
                 timed(meterRegistry, "Legemelding") {
                     log.info("Legemelding is processed asynchronously")
-                    sendLegemelding(sendInRequest, eventRegistrationService, legeMeldingService)
+                    sendLegemelding(sendInRequest, eventRegistrationService, mqServiceMapper.get(serviceType)!!)
                 }
+            SupportedAsyncServiceType.BehandlerKrav, SupportedAsyncServiceType.HenvendelseFraLege, SupportedAsyncServiceType.HenvendelseFraSaksbehandler,
+            SupportedAsyncServiceType.Oppfolgingsplan ->
+                timed(meterRegistry, serviceType.service) {
+                    log.info(serviceType.service + " is processed asynchronously")
+                    sendMessageViaMQ(sendInRequest, eventRegistrationService, mqServiceMapper.get(serviceType)!!)
+                }
+
+            // For disse er action viktig for å bestemme hvilken MQ det skal rutes til
+            SupportedAsyncServiceType.OppgjorsKontroll, SupportedAsyncServiceType.DialogmoteInnkalling, SupportedAsyncServiceType.ForesporselFraSaksbehandler ->
+                timed(meterRegistry, serviceType.service) {
+                    log.info(serviceType.service + " is processed asynchronously")
+                    val action = sendInRequest.addressing.action.toAsyncRoutingAction(serviceType)
+                    sendMessageViaMQ(sendInRequest, eventRegistrationService, mqServiceMapper.get(action)!!)
+                }
+
+            // Se under, alle som har "standard" MottakenhetBlokk-.XML, kan bruke sendMessageViaMQ(),
+            // med GeneralServiceUsingMq som parameter, konfigurert med riktig MQ-kø.
             SupportedAsyncServiceType.Unsupported ->
                 throw NotImplementedError(
                     "Service: ${sendInRequest.addressing.service} is not implemented"
@@ -125,7 +142,7 @@ object FagmeldingService {
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
-        with(sendInRequest.asEIFellesFormat()) {
+        with(sendInRequest.asEIFellesFormat_FrikortMengde()) {
             persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
             frikortsporringMengde(this).also {
                 eventRegistrationService.registerEvent(
@@ -235,10 +252,28 @@ object FagmeldingService {
     private fun Raise<Throwable>.sendTrekkopplysning(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService,
-        trekkopplysningService: TrekkopplysningService
+        trekkopplysningService: MqService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            trekkopplysningService.trekkopplysning(this, sendInRequest.payload).also {
+        with(sendInRequest.asEIFellesFormat()) {
+            trekkopplysningService.buildAndSend(this, sendInRequest.payload).also {
+                eventRegistrationService.registerEvent(
+                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                    sendInRequest.requestId.parseOrGenerateUuid(),
+                    sendInRequest.messageId
+                )
+            }
+        }
+    }.bind()
+
+    // Hvis du kan bruke generell logikk for å utlede en MottakEnhetBlokk fra requesten (ellers må man ha spesifikk asMottakEnhetBlokk()),
+    // og hvis du kan bruke "normal" XML med attributter sortert alfabetisk
+    private fun Raise<Throwable>.sendMessageViaMQ(
+        sendInRequest: SendInRequest,
+        eventRegistrationService: EventRegistrationService,
+        mqService: MqService
+    ) = Either.catch {
+        with(sendInRequest.asEIFellesFormat_WithoutPayload()) {
+            mqService.buildAndSend(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -251,10 +286,10 @@ object FagmeldingService {
     private fun Raise<Throwable>.sendSykmelding(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService,
-        syfoMeldingService: SyfoMeldingService
+        syfoMeldingService: MqService
     ) = Either.catch {
         with(sendInRequest.asEIFellesFormat_Sykmelding()) {
-            syfoMeldingService.sykmelding(this, sendInRequest.payload).also {
+            syfoMeldingService.buildAndSend(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
@@ -267,10 +302,10 @@ object FagmeldingService {
     private fun Raise<Throwable>.sendLegemelding(
         sendInRequest: SendInRequest,
         eventRegistrationService: EventRegistrationService,
-        legeMeldingService: LegeMeldingService
+        legeMeldingService: MqService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload()) {
-            legeMeldingService.legemelding(this, sendInRequest.payload).also {
+        with(sendInRequest.asEIFellesFormat_Legemelding()) {
+            legeMeldingService.buildAndSend(this, sendInRequest.payload).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),

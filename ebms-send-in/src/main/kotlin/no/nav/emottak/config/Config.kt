@@ -13,9 +13,15 @@ data class Config(
     val eventLogging: EventLogging,
     val clusterName: ClusterName,
     val frikorttjenester: FrikortTjenester,
-    val trekkOpplysningMq: MqConfig,
-    val syfoMq: MqConfig,
-    val paleMq: MqConfig,
+    val mqConfig1: MqConfig, // Foreløpig trenger vi kun 1 MQ host/gateway etc, men kan evt trenge andre
+    val trekkOpplysningMq: MqQueueConfig,
+    val syfoMq: MqQueueConfig,
+    val paleMq: MqQueueConfig,
+    val oppgjorMq: MqQueueConfig,
+    val ereseptM18Mq: MqQueueConfig,
+    val ereseptApprecMq: MqQueueConfig,
+    val eiaMq: MqQueueConfig,
+    val dialogMq: MqQueueConfig,
     val azureAuth: AzureAuth
 )
 
@@ -52,7 +58,11 @@ data class MqConfig(
     val hostname: Host,
     val port: Int,
     val queueManager: String,
-    val channel: String,
+    val channel: String
+)
+
+data class MqQueueConfig(
+    val mqConfig: MqConfig,
     val queue: String
 )
 

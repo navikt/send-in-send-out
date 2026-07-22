@@ -13,6 +13,7 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import no.nav.emottak.config.Configurator.config
+import no.nav.emottak.ebms.MqServiceMapper
 import no.nav.emottak.ebms.kafka.EbmsOutPayloadProducer
 import no.nav.emottak.ebms.kafka.launchEbmsInPayloadReceiver
 import no.nav.emottak.ebms.kafka.launchEbmsOutFellesformatReceiver
@@ -20,6 +21,9 @@ import no.nav.emottak.ebms.plugin.configureAuthentication
 import no.nav.emottak.ebms.plugin.configureContentNegotiation
 import no.nav.emottak.ebms.plugin.configureMetrics
 import no.nav.emottak.ebms.plugin.configureRoutes
+import no.nav.emottak.ebms.service.GeneralServiceUsingMq
+import no.nav.emottak.ebms.utils.AsyncRoutingAction
+import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
@@ -80,13 +84,53 @@ suspend fun ResourceScope.setupServer() {
         },
         meterRegistry = prometheusMeterRegistry
     )
-    log.info("Set up Trekkopplysning to use MQ with host ${trekkOpplysningMq.hostname}, port ${trekkOpplysningMq.port}, queueManager ${trekkOpplysningMq.queueManager}, channel ${trekkOpplysningMq.channel}, queue ${trekkOpplysningMq.queue}")
+    log.info("Set up Trekkopplysning to use MQ with config ${trekkOpplysningMq.mqConfig}, queue ${trekkOpplysningMq.queue}")
     val syfoMq = config().syfoMq
     val syfoMeldingService = SyfoMeldingService(syfoMq, meterRegistry = prometheusMeterRegistry)
-    log.info("Set up Sykemeldinger to use MQ with host ${syfoMq.hostname}, port ${syfoMq.port}, queueManager ${syfoMq.queueManager}, channel ${syfoMq.channel}, queue ${syfoMq.queue}")
+    log.info("Set up Sykemeldinger to use MQ with config ${syfoMq.mqConfig}, queue ${syfoMq.queue}")
     val paleMq = config().paleMq
     val legeMeldingService = LegeMeldingService(paleMq, meterRegistry = prometheusMeterRegistry)
-    log.info("Set up Legemeldinger to use MQ with host ${paleMq.hostname}, port ${paleMq.port}, queueManager ${paleMq.queueManager}, channel ${paleMq.channel}, queue ${paleMq.queue}")
+    log.info("Set up Legemeldinger to use MQ with config ${paleMq.mqConfig}, queue ${paleMq.queue}")
+    val oppgjorMq = config().oppgjorMq
+    val behandlerKravService = GeneralServiceUsingMq(oppgjorMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up Behandlerkrav to use MQ with config ${oppgjorMq.mqConfig}, queue ${oppgjorMq.queue}")
+    val oppgjorsKontrollSvarMq = config().ereseptApprecMq
+    val oppgjorsKontrollSvarService = GeneralServiceUsingMq(oppgjorsKontrollSvarMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up Oppgjørskontroll,Svarmelding to use MQ with config ${oppgjorsKontrollSvarMq.mqConfig}, queue ${oppgjorsKontrollSvarMq.queue}")
+    val oppgjorsKontrollKravMq = config().ereseptM18Mq
+    val oppgjorsKontrollKravService = GeneralServiceUsingMq(oppgjorsKontrollKravMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up Oppgjørskontroll,Oppgjørskrav to use MQ with config ${oppgjorsKontrollKravMq.mqConfig}, queue ${oppgjorsKontrollKravMq.queue}")
+    val eiaMq = config().eiaMq
+    val dialogMoteResponsService = GeneralServiceUsingMq(eiaMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up Dialogmøteinnkalling, Møterespons to use MQ with config ${eiaMq.mqConfig}, queue ${eiaMq.queue}")
+    val dialogMq = config().dialogMq
+    val dialogMoteKvitteringService = GeneralServiceUsingMq(dialogMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up Dialogmøteinnkalling, Kvittering to use MQ with config ${dialogMq.mqConfig}, queue ${dialogMq.queue}")
+    val foresporselFraSaksbehandlerSvarService = GeneralServiceUsingMq(eiaMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up ForespørselFraSaksbehandler, Forespørselsvar to use MQ with config ${eiaMq.mqConfig}, queue ${eiaMq.queue}")
+    val foresporselFraSaksbehandlerKvitteringService = GeneralServiceUsingMq(dialogMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up ForespørselFraSaksbehandler, Kvittering to use MQ with config ${dialogMq.mqConfig}, queue ${dialogMq.queue}")
+    val henvendelseFraLegeService = GeneralServiceUsingMq(eiaMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up HenvendelseFraLege to use MQ with config ${eiaMq.mqConfig}, queue ${eiaMq.queue}")
+    val henvendelseFraSaksbehandlerService = GeneralServiceUsingMq(dialogMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up HenvendelseFraSaksbehandler to use MQ with config ${dialogMq.mqConfig}, queue ${dialogMq.queue}")
+    val oppfolgingsPlanService = GeneralServiceUsingMq(dialogMq, meterRegistry = prometheusMeterRegistry)
+    log.info("Set up Oppfølgingsplan to use MQ with config ${dialogMq.mqConfig}, queue ${dialogMq.queue}")
+
+    val mqServiceMapper = MqServiceMapper()
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.Trekkopplysning, mqService = trekkopplysningService)
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.Sykmelding, mqService = syfoMeldingService)
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.Legemelding, mqService = legeMeldingService)
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.BehandlerKrav, mqService = behandlerKravService)
+    mqServiceMapper.addMqService(AsyncRoutingAction.OppgjorsKontrollSvarmelding, mqService = oppgjorsKontrollSvarService)
+    mqServiceMapper.addMqService(AsyncRoutingAction.OppgjorsKontrollOppgjorskrav, mqService = oppgjorsKontrollKravService)
+    mqServiceMapper.addMqService(AsyncRoutingAction.DialogmoteInnkallingMoteRespons, mqService = dialogMoteResponsService)
+    mqServiceMapper.addMqService(AsyncRoutingAction.DialogmoteInnkallingKvittering, mqService = dialogMoteKvitteringService)
+    mqServiceMapper.addMqService(AsyncRoutingAction.ForesporselFraSaksbehandlerForesporselSvar, mqService = foresporselFraSaksbehandlerSvarService)
+    mqServiceMapper.addMqService(AsyncRoutingAction.ForesporselFraSaksbehandlerKvittering, mqService = foresporselFraSaksbehandlerKvitteringService)
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.HenvendelseFraLege, mqService = henvendelseFraLegeService)
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.HenvendelseFraSaksbehandler, mqService = henvendelseFraSaksbehandlerService)
+    mqServiceMapper.addMqService(SupportedAsyncServiceType.Oppfolgingsplan, mqService = oppfolgingsPlanService)
 
     val outPayloadProducer = EbmsOutPayloadProducer(
         config().ebmsOutPayloadProducer.topic,
@@ -96,7 +140,7 @@ suspend fun ResourceScope.setupServer() {
     val useAsyncIn = getEnvVar(USE_ASYNC_IN_KEY, "false").fixEnvStringFromConfig().toBoolean()
     if (useAsyncIn) {
         log.info("Set up to read asynchronous inbound messages from EbmsInPayload topic")
-        eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService, syfoMeldingService, legeMeldingService)
+        eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, mqServiceMapper)
     } else {
         log.info("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
     }
@@ -112,22 +156,20 @@ suspend fun ResourceScope.setupServer() {
         Netty,
         port = serverConfig.port.value,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, mqServiceMapper, useAsyncIn) }
     )
 }
 
 internal fun Application.ebmsSendInModule(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService,
-    syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
+    mqServiceMapper: MqServiceMapper,
     useAsyncIn: Boolean
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, mqServiceMapper, useAsyncIn)
 }
 
 // Boolske verdier i ekstern NAIS config må/bør være tekst-strenger, ellers kan de ikke redigeres

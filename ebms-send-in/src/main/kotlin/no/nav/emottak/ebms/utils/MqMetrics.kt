@@ -3,11 +3,11 @@ package no.nav.emottak.ebms.utils
 import io.micrometer.core.instrument.MeterRegistry
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 
-fun MeterRegistry.recordMqMessage(queue: String, eiFellesformat: EIFellesformat) =
+fun MeterRegistry.recordMqMessage(queue: String, mottakenhetBlokk: EIFellesformat.MottakenhetBlokk) =
     recordMqMessage(
         queue = queue,
-        service = eiFellesformat.mottakenhetBlokk?.ebService ?: "unknown",
-        action = eiFellesformat.mottakenhetBlokk?.ebAction ?: "unknown"
+        service = mottakenhetBlokk.ebService ?: "unknown",
+        action = mottakenhetBlokk.ebAction ?: "unknown"
     )
 
 fun MeterRegistry.recordMqMessage(queue: String, service: String, action: String) =

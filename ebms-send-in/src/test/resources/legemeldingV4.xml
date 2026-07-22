@@ -130,5 +130,7 @@
     </MsgHead>
     <MottakenhetBlokk avsender="12345678910" avsenderFnrFraDigSignatur="20086600138" avsenderRef=""
                       ebAction="Legeerklaring" ebRole="Lege" ebService="Legemelding"
-                      ebXMLSamtaleId="1234" ediLoggId="nye-emottak-ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" mottattDatotid="2026-04-08T00:00:00.000+02:00"/>
+                      ebXMLSamtaleId="1234" ediLoggId="nye-emottak-ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47"
+                      herIdentifikator="" meldingsType="xml" mottattDatotid="2026-04-08T00:00:00.000+02:00"
+                      orgNummer="12345678910" partnerReferanse=""/>
 </EI_fellesformat>

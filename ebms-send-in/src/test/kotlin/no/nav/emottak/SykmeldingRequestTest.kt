@@ -3,8 +3,6 @@ package no.nav.emottak
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
-import no.nav.emottak.fellesformat.asEIFellesFormat_SykmeldingWithoutPayload
-import no.nav.emottak.sykmelding.marshalSykmelding
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
@@ -25,35 +23,6 @@ class SykmeldingRequestTest {
     // Verify that a given Sykmelding request is converted to the expected Fellesformat XML string
 
     @Test
-    fun verifyRequestAsXml_unmarshal_marshal() {
-        // Set up request with values that fit example file sykemelding.xml
-        // Removed xsd locations, removed NS "http://www.kith.no/xmlstds/felleskomponent1"
-        // Also removed some signature stuff with difficult formatting
-        // CHanged sequence of attributes in MottakEnhetBlokk, blanked some attrs also
-        val request = SendInRequest(
-            messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "06828399789", payload = payloadFromExpectedXmlFile.toByteArray(),
-            addressing = Addressing(
-                service = "Sykmelding",
-                action = "Registrering",
-                from = Party(role = "Sykmelder", partyId = listOf(PartyId("orgnummer", "912719103"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from sykemelding.xml
-        val fellesformat = request.asEIFellesFormat_Sykmelding()
-        val timestamp: Instant = Instant.parse("2026-04-16T09:14:27Z")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalSykmelding(fellesformat)
-
-        // Verify that we get expected XML (remove whitespace)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-//        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    @Test
     fun verifyRequestAsXml_withBuilder() {
         val request = SendInRequest(
             messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
@@ -67,7 +36,7 @@ class SykmeldingRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from sykemelding.xml
-        val fellesformat = request.asEIFellesFormat_SykmeldingWithoutPayload()
+        val fellesformat = request.asEIFellesFormat_Sykmelding()
         val timestamp: Instant = Instant.parse("2026-04-16T09:14:27Z")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val builder = FellesformatXmlBuilder()
@@ -76,8 +45,7 @@ class SykmeldingRequestTest {
         val completePayload = """<?xml version="1.0" encoding="UTF-8"?>""" + payloadFromExpectedXmlFile
         val xml = builder.buildXmlWithCustomMottakenhetBlokk(fellesformat.mottakenhetBlokk, completePayload.toByteArray())
 
-        // sykemelding.xml er opprinnelig, sykemelding2.xml er med rekkefølge for trekkopplysning, fjernet NS i indre doc
-        // Verify that we get expected XML (remove whitespace)
+        // sykemelding.xml er opprinnelig, sykemelding2.xml er med rekkefølge som for trekkopplysning, fjernet NS i indre doc
         val expectedXml = this::class.java.classLoader.getResourceAsStream("sykemelding2.xml")!!.readAllBytes().decodeToString()
         assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
 //        loggDiff(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))

@@ -11,7 +11,7 @@ class FellesFormatWrapperTest {
     @Test
     fun `Wrap HarBorgerFrikort in Fellesformat`() {
         val sendInRequest = validSendInHarBorgerFrikortRequest.value
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
         log.info(marshal(fellesFormat))
     }
@@ -19,7 +19,7 @@ class FellesFormatWrapperTest {
     @Test
     fun `Wrap Inntektsforesporsel in Fellesformat`() {
         val sendInRequest = validSendInInntektforesporselRequest.value
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
         log.info(marshal(fellesFormat))
     }
@@ -27,7 +27,7 @@ class FellesFormatWrapperTest {
     @Test
     fun `Validate SSN from request is added to Fellesformat`() {
         val sendInRequest = validSendInInntektforesporselRequest.value.copy(signedOf = "12345678910")
-        val fellesFormat = sendInRequest.asEIFellesFormat()
+        val fellesFormat = sendInRequest.asEIFellesFormat_FrikortMengde()
         Assertions.assertEquals(fellesFormat.mottakenhetBlokk.avsenderFnrFraDigSignatur, sendInRequest.signedOf)
     }
 }

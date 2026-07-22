@@ -3,8 +3,6 @@ package no.nav.emottak
 import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
-import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
-import no.nav.emottak.legemelding.marshalLegemelding
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
@@ -25,31 +23,6 @@ class LegemeldingRequestTest {
     // Verify that a given Legemelding request is converted to the expected Fellesformat XML string
 
     @Test
-    fun verifyRequestAsXml_unmarshal_marshal() {
-        // Set up request with values that fit example file legemelding.xml
-        // Had to tweak namespaces, and sort attributes alphabetically
-        val request = SendInRequest(
-            messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
-            requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "20086600138", payload = payloadFromExpectedXmlFile.toByteArray(),
-            addressing = Addressing(
-                service = "Legemelding",
-                action = "Legeerklaring",
-                from = Party(role = "Lege", partyId = listOf(PartyId("orgnummer", "12345678910"))),
-                to = Party(role = "dummy", partyId = listOf())
-            )
-        )
-        // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
-        val fellesformat = request.asEIFellesFormat_Legemelding()
-        val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
-        fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
-        val xml = marshalLegemelding(fellesformat)
-        // Verify that we get expected XML (remove whitespace)
-        val expectedXml = this::class.java.classLoader.getResourceAsStream("legemelding.xml")!!.readAllBytes().decodeToString()
-        assertEquals(removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(expectedXml), removeWhitespaceBetweenXmlElementsAndMinimiseOtherWhitespace(xml))
-    }
-
-    @Test
     fun verifyRequestAsXml_withBuilder() {
         // Set up request with values that fit example file legemelding.xml
         // Had to tweak namespaces, and sort attributes alphabetically
@@ -65,7 +38,7 @@ class LegemeldingRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
-        val fellesformat = request.asEIFellesFormat_LegemeldingWithoutPayload()
+        val fellesformat = request.asEIFellesFormat_Legemelding()
         val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val builder = FellesformatXmlBuilder()
@@ -95,7 +68,7 @@ class LegemeldingRequestTest {
             )
         )
         // Perform conversion to XMl and override the generated timestamp with value from legemelding.xml
-        val fellesformat = request.asEIFellesFormat_LegemeldingWithoutPayload()
+        val fellesformat = request.asEIFellesFormat_Legemelding()
         val timestamp: Instant = Instant.parse("2026-04-08T00:00:00.000+02:00")
         fellesformat.mottakenhetBlokk.mottattDatotid = toXmlGregorianCalendar(timestamp)
         val builder = FellesformatXmlBuilder()

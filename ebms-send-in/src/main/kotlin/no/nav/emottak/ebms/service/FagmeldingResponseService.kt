@@ -3,13 +3,8 @@ package no.nav.emottak.ebms.service
 import no.nav.emottak.NYE_EMOTTAK_LEGEMELDING_ID_PREFIX
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
-import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
-import no.nav.emottak.legemelding.apprecLegemeldingMarshaller
-import no.nav.emottak.legemelding.msgheadLegemeldingMarshaller
-import no.nav.emottak.sykmelding.apprecSykmeldingMarshaller
-import no.nav.emottak.sykmelding.msgheadSykmeldingMarshaller
-import no.nav.emottak.trekkopplysning.apprecTrekkopplysningMarshaller
-import no.nav.emottak.trekkopplysning.msgheadTrekkopplysningMarshaller
+import no.nav.emottak.fellesformat.apprecMarshaller
+import no.nav.emottak.fellesformat.msgheadMarshaller
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
 import no.nav.emottak.utils.common.model.Addressing
@@ -21,6 +16,8 @@ import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
 
+// NB: denne er kun ment brukt for RESPONS-meldinger (sendt som respons på en melding TIL NAV), ikke meldinger som oppstår fra NAV uten å være svar.
+// Meldinger som ikke er svar, må ha fullstendig innhold i MottakenhetBlokken, bl.a. toRole (hvilket felt??) og har ingen refToMessageId.
 object FagmeldingResponseService {
 
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingResponseService")
@@ -47,41 +44,32 @@ object FagmeldingResponseService {
 
     fun getResponse(fellesFormatResponse: EIFellesformat): SendInResponse {
         val toPartyIds = getToPartyId(fellesFormatResponse.mottakenhetBlokk)
+        // todo toRole kan evt være blank her, hvis man alltid fyller ut felter fra innkommende melding i ebms-async (får da toRole fra fromRole i den)
         val toRole =
             when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
                 SupportedAsyncServiceType.Trekkopplysning ->
                     "Fordringshaver"
-                SupportedAsyncServiceType.Sykmelding ->
-                    "Sykmelder"
                 SupportedAsyncServiceType.Legemelding ->
                     "Lege"
+                SupportedAsyncServiceType.OppgjorsKontroll ->
+                    "Utleverer"
+                SupportedAsyncServiceType.BehandlerKrav ->
+                    "Behandler"
+                SupportedAsyncServiceType.Sykmelding, SupportedAsyncServiceType.DialogmoteInnkalling, SupportedAsyncServiceType.ForesporselFraSaksbehandler,
+                SupportedAsyncServiceType.HenvendelseFraLege, SupportedAsyncServiceType.HenvendelseFraSaksbehandler, SupportedAsyncServiceType.Oppfolgingsplan ->
+                    "Sykmelder"
                 SupportedAsyncServiceType.Unsupported ->
                     throw NotImplementedError(
                         "Service: ${fellesFormatResponse.mottakenhetBlokk.ebService} is not implemented"
                     )
             }
 
-        val xmlMarshaller = when (fellesFormatResponse.mottakenhetBlokk.ebService.toSupportedAsyncService()) {
-            SupportedAsyncServiceType.Trekkopplysning ->
-                if (fellesFormatResponse.msgHead != null) {
-                    msgheadTrekkopplysningMarshaller
-                } else {
-                    apprecTrekkopplysningMarshaller
-                }
-            SupportedAsyncServiceType.Sykmelding ->
-                if (fellesFormatResponse.msgHead != null) {
-                    msgheadSykmeldingMarshaller
-                } else {
-                    apprecSykmeldingMarshaller
-                }
-            SupportedAsyncServiceType.Legemelding ->
-                if (fellesFormatResponse.msgHead != null) {
-                    msgheadLegemeldingMarshaller
-                } else {
-                    apprecLegemeldingMarshaller
-                }
-            SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
-        }
+        val xmlMarshaller =
+            if (fellesFormatResponse.msgHead != null) {
+                msgheadMarshaller
+            } else {
+                apprecMarshaller
+            }
 
         // todo foreløpig løsning, har kun effekt for legemelding-respons
         val refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId.removePrefix(NYE_EMOTTAK_LEGEMELDING_ID_PREFIX)
