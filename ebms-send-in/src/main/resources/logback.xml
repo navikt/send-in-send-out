@@ -7,13 +7,17 @@
             </provider>
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider"/>
 
-            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
-                <valueMask>
-                    <value>\d{11}</value>
-                    <value>\d{6}\s\d{5}</value>
-                    <mask>***********</mask>
-                </valueMask>
-            </jsonGeneratorDecorator>
+            <if condition='"${NAIS_CLUSTER_NAME:-local}".equals("prod-fss")'>
+                <then>
+                    <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                        <valueMask>
+                            <value>\d{11}</value>
+                            <value>\d{6}\s\d{5}</value>
+                            <mask>***********</mask>
+                        </valueMask>
+                    </jsonGeneratorDecorator>
+                </then>
+            </if>
         </encoder>
     </appender>
 
