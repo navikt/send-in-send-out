@@ -61,7 +61,7 @@ class FellesformatXmlBuilder {
         doc.appendChild(ffElement)
 
         val payloadDoc = f.newDocumentBuilder().parse(ByteArrayInputStream(payload))
-        val payloadElement = payloadDoc.childNodes.item(0) // MsgHead
+        val payloadElement = payloadDoc.documentElement // MsgHead - skips any leading comments/PIs
         val msgHead = doc.importNode(payloadElement, true)
         ffElement.appendChild(msgHead)
 
