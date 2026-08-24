@@ -122,7 +122,7 @@ private fun createFellesFormatMottakEnhetBlokk_Sykmelding(sendInRequest: SendInR
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
         meldingsType = "xml"
-        this.partnerReferanse = sendInRequest.cpaId
+        this.partnerReferanse = sendInRequest.partnerId?.toString() ?: ""
         avsenderRef = "" // todo OK?
     }
 }
