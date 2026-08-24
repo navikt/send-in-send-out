@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/"
                  xmlns:ns2="http://www.kith.no/xmlstds/apprec/2004-11-21">
-    <MottakenhetBlokk ediLoggId="nye-emottak-2a4a4a1e-f2e7-41af-8db0-83de06d0fda3" ebRole="Nav" ebService="Legemelding"
+    <MottakenhetBlokk ediLoggId="2a4a4a1e-f2e7-41af-8db0-83de06d0fda3" ebRole="Nav" ebService="Legemelding"
                       ebAction="Svarmelding"/>
     <ns2:AppRec>
         <ns2:MsgType V="APPREC"/>

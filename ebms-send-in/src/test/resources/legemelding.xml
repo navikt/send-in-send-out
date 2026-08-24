@@ -128,7 +128,7 @@
             </RefDoc>
         </Document>
     </MsgHead>
-    <ns3:MottakenhetBlokk ediLoggId="nye-emottak-ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" avsender="12345678910" ebXMLSamtaleId="1234"
+    <ns3:MottakenhetBlokk ediLoggId="ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47" avsender="12345678910" ebXMLSamtaleId="1234"
                       avsenderRef="" avsenderFnrFraDigSignatur="20086600138" mottattDatotid="2026-04-08T00:00:00.000+02:00"
                       ebRole="Lege" ebService="Legemelding" ebAction="Legeerklaring"/>
 </ns3:EI_fellesformat>
