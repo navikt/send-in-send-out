@@ -1,6 +1,5 @@
 package no.nav.emottak.ebms.service
 
-import no.nav.emottak.NYE_EMOTTAK_LEGEMELDING_ID_PREFIX
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
@@ -83,12 +82,9 @@ object FagmeldingResponseService {
             SupportedAsyncServiceType.Unsupported -> FellesFormatXmlMarshaller
         }
 
-        // todo foreløpig løsning, har kun effekt for legemelding-respons
-        val refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId.removePrefix(NYE_EMOTTAK_LEGEMELDING_ID_PREFIX)
-
         val response = SendInResponse(
             messageId = Uuid.random().toString(),
-            refToMessageId = refToMessageId,
+            refToMessageId = fellesFormatResponse.mottakenhetBlokk.ediLoggId,
             conversationId = fellesFormatResponse.mottakenhetBlokk.ebXMLSamtaleId ?: "",
             cpaId = fellesFormatResponse.mottakenhetBlokk.partnerReferanse ?: "",
             addressing = Addressing(
