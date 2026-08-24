@@ -32,7 +32,7 @@ class SykmeldingRequestTest {
         // CHanged sequence of attributes in MottakEnhetBlokk, blanked some attrs also
         val request = SendInRequest(
             messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 123, ebmsProcessing = EbmsProcessing(),
             signedOf = "06828399789", payload = payloadFromExpectedXmlFile.toByteArray(),
             addressing = Addressing(
                 service = "Sykmelding",
@@ -57,7 +57,7 @@ class SykmeldingRequestTest {
     fun verifyRequestAsXml_withBuilder() {
         val request = SendInRequest(
             messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
-            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 0, ebmsProcessing = EbmsProcessing(),
+            requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 123, ebmsProcessing = EbmsProcessing(),
             signedOf = "06828399789", payload = "".toByteArray(),
             addressing = Addressing(
                 service = "Sykmelding",
