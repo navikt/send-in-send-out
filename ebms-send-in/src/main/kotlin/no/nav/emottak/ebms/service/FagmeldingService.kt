@@ -10,12 +10,12 @@ import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupported
 import no.nav.emottak.ebms.utils.SupportedSyncServiceType
 import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
-import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
+import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
@@ -146,9 +146,13 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = egenandelMengdeForesporselXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead
-            ),
+            ).also {
+                if (log.isDebugEnabled) {
+                    log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
+                }
+            },
             requestId = Uuid.random().toString()
         )
     }
