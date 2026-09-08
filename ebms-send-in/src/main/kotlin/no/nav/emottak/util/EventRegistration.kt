@@ -2,6 +2,7 @@ package no.nav.emottak.util
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import no.nav.emottak.log
 import no.nav.emottak.utils.common.model.PartyId
 import no.nav.emottak.utils.common.model.SendInResponse
@@ -127,3 +128,5 @@ class EventRegistrationServiceFake : EventRegistrationService {
         log.debug("Registering message details for SendInResponse: {}", sendInResponse)
     }
 }
+
+fun encodeToJsonString(vararg pairs: Pair<String, String>): String = Json.encodeToString(mapOf(*pairs))

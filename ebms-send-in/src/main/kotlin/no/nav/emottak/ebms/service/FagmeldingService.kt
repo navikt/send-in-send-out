@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import kotlinx.serialization.json.Json
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.SupportedSyncServiceType
@@ -28,6 +27,7 @@ import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.encodeToJsonString
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
@@ -246,7 +246,8 @@ object FagmeldingService {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    sendInRequest.messageId,
+                    encodeToJsonString(EventDataType.QUEUE_NAME.value to trekkopplysningService.queue)
                 )
             }
         }
@@ -262,7 +263,8 @@ object FagmeldingService {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    sendInRequest.messageId,
+                    encodeToJsonString(EventDataType.QUEUE_NAME.value to syfoMeldingService.queue)
                 )
             }
         }
@@ -278,7 +280,8 @@ object FagmeldingService {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                     sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
+                    sendInRequest.messageId,
+                    encodeToJsonString(EventDataType.QUEUE_NAME.value to legeMeldingService.queue)
                 )
             }
         }
@@ -291,14 +294,11 @@ object FagmeldingService {
     ) {
         log.info("Refparam: $referenceParameter")
 
-        val eventData = Json.encodeToString(
-            mapOf(EventDataType.REFERENCE_PARAMETER.value to referenceParameter)
-        )
         eventRegistrationService.registerEvent(
             EventType.REFERENCE_RETRIEVED,
             requestId = sendInRequest.requestId.parseOrGenerateUuid(),
             messageId = sendInRequest.messageId,
-            eventData = eventData,
+            eventData = encodeToJsonString(EventDataType.REFERENCE_PARAMETER.value to referenceParameter),
             conversationId = sendInRequest.conversationId
         )
     }
