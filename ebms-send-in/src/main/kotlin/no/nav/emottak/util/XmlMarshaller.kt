@@ -8,10 +8,17 @@ import javax.xml.bind.JAXBContext
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamWriter
 
-class XmlMarshaller(jaxbContext: JAXBContext, namespacePrefixMapper: NamespacePrefixMapper? = null) {
+class XmlMarshaller(
+    jaxbContext: JAXBContext,
+    namespacePrefixMapper: NamespacePrefixMapper? = null,
+    schemaLocation: String? = null
+) {
     private val marshaller = jaxbContext.createMarshaller().apply {
         if (namespacePrefixMapper != null) {
             this.setProperty("com.sun.xml.bind.namespacePrefixMapper", namespacePrefixMapper)
+        }
+        if (schemaLocation != null) {
+            this.setProperty(javax.xml.bind.Marshaller.JAXB_SCHEMA_LOCATION, schemaLocation)
         }
     }
     private val unmarshaller = jaxbContext.createUnmarshaller()

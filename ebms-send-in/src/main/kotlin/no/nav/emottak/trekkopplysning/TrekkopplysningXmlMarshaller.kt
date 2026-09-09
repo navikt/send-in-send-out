@@ -28,7 +28,8 @@ val apprecTrekkopplysningMarshaller = XmlMarshaller(
         no.kith.xmlstds.apprec._2004_11_21.ObjectFactory::class.java,
         org.w3._1999.xlink.ObjectFactory::class.java,
         org.w3._2009.xmldsig11_.ObjectFactory::class.java
-    )
+    ),
+    schemaLocation = "http://www.kith.no/xmlstds/apprec/2004-11-21 AppRec-v1-2004-11-21.xsd"
 )
 
 fun marshalTrekkopplysning(fellesFormat: EIFellesformat): String {
