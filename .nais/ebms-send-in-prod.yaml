@@ -69,7 +69,7 @@ spec:
     - configmap: ebms-send-in
   env:
     - name: FRIKORT_URL
-      value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
+      value: https://frikorttjenester.intern.nav.no/api/ekstern/frikortmengdesporring
     - name: SRVTOKT_SECRET_PATH
       value: /secret/srvtokt
     - name: SERVICEUSERMQ_SECRET_PATH
