@@ -27,12 +27,10 @@ import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
-import no.nav.emottak.util.encodeToJsonString
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
-import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
@@ -89,7 +87,7 @@ object FagmeldingService {
         )
     }
 
-    suspend fun processRequestAsynchronously(
+    fun processRequestAsynchronously(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
         eventRegistrationService: EventRegistrationService,
@@ -101,17 +99,20 @@ object FagmeldingService {
             SupportedAsyncServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
                     log.info("Trekkopplysning is processed asynchronously")
-                    sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                    sendTrekkopplysning(sendInRequest, trekkopplysningService)
+                    eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, trekkopplysningService.queue)
                 }
             SupportedAsyncServiceType.Sykmelding ->
                 timed(meterRegistry, "Sykmelding") {
                     log.info("Sykmelding is processed asynchronously")
-                    sendSykmelding(sendInRequest, eventRegistrationService, syfoMeldingService)
+                    sendSykmelding(sendInRequest, syfoMeldingService)
+                    eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, syfoMeldingService.queue)
                 }
             SupportedAsyncServiceType.Legemelding ->
                 timed(meterRegistry, "Legemelding") {
                     log.info("Legemelding is processed asynchronously")
-                    sendLegemelding(sendInRequest, eventRegistrationService, legeMeldingService)
+                    sendLegemelding(sendInRequest, legeMeldingService)
+                    eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, legeMeldingService.queue)
                 }
             SupportedAsyncServiceType.Unsupported ->
                 throw NotImplementedError(
@@ -126,7 +127,10 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
-            persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
+            eventRegistrationService.registerReferenceParameter(
+                sendInRequest,
+                this.extractReferenceParameter()
+            )
             frikortsporringMengde(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -238,68 +242,31 @@ object FagmeldingService {
 
     private fun Raise<Throwable>.sendTrekkopplysning(
         sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            trekkopplysningService.trekkopplysning(this, sendInRequest.payload).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId,
-                    encodeToJsonString(EventDataType.QUEUE_NAME.value to trekkopplysningService.queue)
-                )
-            }
-        }
+        trekkopplysningService.trekkopplysning(
+            fellesformat = sendInRequest.asEIFellesFormat_Trekkopplysning(),
+            payload = sendInRequest.payload
+        )
     }.bind()
 
     private fun Raise<Throwable>.sendSykmelding(
         sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService,
         syfoMeldingService: SyfoMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
-            syfoMeldingService.sykmelding(this, sendInRequest.payload).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId,
-                    encodeToJsonString(EventDataType.QUEUE_NAME.value to syfoMeldingService.queue)
-                )
-            }
-        }
+        syfoMeldingService.sykmelding(
+            fellesformat = sendInRequest.asEIFellesFormat_Sykmelding(),
+            payload = sendInRequest.payload
+        )
     }.bind()
 
     private fun Raise<Throwable>.sendLegemelding(
         sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService,
         legeMeldingService: LegeMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload()) {
-            legeMeldingService.legemelding(this, sendInRequest.payload).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId,
-                    encodeToJsonString(EventDataType.QUEUE_NAME.value to legeMeldingService.queue)
-                )
-            }
-        }
-    }.bind()
-
-    private fun persistReferenceParameter(
-        sendInRequest: SendInRequest,
-        referenceParameter: String,
-        eventRegistrationService: EventRegistrationService
-    ) {
-        log.info("Refparam: $referenceParameter")
-
-        eventRegistrationService.registerEvent(
-            EventType.REFERENCE_RETRIEVED,
-            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-            messageId = sendInRequest.messageId,
-            eventData = encodeToJsonString(EventDataType.REFERENCE_PARAMETER.value to referenceParameter),
-            conversationId = sendInRequest.conversationId
+        legeMeldingService.legemelding(
+            fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload(),
+            payload = sendInRequest.payload
         )
-    }
+    }.bind()
 }

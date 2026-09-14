@@ -73,39 +73,37 @@ suspend fun ResourceScope.setupServer() {
         },
         meterRegistry = prometheusMeterRegistry
     )
-    log.info("Set up Trekkopplysning to use MQ with host ${trekkOpplysningMq.hostname}, port ${trekkOpplysningMq.port}, queueManager ${trekkOpplysningMq.queueManager}, channel ${trekkOpplysningMq.channel}, queue ${trekkOpplysningMq.queue}")
+    log.info("Set up Trekkopplysning to use MQ config: $trekkOpplysningMq")
     val syfoMq = config().syfoMq
     val syfoMeldingService = SyfoMeldingService(syfoMq, meterRegistry = prometheusMeterRegistry)
-    log.info("Set up Sykemeldinger to use MQ with host ${syfoMq.hostname}, port ${syfoMq.port}, queueManager ${syfoMq.queueManager}, channel ${syfoMq.channel}, queue ${syfoMq.queue}")
+    log.info("Set up Sykemeldinger to use MQ config: $syfoMq")
     val paleMq = config().paleMq
     val legeMeldingService = LegeMeldingService(paleMq, meterRegistry = prometheusMeterRegistry)
-    log.info("Set up Legemeldinger to use MQ with host ${paleMq.hostname}, port ${paleMq.port}, queueManager ${paleMq.queueManager}, channel ${paleMq.channel}, queue ${paleMq.queue}")
+    log.info("Set up Legemeldinger to use MQ config: $paleMq")
 
     val outPayloadProducer = EbmsOutPayloadProducer(
         config().ebmsOutPayloadProducer.topic,
         config().kafka
     )
 
-    val useAsyncIn = getEnvVar(USE_ASYNC_IN_KEY, "false").fixEnvStringFromConfig().toBoolean()
-    if (useAsyncIn) {
+    if (getEnvVar(USE_ASYNC_IN_KEY, "false").fixEnvStringFromConfig().toBoolean()) {
         log.info("Set up to read asynchronous inbound messages from EbmsInPayload topic")
         eventRegistrationScope.launchEbmsInPayloadReceiver(config(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService, syfoMeldingService, legeMeldingService)
     } else {
-        log.info("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
+        log.warn("Asynchronous inbound messages turned OFF, will only receive synchronous calls")
     }
-    val useAsyncOut = getEnvVar(USE_ASYNC_OUT_KEY, "false").fixEnvStringFromConfig().toBoolean()
-    if (useAsyncOut) {
+    if (getEnvVar(USE_ASYNC_OUT_KEY, "false").fixEnvStringFromConfig().toBoolean()) {
         log.info("Set up to read asynchronous responses/outbound messages from Fellesformat topic")
         eventRegistrationScope.launchEbmsOutFellesformatReceiver(config(), eventRegistrationService, outPayloadProducer)
     } else {
-        log.info("Asynchronous outbound messages turned OFF, will not process responses/outbound messages")
+        log.warn("Asynchronous outbound messages turned OFF, will not process responses/outbound messages")
     }
 
     server(
         Netty,
         port = serverConfig.port.value,
         preWait = serverConfig.preWait,
-        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn) }
+        module = { ebmsSendInModule(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService) }
     )
 }
 
@@ -114,13 +112,12 @@ internal fun Application.ebmsSendInModule(
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
     syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
-    useAsyncIn: Boolean
+    legeMeldingService: LegeMeldingService
 ) {
     configureMetrics(prometheusMeterRegistry)
     configureContentNegotiation()
     configureAuthentication()
-    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn)
+    configureRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService)
 }
 
 // Boolske verdier i ekstern NAIS config må/bør være tekst-strenger, ellers kan de ikke redigeres

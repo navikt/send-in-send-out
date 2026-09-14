@@ -16,8 +16,6 @@ import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.ebms.service.FagmeldingService
-import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
-import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.log
@@ -26,51 +24,20 @@ import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
-import no.nav.emottak.utils.common.parseOrGenerateUuid
-import no.nav.emottak.utils.kafka.model.EventType
-import no.nav.emottak.utils.serialization.toEventDataJson
 
 fun Route.fagmeldingRoutes(
     prometheusMeterRegistry: PrometheusMeterRegistry,
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
     syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
-    useAsyncIn: Boolean
+    legeMeldingService: LegeMeldingService
 ) {
     authenticate(AZURE_AD_AUTH) {
         post("/fagmelding/synkron") {
             log.debug("EbmsInPayload received synchronously, processing message")
-            val sendInRequest = call.receiveEither<SendInRequest>().getOrElse { error ->
-                log.error("SendInRequest mapping error", error)
-                call.respond(HttpStatusCode.BadRequest, error.localizedMessage ?: "Mapping error")
-                return@post
-            }
+            val sendInRequest = call.receiveSendInRequestOrRespondError() ?: return@post
 
-            val mdcData = mapOf(
-                "messageId" to sendInRequest.messageId,
-                "conversationId" to sendInRequest.conversationId,
-                "cpaId" to sendInRequest.cpaId,
-                "requestId" to sendInRequest.requestId
-            )
-
-            withContext(Dispatchers.IO + MDCContext(mdcData)) {
-                // midlertidig hack til vi har async kall fra ebmxl-prosessor
-                if (useAsyncIn) {
-                    if (sendInRequest.addressing.service.toSupportedAsyncService() == SupportedAsyncServiceType.Trekkopplysning) {
-                        log.warn("Trekkopplysning is received synchronously, and will be further processed asynchronously. However the synchronous response will be empty and probably regarded as an error.")
-                        callTrekkopplysningAsync(
-                            sendInRequest,
-                            prometheusMeterRegistry,
-                            eventRegistrationService,
-                            trekkopplysningService,
-                            syfoMeldingService,
-                            legeMeldingService,
-                            call
-                        )
-                        return@withContext
-                    }
-                }
+            withContext(Dispatchers.IO + MDCContext(sendInRequest.mdcData())) {
                 val result: Either<Throwable, SendInResponse> = either {
                     FagmeldingService.processRequestSynchronously(
                         sendInRequest,
@@ -82,13 +49,7 @@ fun Route.fagmeldingRoutes(
                 result.fold(
                     { error ->
                         log.error("Payload ${sendInRequest.payloadId} sync processing failed", error)
-                        eventRegistrationService.registerEvent(
-                            EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                            messageId = sendInRequest.messageId,
-                            eventData = Exception(error).toEventDataJson(),
-                            conversationId = sendInRequest.conversationId
-                        )
+                        eventRegistrationService.registerErrorOnHandoverToFagsystem(sendInRequest, error)
                         call.respond(
                             HttpStatusCode.BadRequest,
                             error.localizedMessage ?: error.javaClass.simpleName
@@ -101,50 +62,53 @@ fun Route.fagmeldingRoutes(
                 )
             }
         }
-    }
-}
 
-private suspend fun callTrekkopplysningAsync(
-    sendInRequest: SendInRequest,
-    prometheusMeterRegistry: PrometheusMeterRegistry,
-    eventRegistrationService: EventRegistrationService,
-    trekkopplysningService: TrekkopplysningService,
-    syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
-    call: RoutingCall
-) {
-    val result: Either<Throwable, Unit> = either {
-        FagmeldingService.processRequestAsynchronously(
-            sendInRequest,
-            prometheusMeterRegistry,
-            eventRegistrationService,
-            trekkopplysningService,
-            syfoMeldingService,
-            legeMeldingService
-        ).bind()
-    }
+        post("/fagmelding/asynkron") {
+            log.debug("EbmsInPayload received asynchronously, processing message")
+            val sendInRequest = call.receiveSendInRequestOrRespondError() ?: return@post
 
-    result.fold(
-        { error ->
-            log.error("Payload ${sendInRequest.payloadId} forwarding failed", error)
-            eventRegistrationService.registerEvent(
-                EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
-                requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-                messageId = sendInRequest.messageId,
-                eventData = Exception(error).toEventDataJson(),
-                conversationId = sendInRequest.conversationId
-            )
-            call.respond(
-                HttpStatusCode.BadRequest,
-                error.localizedMessage ?: error.javaClass.simpleName
-            )
-        },
-        {
-            log.info("Trekkopplysning ${sendInRequest.payloadId} forwarding complete, no response")
-            call.respond("Trekkopplysning forwarding complete")
+            withContext(Dispatchers.IO + MDCContext(sendInRequest.mdcData())) {
+                FagmeldingService.processRequestAsynchronously(
+                    sendInRequest,
+                    prometheusMeterRegistry,
+                    eventRegistrationService,
+                    trekkopplysningService,
+                    syfoMeldingService,
+                    legeMeldingService
+                ).fold(
+                    { error ->
+                        log.error("EbmsInPayload ${sendInRequest.payloadId} async forwarding failed", error)
+                        eventRegistrationService.registerErrorOnHandoverToFagsystem(sendInRequest, error)
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            error.localizedMessage ?: error.javaClass.simpleName
+                        )
+                    },
+                    {
+                        log.info("EbmsInPayload ${sendInRequest.payloadId} async forwarding complete")
+                        call.respond(HttpStatusCode.Accepted)
+                    }
+                )
+            }
         }
-    )
+    }
 }
+
+private suspend fun RoutingCall.receiveSendInRequestOrRespondError(): SendInRequest? {
+    return this.receiveEither<SendInRequest>().getOrElse { error ->
+        log.error("SendInRequest mapping error", error)
+        this.respond(HttpStatusCode.BadRequest, error.localizedMessage ?: "Mapping error")
+        null
+    }
+}
+
+private fun SendInRequest.mdcData() =
+    mapOf(
+        "messageId" to messageId,
+        "conversationId" to conversationId,
+        "cpaId" to cpaId,
+        "requestId" to requestId
+    )
 
 fun Route.verifyMq(
     trekkopplysningService: TrekkopplysningService,

@@ -17,14 +17,13 @@ fun Application.configureRoutes(
     eventRegistrationService: EventRegistrationService,
     trekkopplysningService: TrekkopplysningService,
     syfoMeldingService: SyfoMeldingService,
-    legeMeldingService: LegeMeldingService,
-    useAsyncIn: Boolean
+    legeMeldingService: LegeMeldingService
 ) {
     routing {
         if (!isProdEnv()) {
             verifyMq(trekkopplysningService, syfoMeldingService, legeMeldingService)
         }
-        fagmeldingRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, useAsyncIn)
+        fagmeldingRoutes(prometheusMeterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService)
         healthcheckRoutes(prometheusMeterRegistry)
     }
 }

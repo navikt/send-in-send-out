@@ -22,7 +22,9 @@ import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.EventRegistrationServiceFake
+import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
+import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import okhttp3.mockwebserver.MockResponse
@@ -87,7 +89,7 @@ abstract class PayloadIntegrationTestFelles(
             val syfoMeldingService: SyfoMeldingService = mockk()
             val legeMeldingService: LegeMeldingService = mockk()
             application {
-                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService, false)
+                ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService)
             }
             testBlock(eventRegistrationService)
         }
@@ -111,6 +113,33 @@ abstract class PayloadIntegrationTestFelles(
                 conversationId = capture(capturedConversationId)
             )
         } returns Unit
+        every { mockEventService.registerReferenceParameter(any(), any()) } answers {
+            val sendInRequest = firstArg<SendInRequest>()
+            mockEventService.registerEvent(
+                EventType.REFERENCE_RETRIEVED,
+                requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                messageId = sendInRequest.messageId,
+                conversationId = sendInRequest.conversationId
+            )
+        }
+        every { mockEventService.registerMessageSentToFagsystem(any(), any()) } answers {
+            val sendInRequest = firstArg<SendInRequest>()
+            mockEventService.registerEvent(
+                EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                messageId = sendInRequest.messageId,
+                conversationId = sendInRequest.conversationId
+            )
+        }
+        every { mockEventService.registerErrorOnHandoverToFagsystem(any(), any()) } answers {
+            val sendInRequest = firstArg<SendInRequest>()
+            mockEventService.registerEvent(
+                EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+                requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+                messageId = sendInRequest.messageId,
+                conversationId = sendInRequest.conversationId
+            )
+        }
         return capturedConversationId
     }
 
