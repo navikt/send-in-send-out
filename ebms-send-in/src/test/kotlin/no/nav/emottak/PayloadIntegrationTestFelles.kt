@@ -71,6 +71,9 @@ abstract class PayloadIntegrationTestFelles(
         mockResponsePath: String? = null,
         mockResponseContentType: ContentType = ContentType.Application.Xml,
         eventRegistrationService: EventRegistrationService = EventRegistrationServiceFake(),
+        trekkopplysningService: TrekkopplysningService = mockk(),
+        syfoMeldingService: SyfoMeldingService = mockk(),
+        legeMeldingService: LegeMeldingService = mockk(),
         testBlock: suspend ApplicationTestBuilder.(eventRegistrationService: EventRegistrationService) -> T
     ) = testApplication {
         resourceScope {
@@ -85,9 +88,6 @@ abstract class PayloadIntegrationTestFelles(
             }
             val meterRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-            val trekkopplysningService: TrekkopplysningService = mockk()
-            val syfoMeldingService: SyfoMeldingService = mockk()
-            val legeMeldingService: LegeMeldingService = mockk()
             application {
                 ebmsSendInModule(meterRegistry, eventRegistrationService, trekkopplysningService, syfoMeldingService, legeMeldingService)
             }
