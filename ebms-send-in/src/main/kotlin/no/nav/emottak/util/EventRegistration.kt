@@ -31,6 +31,7 @@ interface EventRegistrationService {
     fun registerErrorOnHandoverToFagsystem(sendInRequest: SendInRequest, error: Throwable)
     fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpointId: String)
     fun registerReferenceParameter(sendInRequest: SendInRequest, referenceParameter: String)
+    fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse)
 
     companion object {
         fun serializePartyId(partyIDs: List<PartyId>): String {
@@ -124,12 +125,12 @@ class EventRegistrationServiceImpl(
         )
     }
 
-    override fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpoint: String) {
+    override fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpointId: String) {
         registerEvent(
             EventType.MESSAGE_SENT_TO_FAGSYSTEM,
             sendInRequest.requestId.parseOrGenerateUuid(),
             sendInRequest.messageId,
-            encodeToJsonString(EventDataType.QUEUE_NAME.value to endpoint),
+            encodeToJsonString(EventDataType.QUEUE_NAME.value to endpointId),
             sendInRequest.conversationId
         )
     }
@@ -146,6 +147,14 @@ class EventRegistrationServiceImpl(
             conversationId = sendInRequest.conversationId
         )
     }
+
+    override fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse) = registerEvent(
+        EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
+        requestId = sendInResponse.requestId.parseOrGenerateUuid(),
+        messageId = sendInResponse.messageId,
+        eventData = "{}",
+        conversationId = sendInResponse.conversationId
+    )
 }
 
 class EventRegistrationServiceFake : EventRegistrationService {
@@ -206,6 +215,15 @@ class EventRegistrationServiceFake : EventRegistrationService {
             sendInRequest.messageId,
             sendInRequest.conversationId,
             referenceParameter
+        )
+    }
+
+    override fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse) {
+        log.info(
+            "Registering message received from fagsystem for requestId: {}, messageId: {}, conversationId: {}",
+            sendInResponse.requestId,
+            sendInResponse.messageId,
+            sendInResponse.conversationId
         )
     }
 }
