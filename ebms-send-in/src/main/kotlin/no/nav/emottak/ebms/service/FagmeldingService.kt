@@ -71,8 +71,10 @@ object FagmeldingService {
                 }
 
             SupportedSyncServiceType.Unsupported ->
-                throw NotImplementedError(
-                    "Service: ${sendInRequest.addressing.service} is not implemented"
+                raise(
+                    NotImplementedError(
+                        "Service: ${sendInRequest.addressing.service} is not implemented"
+                    )
                 )
         }
     }
@@ -115,8 +117,10 @@ object FagmeldingService {
                     eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, legeMeldingService.queue)
                 }
             SupportedAsyncServiceType.Unsupported ->
-                throw NotImplementedError(
-                    "Service: ${sendInRequest.addressing.service} is not implemented"
+                raise(
+                    NotImplementedError(
+                        "Service: ${sendInRequest.addressing.service} is not implemented"
+                    )
                 )
         }
         // Logging av eventer som krever respons ligger i Receiveren som mottar respons/fellesformat fra fagsystem

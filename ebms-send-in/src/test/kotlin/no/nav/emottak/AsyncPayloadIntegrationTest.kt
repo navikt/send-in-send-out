@@ -113,6 +113,45 @@ class AsyncPayloadIntegrationTest : PayloadIntegrationTestFelles() {
     }
 
     @Test
+    fun `Test unsupported service on async route registers ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM`() {
+        val mockEventService: EventRegistrationService = mockk(relaxed = true)
+
+        return ebmsSendInTestApp(eventRegistrationService = mockEventService) {
+            setupEventMockingService(mockEventService)
+            val httpClient = createClient {
+                install(ContentNegotiation) { json() }
+            }
+            val sendInRequest = mockSendInRequest("HarBorgerFrikort", "HarBorgerFrikort", "<dummy/>".toByteArray())
+            val httpResponse = httpClient.post("/fagmelding/asynkron") {
+                header("Authorization", "Bearer ${getToken().serialize()}")
+                setBody(sendInRequest)
+                contentType(ContentType.Application.Json)
+            }
+
+            assertEquals(HttpStatusCode.BadRequest, httpResponse.status)
+            assert(httpResponse.bodyAsText().contains("is not implemented"))
+            verify(exactly = 1) {
+                mockEventService.registerEvent(
+                    EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+            verify(exactly = 0) {
+                mockEventService.registerEvent(
+                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+            }
+        }
+    }
+
+    @Test
     fun `Test async route responds with BadRequest on malformed request body`() = ebmsSendInTestApp {
         val httpClient = createClient {
             install(ContentNegotiation) { json() }
