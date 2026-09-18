@@ -5,13 +5,16 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import no.nav.emottak.log
 import no.nav.emottak.utils.common.model.PartyId
+import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EbmsMessageDetail
 import no.nav.emottak.utils.kafka.model.Event
+import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import no.nav.emottak.utils.kafka.service.EventLoggingService
 import no.nav.emottak.utils.serialization.getErrorMessage
+import no.nav.emottak.utils.serialization.toEventDataJson
 import java.time.Instant
 import kotlin.uuid.Uuid
 
@@ -25,6 +28,9 @@ interface EventRegistrationService {
     )
 
     fun registerEventMessageDetails(sendInResponse: SendInResponse)
+    fun registerErrorOnHandoverToFagsystem(sendInRequest: SendInRequest, error: Throwable)
+    fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpointId: String)
+    fun registerReferenceParameter(sendInRequest: SendInRequest, referenceParameter: String)
 
     companion object {
         fun serializePartyId(partyIDs: List<PartyId>): String {
@@ -104,6 +110,42 @@ class EventRegistrationServiceImpl(
             }
         }
     }
+
+    override fun registerErrorOnHandoverToFagsystem(
+        sendInRequest: SendInRequest,
+        error: Throwable
+    ) {
+        registerEvent(
+            eventType = EventType.ERROR_WHILE_SENDING_MESSAGE_TO_FAGSYSTEM,
+            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+            messageId = sendInRequest.messageId,
+            eventData = Exception(error).toEventDataJson(),
+            conversationId = sendInRequest.conversationId
+        )
+    }
+
+    override fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpoint: String) {
+        registerEvent(
+            EventType.MESSAGE_SENT_TO_FAGSYSTEM,
+            sendInRequest.requestId.parseOrGenerateUuid(),
+            sendInRequest.messageId,
+            encodeToJsonString(EventDataType.QUEUE_NAME.value to endpoint),
+            sendInRequest.conversationId
+        )
+    }
+
+    override fun registerReferenceParameter(
+        sendInRequest: SendInRequest,
+        referenceParameter: String
+    ) {
+        registerEvent(
+            EventType.REFERENCE_RETRIEVED,
+            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
+            messageId = sendInRequest.messageId,
+            eventData = encodeToJsonString(EventDataType.REFERENCE_PARAMETER.value to referenceParameter),
+            conversationId = sendInRequest.conversationId
+        )
+    }
 }
 
 class EventRegistrationServiceFake : EventRegistrationService {
@@ -126,6 +168,45 @@ class EventRegistrationServiceFake : EventRegistrationService {
 
     override fun registerEventMessageDetails(sendInResponse: SendInResponse) {
         log.debug("Registering message details for SendInResponse: {}", sendInResponse)
+    }
+
+    override fun registerErrorOnHandoverToFagsystem(
+        sendInRequest: SendInRequest,
+        error: Throwable
+    ) {
+        log.info(
+            "Registering error on handover to fagsystem for requestId: {}, messageId: {}, conversationId: {} and error: {}",
+            sendInRequest.requestId,
+            sendInRequest.messageId,
+            sendInRequest.conversationId,
+            Exception(error).getErrorMessage()
+        )
+    }
+
+    override fun registerMessageSentToFagsystem(
+        sendInRequest: SendInRequest,
+        endpointId: String
+    ) {
+        log.info(
+            "Registering message sent to fagsystem for requestId: {}, messageId: {}, conversationId: {} and endpointId: {}",
+            sendInRequest.requestId,
+            sendInRequest.messageId,
+            sendInRequest.conversationId,
+            endpointId
+        )
+    }
+
+    override fun registerReferenceParameter(
+        sendInRequest: SendInRequest,
+        referenceParameter: String
+    ) {
+        log.info(
+            "Registering reference parameter for requestId: {}, messageId: {}, conversationId: {} and referenceParameter: {}",
+            sendInRequest.requestId,
+            sendInRequest.messageId,
+            sendInRequest.conversationId,
+            referenceParameter
+        )
     }
 }
 
