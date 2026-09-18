@@ -111,7 +111,7 @@ private suspend fun processMessage(
     log.debug("Inner Payload contents: ${sendInRequest.payload.decodeToString()}")
 
     val mdcData = mapOf(
-        "record_key" to recordKey,
+        "record_key" to recordKey
     ) + sendInRequest.mdcData()
 
     return withContext(MDCContext(mdcData)) {
