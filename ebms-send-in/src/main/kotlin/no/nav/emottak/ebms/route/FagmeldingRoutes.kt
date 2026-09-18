@@ -102,12 +102,14 @@ private suspend fun RoutingCall.receiveSendInRequestOrRespondError(): SendInRequ
     }
 }
 
-private fun SendInRequest.mdcData() =
+internal fun SendInRequest.mdcData() =
     mapOf(
         "messageId" to messageId,
         "conversationId" to conversationId,
         "cpaId" to cpaId,
-        "requestId" to requestId
+        "requestId" to requestId,
+        "service" to addressing.service,
+        "action" to addressing.action
     )
 
 fun Route.verifyMq(

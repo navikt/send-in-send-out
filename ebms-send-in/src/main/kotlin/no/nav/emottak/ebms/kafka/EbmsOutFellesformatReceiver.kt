@@ -105,17 +105,14 @@ suspend fun processMessage(
         "messageId" to fellesformat.mottakenhetBlokk.ediLoggId,
         "conversationId" to fellesformat.mottakenhetBlokk.ebXMLSamtaleId,
         "cpaId" to fellesformat.mottakenhetBlokk.partnerReferanse,
-        "requestId" to fellesformat.mottakenhetBlokk.ediLoggId
+        "requestId" to fellesformat.mottakenhetBlokk.ediLoggId,
+        "service" to fellesformat.mottakenhetBlokk.ebService,
+        "action" to fellesformat.mottakenhetBlokk.ebAction
     )
 
     return withContext(MDCContext(mdcData)) {
         val sendInResponse = FagmeldingResponseService.getResponse(fellesformat)
-        eventRegistrationService.registerEvent(
-            EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-            requestId = sendInResponse.requestId.parseOrGenerateUuid(),
-            messageId = "",
-            conversationId = sendInResponse.conversationId
-        )
+        eventRegistrationService.registerMessageReceivedFromFagsystem(sendInResponse)
         eventRegistrationService.registerEventMessageDetails(sendInResponse)
 
         val json = Json.encodeToString<SendInResponse>(sendInResponse).toByteArray()
