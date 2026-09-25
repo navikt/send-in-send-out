@@ -11,6 +11,7 @@ import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
+import no.nav.emottak.ebms.route.mdcData
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.sykmelding.SyfoMeldingService
@@ -110,12 +111,8 @@ private suspend fun processMessage(
     log.debug("Inner Payload contents: ${sendInRequest.payload.decodeToString()}")
 
     val mdcData = mapOf(
-        "record_key" to recordKey,
-        "messageId" to sendInRequest.messageId,
-        "conversationId" to sendInRequest.conversationId,
-        "cpaId" to sendInRequest.cpaId,
-        "requestId" to sendInRequest.requestId
-    )
+        "record_key" to recordKey
+    ) + sendInRequest.mdcData()
 
     return withContext(MDCContext(mdcData)) {
         FagmeldingService.processRequestAsynchronously(
