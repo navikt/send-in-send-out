@@ -18,7 +18,7 @@ class KithXmlModelToFrikortRestModelMapperTest {
 
         assertTrue(fagmelding.msgHead.document.isNotEmpty())
 
-        assertEquals(fagmelding.msgHead.msgInfo.msgId, convertedFagmelding.eiFellesformat.msgHead!!.msgInfo.msgId)
+        assertEquals(fagmelding.msgHead.msgInfo.msgId, convertedFagmelding.eiFellesformat.msgHead.msgInfo.msgId)
         assertEquals(fagmelding.msgHead.msgInfo.genDate.toKotlinxInstant(), convertedFagmelding.eiFellesformat.msgHead.msgInfo.genDate)
         assertEquals(fagmelding.msgHead.msgInfo.type.v, convertedFagmelding.eiFellesformat.msgHead.msgInfo.type.v)
         assertEquals(fagmelding.msgHead.msgInfo.type.dn, convertedFagmelding.eiFellesformat.msgHead.msgInfo.type.dn)

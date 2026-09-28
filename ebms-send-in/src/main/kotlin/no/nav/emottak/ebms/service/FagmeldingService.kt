@@ -4,18 +4,17 @@ import arrow.core.Either
 import arrow.core.raise.Raise
 import arrow.core.raise.either
 import io.micrometer.core.instrument.MeterRegistry
-import kotlinx.serialization.json.Json
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
 import no.nav.emottak.ebms.utils.SupportedSyncServiceType
 import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedService
 import no.nav.emottak.ebms.utils.timed
-import no.nav.emottak.fellesformat.FellesFormatXmlMarshaller
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
+import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.getMinimalContentXmlMarshaller
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
@@ -32,7 +31,6 @@ import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
-import no.nav.emottak.utils.kafka.model.EventDataType
 import no.nav.emottak.utils.kafka.model.EventType
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
@@ -73,8 +71,10 @@ object FagmeldingService {
                 }
 
             SupportedSyncServiceType.Unsupported ->
-                throw NotImplementedError(
-                    "Service: ${sendInRequest.addressing.service} is not implemented"
+                raise(
+                    NotImplementedError(
+                        "Service: ${sendInRequest.addressing.service} is not implemented"
+                    )
                 )
         }
     }
@@ -89,7 +89,7 @@ object FagmeldingService {
         )
     }
 
-    suspend fun processRequestAsynchronously(
+    fun processRequestAsynchronously(
         sendInRequest: SendInRequest,
         meterRegistry: MeterRegistry,
         eventRegistrationService: EventRegistrationService,
@@ -101,21 +101,26 @@ object FagmeldingService {
             SupportedAsyncServiceType.Trekkopplysning ->
                 timed(meterRegistry, "Trekkopplysning") {
                     log.info("Trekkopplysning is processed asynchronously")
-                    sendTrekkopplysning(sendInRequest, eventRegistrationService, trekkopplysningService)
+                    sendTrekkopplysning(sendInRequest, trekkopplysningService)
+                    eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, trekkopplysningService.queue)
                 }
             SupportedAsyncServiceType.Sykmelding ->
                 timed(meterRegistry, "Sykmelding") {
                     log.info("Sykmelding is processed asynchronously")
-                    sendSykmelding(sendInRequest, eventRegistrationService, syfoMeldingService)
+                    sendSykmelding(sendInRequest, syfoMeldingService)
+                    eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, syfoMeldingService.queue)
                 }
             SupportedAsyncServiceType.Legemelding ->
                 timed(meterRegistry, "Legemelding") {
                     log.info("Legemelding is processed asynchronously")
-                    sendLegemelding(sendInRequest, eventRegistrationService, legeMeldingService)
+                    sendLegemelding(sendInRequest, legeMeldingService)
+                    eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, legeMeldingService.queue)
                 }
             SupportedAsyncServiceType.Unsupported ->
-                throw NotImplementedError(
-                    "Service: ${sendInRequest.addressing.service} is not implemented"
+                raise(
+                    NotImplementedError(
+                        "Service: ${sendInRequest.addressing.service} is not implemented"
+                    )
                 )
         }
         // Logging av eventer som krever respons ligger i Receiveren som mottar respons/fellesformat fra fagsystem
@@ -126,7 +131,10 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService
     ): SendInResponse = Either.catch {
         with(sendInRequest.asEIFellesFormat()) {
-            persistReferenceParameter(sendInRequest, this.extractReferenceParameter(), eventRegistrationService)
+            eventRegistrationService.registerReferenceParameter(
+                sendInRequest,
+                this.extractReferenceParameter()
+            )
             frikortsporringMengde(this).also {
                 eventRegistrationService.registerEvent(
                     EventType.MESSAGE_SENT_TO_FAGSYSTEM,
@@ -146,9 +154,13 @@ object FagmeldingService {
                 response.eiFellesformat.mottakenhetBlokk.ebService,
                 response.eiFellesformat.mottakenhetBlokk.ebAction
             ),
-            payload = FellesFormatXmlMarshaller.marshalToByteArray(
+            payload = egenandelMengdeForesporselXmlMarshaller.marshalToByteArray(
                 response.eiFellesformat.msgHead
-            ),
+            ).also {
+                if (log.isDebugEnabled) {
+                    log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
+                }
+            },
             requestId = Uuid.random().toString()
         )
     }
@@ -234,68 +246,31 @@ object FagmeldingService {
 
     private fun Raise<Throwable>.sendTrekkopplysning(
         sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService,
         trekkopplysningService: TrekkopplysningService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Trekkopplysning()) {
-            trekkopplysningService.trekkopplysning(this, sendInRequest.payload).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
-                )
-            }
-        }
+        trekkopplysningService.trekkopplysning(
+            fellesformat = sendInRequest.asEIFellesFormat_Trekkopplysning(),
+            payload = sendInRequest.payload
+        )
     }.bind()
 
     private fun Raise<Throwable>.sendSykmelding(
         sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService,
         syfoMeldingService: SyfoMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_Sykmelding()) {
-            syfoMeldingService.sykmelding(this, sendInRequest.payload).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
-                )
-            }
-        }
+        syfoMeldingService.sykmelding(
+            fellesformat = sendInRequest.asEIFellesFormat_Sykmelding(),
+            payload = sendInRequest.payload
+        )
     }.bind()
 
     private fun Raise<Throwable>.sendLegemelding(
         sendInRequest: SendInRequest,
-        eventRegistrationService: EventRegistrationService,
         legeMeldingService: LegeMeldingService
     ) = Either.catch {
-        with(sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload()) {
-            legeMeldingService.legemelding(this, sendInRequest.payload).also {
-                eventRegistrationService.registerEvent(
-                    EventType.MESSAGE_SENT_TO_FAGSYSTEM,
-                    sendInRequest.requestId.parseOrGenerateUuid(),
-                    sendInRequest.messageId
-                )
-            }
-        }
+        legeMeldingService.legemelding(
+            fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload(),
+            payload = sendInRequest.payload
+        )
     }.bind()
-
-    private fun persistReferenceParameter(
-        sendInRequest: SendInRequest,
-        referenceParameter: String,
-        eventRegistrationService: EventRegistrationService
-    ) {
-        log.info("Refparam: $referenceParameter")
-
-        val eventData = Json.encodeToString(
-            mapOf(EventDataType.REFERENCE_PARAMETER.value to referenceParameter)
-        )
-        eventRegistrationService.registerEvent(
-            EventType.REFERENCE_RETRIEVED,
-            requestId = sendInRequest.requestId.parseOrGenerateUuid(),
-            messageId = sendInRequest.messageId,
-            eventData = eventData,
-            conversationId = sendInRequest.conversationId
-        )
-    }
 }
