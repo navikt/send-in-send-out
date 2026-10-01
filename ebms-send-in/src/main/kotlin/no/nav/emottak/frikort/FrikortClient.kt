@@ -12,6 +12,7 @@ import javax.xml.namespace.QName
 
 val frikortEndpoint = frikortEndpoint()
 private val frikortObjectFactory = ObjectFactory()
+internal const val FRIKORT_RECEIVE_TIMEOUT_MILLIS = 120_000L
 
 fun frikortEndpoint(): FrikortV1Port {
     val secretPath = getEnvVar("SRVTOKT_SECRET_PATH", "/dummy/path")
@@ -25,6 +26,7 @@ fun frikortEndpoint(): FrikortV1Port {
             getSecret("$secretPath/username", "testUsername"),
             getSecret("$secretPath/password", "testPassword")
         )
+        .withReceiveTimeout(FRIKORT_RECEIVE_TIMEOUT_MILLIS)
         .get()
 }
 
