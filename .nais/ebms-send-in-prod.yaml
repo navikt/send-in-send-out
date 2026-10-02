@@ -5,6 +5,9 @@ metadata:
   namespace: "team-emottak"
   labels:
     "team": "team-emottak"
+  annotations:
+    haproxy.org/timeout-server: "120s"
+    haproxy.org/timeout-client: "120s"
 spec:
   azure:
     application:

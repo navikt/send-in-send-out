@@ -14,9 +14,13 @@ import io.mockk.mockk
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.config.Configurator
+import no.nav.emottak.frikort.FRIKORT_RECEIVE_TIMEOUT_MILLIS
 import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
+import no.nav.emottak.frikort.frikortEndpoint
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
+import org.apache.cxf.frontend.ClientProxy
+import org.apache.cxf.transport.http.HTTPConduit
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -30,6 +34,13 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
     @BeforeAll
     fun beforeAll() {
         Configurator.resetMemoizedConfig()
+    }
+
+    @Test
+    fun `HarBorgerFrikortMengde har utvidet timeout`() {
+        val conduit = ClientProxy.getClient(frikortEndpoint).conduit as HTTPConduit
+
+        assertEquals(FRIKORT_RECEIVE_TIMEOUT_MILLIS, conduit.client.receiveTimeout)
     }
 
     @Test
