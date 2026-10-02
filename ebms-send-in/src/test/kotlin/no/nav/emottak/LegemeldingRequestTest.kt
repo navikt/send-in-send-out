@@ -31,7 +31,7 @@ class LegemeldingRequestTest {
         val request = SendInRequest(
             messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
             requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "20086600138", payload = payloadFromExpectedXmlFile.toByteArray(),
+            signedByPid = "20086600138", payload = payloadFromExpectedXmlFile.toByteArray(),
             addressing = Addressing(
                 service = "Legemelding",
                 action = "Legeerklaring",
@@ -56,7 +56,7 @@ class LegemeldingRequestTest {
         val request = SendInRequest(
             messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
             requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "20086600138", payload = "".toByteArray(),
+            signedByPid = "20086600138", payload = "".toByteArray(),
             addressing = Addressing(
                 service = "Legemelding",
                 action = "Legeerklaring",
@@ -86,7 +86,7 @@ class LegemeldingRequestTest {
         val request = SendInRequest(
             messageId = "ed63e4e0-6bed-43b1-b99d-74ef5cb2bc47", conversationId = "1234",
             requestId = "dummy", payloadId = "dummy", cpaId = "", partnerId = 0, ebmsProcessing = EbmsProcessing(),
-            signedOf = "20086600138", payload = "".toByteArray(),
+            signedByPid = "20086600138", payload = "".toByteArray(),
             addressing = Addressing(
                 service = "Legemelding",
                 action = "Legeerklaring",

@@ -36,7 +36,7 @@ fun mockSendInRequest(
     service: String,
     action: String,
     payload: ByteArray,
-    signedOf: String? = null,
+    signedBy: String? = null,
     fromRole: String? = null,
     toRole: String? = null
 ) = SendInRequest(
@@ -47,7 +47,8 @@ fun mockSendInRequest(
     ebmsProcessing = EbmsProcessing(),
     cpaId = "dummyCpa",
     payload = payload,
-    signedOf = signedOf,
+    signedByPid = signedBy,
+    signedByOrg = signedBy,
     requestId = Uuid.random().toString()
 )
 
