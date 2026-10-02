@@ -95,12 +95,10 @@ fun Route.fagmeldingRoutes(
     }
 }
 
-internal fun Throwable.toAsyncHttpStatusCode() =
-    if (this is UnsupportedAsyncServiceException) {
-        HttpStatusCode.BadRequest
-    } else {
-        HttpStatusCode.InternalServerError
-    }
+internal fun Throwable.toAsyncHttpStatusCode() = when (this) {
+    is UnsupportedAsyncServiceException -> HttpStatusCode.BadRequest
+    else -> HttpStatusCode.InternalServerError
+}
 
 private suspend fun RoutingCall.receiveSendInRequestOrRespondError(): SendInRequest? {
     return this.receiveEither<SendInRequest>().getOrElse { error ->
