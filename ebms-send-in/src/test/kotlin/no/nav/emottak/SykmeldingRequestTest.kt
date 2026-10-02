@@ -33,7 +33,7 @@ class SykmeldingRequestTest {
         val request = SendInRequest(
             messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
             requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 123, ebmsProcessing = EbmsProcessing(),
-            signedOf = "06828399789", payload = payloadFromExpectedXmlFile.toByteArray(),
+            signedByPid = "06828399789", payload = payloadFromExpectedXmlFile.toByteArray(),
             addressing = Addressing(
                 service = "Sykmelding",
                 action = "Registrering",
@@ -58,7 +58,7 @@ class SykmeldingRequestTest {
         val request = SendInRequest(
             messageId = "2604160914prid26694.1", conversationId = "a219014c-9739-4263-983a-6dd9fc82f8f1",
             requestId = "dummy", payloadId = "dummy", cpaId = "nav:qass:36181", partnerId = 123, ebmsProcessing = EbmsProcessing(),
-            signedOf = "06828399789", payload = "".toByteArray(),
+            signedByPid = "06828399789", payload = "".toByteArray(),
             addressing = Addressing(
                 service = "Sykmelding",
                 action = "Registrering",
