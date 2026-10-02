@@ -35,6 +35,8 @@ import no.nav.emottak.utils.kafka.model.EventType
 import org.slf4j.LoggerFactory
 import kotlin.uuid.Uuid
 
+internal class UnsupportedAsyncServiceException(message: String) : RuntimeException(message)
+
 object FagmeldingService {
     private val log = LoggerFactory.getLogger("no.nav.emottak.ebms.service.FagmeldingService")
 
@@ -118,7 +120,7 @@ object FagmeldingService {
                 }
             SupportedAsyncServiceType.Unsupported ->
                 raise(
-                    NotImplementedError(
+                    UnsupportedAsyncServiceException(
                         "Service: ${sendInRequest.addressing.service} is not implemented"
                     )
                 )

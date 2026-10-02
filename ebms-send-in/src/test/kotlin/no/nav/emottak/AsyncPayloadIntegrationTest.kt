@@ -89,7 +89,7 @@ class AsyncPayloadIntegrationTest : PayloadIntegrationTestFelles() {
                 contentType(ContentType.Application.Json)
             }
 
-            assertEquals(HttpStatusCode.BadRequest, httpResponse.status)
+            assertEquals(HttpStatusCode.InternalServerError, httpResponse.status)
             assert(httpResponse.bodyAsText().contains("MQ unavailable"))
             verify(exactly = 1) {
                 mockEventService.registerEvent(

@@ -16,6 +16,7 @@ import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
 import no.nav.emottak.auth.AZURE_AD_AUTH
 import no.nav.emottak.ebms.service.FagmeldingService
+import no.nav.emottak.ebms.service.UnsupportedAsyncServiceException
 import no.nav.emottak.ebms.utils.receiveEither
 import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.log
@@ -80,7 +81,7 @@ fun Route.fagmeldingRoutes(
                         log.error("EbmsInPayload ${sendInRequest.payloadId} async forwarding failed", error)
                         eventRegistrationService.registerErrorOnHandoverToFagsystem(sendInRequest, error)
                         call.respond(
-                            HttpStatusCode.BadRequest,
+                            error.toAsyncHttpStatusCode(),
                             error.localizedMessage ?: error.javaClass.simpleName
                         )
                     },
@@ -93,6 +94,13 @@ fun Route.fagmeldingRoutes(
         }
     }
 }
+
+internal fun Throwable.toAsyncHttpStatusCode() =
+    if (this is UnsupportedAsyncServiceException) {
+        HttpStatusCode.BadRequest
+    } else {
+        HttpStatusCode.InternalServerError
+    }
 
 private suspend fun RoutingCall.receiveSendInRequestOrRespondError(): SendInRequest? {
     return this.receiveEither<SendInRequest>().getOrElse { error ->
