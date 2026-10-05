@@ -66,6 +66,13 @@ class ServiceBuilder<T>(resultClass: Class<T>) {
             return this
         }
 
+        fun withReceiveTimeout(receiveTimeoutMillis: Long): PortTypeBuilder<R> {
+            require(receiveTimeoutMillis > 0) { "Receive timeout must be greater than zero" }
+            val conduit: HTTPConduit = ClientProxy.getClient(portType).conduit as HTTPConduit
+            conduit.client.receiveTimeout = receiveTimeoutMillis
+            return this
+        }
+
         fun withOrgnrHeader(orgnr: String?): PortTypeBuilder<R> {
             if (orgnr == null) return this
             val headersList: MutableList<Header> = ArrayList()
