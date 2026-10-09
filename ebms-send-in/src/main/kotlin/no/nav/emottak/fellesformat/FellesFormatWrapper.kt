@@ -70,8 +70,8 @@ private fun createFellesFormatMottakEnhetBlokk(sendInRequest: SendInRequest): EI
         mottaksId = sendInRequest.messageId
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
-        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA"
-        avsenderOrgNrFraDigSignatur = "TODO4"
+        avsenderFnrFraDigSignatur = sendInRequest.signedByPid ?: sendInRequest.signedOf ?: "NA"
+        avsenderOrgNrFraDigSignatur = sendInRequest.signedByOrg
         herIdentifikator = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER")
         orgNummer = sendInRequest.addressing.from.partyId.getIdentifikatorByType("orgnummer", "ENH")
         meldingsType = "xml"
@@ -117,7 +117,7 @@ private fun createFellesFormatMottakEnhetBlokk_Sykmelding(sendInRequest: SendInR
         herIdentifikator = ""
         orgNummer = ""
         avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
-        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA" // todo OK?
+        avsenderFnrFraDigSignatur = sendInRequest.signedByPid ?: sendInRequest.signedOf ?: "NA" // todo OK?
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
         meldingsType = "xml"
@@ -138,7 +138,7 @@ private fun createFellesFormatMottakEnhetBlokk_Legemelding(sendInRequest: SendIn
 //        herIdentifikator = ""
 //        orgNummer = ""
         avsender = sendInRequest.addressing.from.partyId.getIdentifikatorByType("HER", "ENH", "orgnummer")
-        avsenderFnrFraDigSignatur = sendInRequest.signedOf ?: "NA" // todo OK?
+        avsenderFnrFraDigSignatur = sendInRequest.signedByPid ?: sendInRequest.signedOf ?: "NA" // todo OK?
         mottattDatotid = Instant.now().toXmlGregorianCalendar()
         ediLoggId = sendInRequest.messageId
 //        meldingsType = "xml"

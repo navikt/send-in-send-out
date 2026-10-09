@@ -26,8 +26,8 @@ class FellesFormatWrapperTest {
 
     @Test
     fun `Validate SSN from request is added to Fellesformat`() {
-        val sendInRequest = validSendInInntektforesporselRequest.value.copy(signedOf = "12345678910")
+        val sendInRequest = validSendInInntektforesporselRequest.value.copy(signedByPid = "12345678910")
         val fellesFormat = sendInRequest.asEIFellesFormat()
-        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.avsenderFnrFraDigSignatur, sendInRequest.signedOf)
+        Assertions.assertEquals(fellesFormat.mottakenhetBlokk.avsenderFnrFraDigSignatur, sendInRequest.signedByPid)
     }
 }
