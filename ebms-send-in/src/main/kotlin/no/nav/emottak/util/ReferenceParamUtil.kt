@@ -34,17 +34,13 @@ fun EIFellesformat.extractReferenceParameter(): String {
 
     return when (foresporsel) {
         is FinnUtbetalingListe -> {
-            foresporsel.request.bruker?.brukerId?.extractBirthDay() ?: "NA"
+            foresporsel.request.bruker?.brukerId.extractBirthDay()
         }
         is EgenandelForesporselV2 -> {
-            foresporsel.harBorgerEgenandelfritak?.borgerFnr?.extractBirthDay()
-                ?: foresporsel.harBorgerFrikort?.borgerFnr?.extractBirthDay()
-                ?: "NA"
+            (foresporsel.harBorgerEgenandelfritak?.borgerFnr ?: foresporsel.harBorgerFrikort?.borgerFnr).extractBirthDay()
         }
         is EgenandelForesporsel -> {
-            foresporsel.harBorgerEgenandelfritak?.borgerFnr?.extractBirthDay()
-                ?: foresporsel.harBorgerFrikort?.borgerFnr?.extractBirthDay()
-                ?: "NA"
+            (foresporsel.harBorgerEgenandelfritak?.borgerFnr ?: foresporsel.harBorgerFrikort?.borgerFnr).extractBirthDay()
         }
         is EgenandelMengdeForesporselV2 -> {
             foresporsel.harBorgerFrikort.size.toString()
@@ -53,22 +49,22 @@ fun EIFellesformat.extractReferenceParameter(): String {
             foresporsel.harBorgerFrikort.size.toString()
         }
         is MsgHead -> {
-            foresporsel.msgInfo.patient?.ident
-                ?.firstOrNull { it.typeId.v == "FNR" }?.id?.extractBirthDay()
-                ?: "NA"
+            (foresporsel.getPatientFnr() ?: foresporsel.getPatientReportFnr()).extractBirthDay()
         }
         else -> {
-            this.msgHead.msgInfo?.patient?.ident
-                ?.firstOrNull { it.typeId.v == "FNR" }?.id?.extractBirthDay()
-                ?: this.msgHead.patientReport.firstOrNull()?.patient?.ident
-                    ?.firstOrNull { it.typeId.v == "FNR" }?.id?.extractBirthDay()
-                ?: "NA"
+            (this.msgHead.getPatientFnr() ?: this.msgHead.getPatientReportFnr()).extractBirthDay()
         }
     }
 }
 
-fun String.extractBirthDay(): String {
-    if (this.length != FNUMBER) {
+private fun MsgHead?.getPatientFnr(): String? =
+    this?.msgInfo?.patient?.ident?.firstOrNull { it.typeId.v == "FNR" }?.id
+
+private fun MsgHead?.getPatientReportFnr(): String? =
+    this?.patientReport?.firstOrNull()?.patient?.ident?.firstOrNull { it.typeId.v == "FNR" }?.id
+
+fun String?.extractBirthDay(): String {
+    if (this == null || this.length != FNUMBER) {
         return "NA"
     }
     return this.substring(0, BIRTHDAY)
