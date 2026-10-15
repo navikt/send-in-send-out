@@ -190,7 +190,7 @@ object FagmeldingService {
                             "Avvisning"
                         ),
                         payload = apprecMarshaller.marshalToByteArray(
-                            createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, errorCause = it.soapFaultString())
+                            createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it, errorCause = it.soapFaultString())
                         ).also {
                             if (log.isDebugEnabled) {
                                 log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
