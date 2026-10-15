@@ -9,6 +9,13 @@ internal fun Throwable.isRequestSoapFault(): Boolean =
 internal fun Throwable.isServerSoapFault(): Boolean =
     soapFaultCode() in setOf("Server", "Receiver")
 
+internal fun Throwable.soapFaultString(): String? =
+    when (this) {
+        is SoapFault -> reason.takeIf { it.isNotBlank() }
+        is SOAPFaultException -> fault?.faultString?.takeIf { it.isNotBlank() }
+        else -> null
+    }
+
 private fun Throwable.soapFaultCode(): String? =
     when (this) {
         is SoapFault -> faultCode?.localPart
