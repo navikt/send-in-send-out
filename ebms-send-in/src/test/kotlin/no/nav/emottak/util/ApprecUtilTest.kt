@@ -21,7 +21,7 @@ class ApprecUtilTest {
 
     @Test
     fun `negative AppRec contains rejection status and exception message`() {
-        val apprec = createNegativeApprec(msgHead(), Exception("Invalid XML"))
+        val apprec = createApprec(msgHead(), Exception("Invalid XML"))
 
         assertEquals("2", apprec.status.v)
         assertEquals("Avvist", apprec.status.dn)
@@ -34,7 +34,7 @@ class ApprecUtilTest {
 
     @Test
     fun `negative AppRec supports an exception without a message`() {
-        val apprec = createNegativeApprec(msgHead(), Exception())
+        val apprec = createApprec(msgHead(), Exception())
 
         assertEquals("2", apprec.status.v)
         assertEquals("Avvist", apprec.status.dn)
@@ -48,8 +48,8 @@ class ApprecUtilTest {
     fun `AppRec contains version message type unique ID and current generation date`() {
         val request = msgHead()
         val before = Instant.now().toEpochMilli()
-        val first = createNegativeApprec(request, Exception("Rejected"))
-        val second = createNegativeApprec(request, Exception("Rejected"))
+        val first = createApprec(request, Exception("Rejected"))
+        val second = createApprec(request, Exception("Rejected"))
         val after = Instant.now().toEpochMilli()
 
         assertEquals("1.0 2004-11-21", first.miGversion)
@@ -63,7 +63,7 @@ class ApprecUtilTest {
     @Test
     fun `AppRec references the original message`() {
         val request = msgHead()
-        val apprec = createNegativeApprec(request, Exception("Rejected"))
+        val apprec = createApprec(request, Exception("Rejected"))
 
         assertEquals(request.msgInfo.msgId, apprec.originalMsgId.id)
         assertEquals(request.msgInfo.genDate, apprec.originalMsgId.issueDate)
@@ -73,7 +73,7 @@ class ApprecUtilTest {
 
     @Test
     fun `AppRec sender is NAV electronic reception`() {
-        val sender = createNegativeApprec(msgHead(), Exception("Rejected")).sender.hcp.inst
+        val sender = createApprec(msgHead(), Exception("Rejected")).sender.hcp.inst
 
         assertEquals("NAV", sender.name)
         assertEquals("889640782", sender.id)
@@ -89,7 +89,7 @@ class ApprecUtilTest {
             ident("her-id", "HER"),
             ident("organisation-number", "ENH")
         )
-        val receiver = createNegativeApprec(request, Exception("Rejected")).receiver.hcp.inst
+        val receiver = createApprec(request, Exception("Rejected")).receiver.hcp.inst
 
         assertEquals("Test organisation", receiver.name)
         assertEquals("organisation-number", receiver.id)
@@ -101,7 +101,7 @@ class ApprecUtilTest {
     @Test
     fun `receiver prefers HER identifier when organisation number is absent`() {
         val request = msgHead(ident("local-id", "LIN"), ident("her-id", "HER"))
-        val receiver = createNegativeApprec(request, Exception("Rejected")).receiver.hcp.inst
+        val receiver = createApprec(request, Exception("Rejected")).receiver.hcp.inst
 
         assertEquals("her-id", receiver.id)
         assertEquals("HER", receiver.typeId.v)
@@ -111,7 +111,7 @@ class ApprecUtilTest {
     @Test
     fun `receiver falls back to first local identifier`() {
         val request = msgHead(ident("first-id", "LIN"), ident("second-id", "LIN"))
-        val receiver = createNegativeApprec(request, Exception("Rejected")).receiver.hcp.inst
+        val receiver = createApprec(request, Exception("Rejected")).receiver.hcp.inst
 
         assertEquals("first-id", receiver.id)
         assertEquals("LIN", receiver.typeId.v)
@@ -128,7 +128,7 @@ class ApprecUtilTest {
             ident.add(ident("person-her-id", "HER"))
             ident.add(ident("person-enh-id", "ENH"))
         }
-        val person = createNegativeApprec(request, Exception("Rejected")).receiver.hcp.inst.hcPerson.single()
+        val person = createApprec(request, Exception("Rejected")).receiver.hcp.inst.hcPerson.single()
 
         assertEquals("person-enh-id", person.id)
         assertEquals("ENH", person.typeId.v)
@@ -143,7 +143,7 @@ class ApprecUtilTest {
             familyName = "Person"
             ident.add(ident("person-id", "HER"))
         }
-        val person = createNegativeApprec(request, Exception("Rejected")).receiver.hcp.inst.hcPerson.single()
+        val person = createApprec(request, Exception("Rejected")).receiver.hcp.inst.hcPerson.single()
 
         assertEquals("Test Person", person.name)
         assertEquals("person-id", person.id)
@@ -156,7 +156,7 @@ class ApprecUtilTest {
         request.msgInfo.sender.organisation.ident.clear()
 
         val error = assertThrows(RuntimeException::class.java) {
-            createNegativeApprec(request, Exception("Rejected"))
+            createApprec(request, Exception("Rejected"))
         }
 
         assertEquals("Ident liste tom, dette skal ikke skje!", error.message)
@@ -168,7 +168,7 @@ class ApprecUtilTest {
         request.msgInfo.sender.organisation.healthcareProfessional = HealthcareProfessional()
 
         val error = assertThrows(RuntimeException::class.java) {
-            createNegativeApprec(request, Exception("Rejected"))
+            createApprec(request, Exception("Rejected"))
         }
 
         assertEquals("Ident liste tom, dette skal ikke skje!", error.message)
@@ -177,14 +177,14 @@ class ApprecUtilTest {
     @Test
     fun `unsupported organisation identifier type fails explicitly`() {
         assertThrows(IllegalArgumentException::class.java) {
-            createNegativeApprec(msgHead(ident("unknown-id", "UNKNOWN")), Exception("Rejected"))
+            createApprec(msgHead(ident("unknown-id", "UNKNOWN")), Exception("Rejected"))
         }
     }
 
     @Test
     fun `negative AppRec survives XML marshalling with special characters in error message`() {
         val message = "Invalid XML: <element> & \"value\""
-        val apprec = createNegativeApprec(msgHead(), Exception(message))
+        val apprec = createApprec(msgHead(), Exception(message))
 
         val xml = apprecMarshaller.marshalToByteArray(apprec).toString(Charsets.UTF_8)
         val restored = apprecMarshaller.unmarshal(xml, AppRec::class.java)

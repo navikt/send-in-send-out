@@ -29,7 +29,7 @@ import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.apprecMarshaller
-import no.nav.emottak.util.createNegativeApprec
+import no.nav.emottak.util.createApprec
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.util.isRequestSoapFault
 import no.nav.emottak.utils.common.model.SendInRequest
@@ -189,7 +189,7 @@ object FagmeldingService {
                             "Avvisning"
                         ),
                         payload = apprecMarshaller.marshalToByteArray(
-                            createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it)
+                            createApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it)
                         ).also {
                             if (log.isDebugEnabled) {
                                 log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
