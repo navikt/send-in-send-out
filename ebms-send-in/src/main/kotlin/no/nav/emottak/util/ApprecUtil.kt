@@ -38,15 +38,7 @@ val apprecMarshaller = XmlMarshaller(
     )
 )
 
-fun createNegativeApprec(
-    msgHead: MsgHead,
-    exception: Exception
-): AppRec = createBaseApprec(msgHead).apply {
-    status = createCS(NOK_VALUE, NOK_DESCRIPTION)
-    error.add(createApprecError(exception.soapFaultString() ?: exception.localizedMessage ?: "Ukjent feil"))
-}
-
-private fun createBaseApprec(msgHead: MsgHead): AppRec = objectFactory.createAppRec().apply {
+fun createApprec(msgHead: MsgHead, exception: Exception): AppRec = objectFactory.createAppRec().apply {
     genDate = Instant.now().toXmlGregorianCalendar()
     id = Uuid.random().toString()
     miGversion = VERSION_1_0
@@ -54,6 +46,8 @@ private fun createBaseApprec(msgHead: MsgHead): AppRec = objectFactory.createApp
     originalMsgId = createOriginalMessageId(msgHead.msgInfo)
     receiver = createReceiver(msgHead.msgInfo)
     sender = createSender()
+    status = createCS(NOK_VALUE, NOK_DESCRIPTION)
+    error.add(createApprecError(exception.soapFaultString() ?: exception.localizedMessage ?: "Ukjent feil"))
 }
 
 private fun createApprecError(errorMessage: String? = null): CV = objectFactory.createCV().apply {
