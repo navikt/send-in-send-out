@@ -40,11 +40,10 @@ val apprecMarshaller = XmlMarshaller(
 
 fun createNegativeApprec(
     msgHead: MsgHead,
-    exception: Exception? = null,
-    errorCause: String? = null
+    exception: Exception
 ): AppRec = createBaseApprec(msgHead).apply {
     status = createCS(NOK_VALUE, NOK_DESCRIPTION)
-    error.add(createApprecError(errorCause ?: exception?.message ?: "Ukjent feil"))
+    error.add(createApprecError(exception.soapFaultString() ?: exception.localizedMessage ?: "Ukjent feil"))
 }
 
 private fun createBaseApprec(msgHead: MsgHead): AppRec = objectFactory.createAppRec().apply {
