@@ -3,6 +3,7 @@ package no.nav.emottak.ebms.service
 import arrow.core.Either
 import arrow.core.raise.Raise
 import arrow.core.raise.either
+import arrow.core.recover
 import io.micrometer.core.instrument.MeterRegistry
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType
 import no.nav.emottak.ebms.utils.SupportedAsyncServiceType.Companion.toSupportedAsyncService
@@ -27,12 +28,16 @@ import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.apprecMarshaller
+import no.nav.emottak.util.createNegativeApprec
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.kafka.model.EventType
+import org.apache.cxf.binding.soap.SoapFault
 import org.slf4j.LoggerFactory
+import javax.xml.ws.soap.SOAPFaultException
 import kotlin.uuid.Uuid
 
 internal class UnsupportedAsyncServiceException(message: String) : RuntimeException(message)
@@ -145,27 +150,53 @@ object FagmeldingService {
                     conversationId = sendInRequest.conversationId
                 )
             }
+        }.let { response ->
+            SendInResponse(
+                messageId = Uuid.random().toString(),
+                refToMessageId = sendInRequest.messageId,
+                conversationId = sendInRequest.conversationId,
+                cpaId = sendInRequest.cpaId,
+                addressing = sendInRequest.addressing.replyTo(
+                    response.eiFellesformat.mottakenhetBlokk.ebService,
+                    response.eiFellesformat.mottakenhetBlokk.ebAction
+                ),
+                payload = egenandelMengdeForesporselXmlMarshaller.marshalToByteArray(
+                    response.eiFellesformat.msgHead
+                ).also {
+                    if (log.isDebugEnabled) {
+                        log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
+                    }
+                },
+                requestId = Uuid.random().toString()
+            )
         }
-    }.bind().let { response ->
-        SendInResponse(
-            messageId = Uuid.random().toString(),
-            refToMessageId = sendInRequest.messageId,
-            conversationId = sendInRequest.conversationId,
-            cpaId = sendInRequest.cpaId,
-            addressing = sendInRequest.addressing.replyTo(
-                response.eiFellesformat.mottakenhetBlokk.ebService,
-                response.eiFellesformat.mottakenhetBlokk.ebAction
-            ),
-            payload = egenandelMengdeForesporselXmlMarshaller.marshalToByteArray(
-                response.eiFellesformat.msgHead
-            ).also {
-                if (log.isDebugEnabled) {
-                    log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
-                }
-            },
-            requestId = Uuid.random().toString()
-        )
-    }
+    }.recover {
+        when (it) {
+            is SoapFault, is SOAPFaultException -> Either.catch {
+                // TODO skille mellom faults som skal gi negativ apprec og faults som skal kaste feil
+                log.warn("HarBorgerFrikortMengde request failed, sending negative apprec", it)
+                SendInResponse(
+                    messageId = Uuid.random().toString(),
+                    refToMessageId = sendInRequest.messageId,
+                    conversationId = sendInRequest.conversationId,
+                    cpaId = sendInRequest.cpaId,
+                    addressing = sendInRequest.addressing.replyTo(
+                        sendInRequest.addressing.service,
+                        "Avvisning"
+                    ),
+                    payload = apprecMarshaller.marshalToByteArray(
+                        createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it)
+                    ).also {
+                        if (log.isDebugEnabled) {
+                            log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
+                        }
+                    },
+                    requestId = Uuid.random().toString()
+                )
+            }.bind()
+            else -> raise(it)
+        }
+    }.bind()
 
     private suspend fun Raise<Throwable>.getHarBorgerFrikortREST(
         sendInRequest: SendInRequest
