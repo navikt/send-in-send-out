@@ -32,6 +32,7 @@ import no.nav.emottak.util.apprecMarshaller
 import no.nav.emottak.util.createNegativeApprec
 import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.util.isRequestSoapFault
+import no.nav.emottak.util.soapFaultString
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
@@ -189,7 +190,7 @@ object FagmeldingService {
                             "Avvisning"
                         ),
                         payload = apprecMarshaller.marshalToByteArray(
-                            createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it)
+                            createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, errorCause = it.soapFaultString())
                         ).also {
                             if (log.isDebugEnabled) {
                                 log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
