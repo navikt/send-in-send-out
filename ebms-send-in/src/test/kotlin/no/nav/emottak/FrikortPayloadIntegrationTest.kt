@@ -48,7 +48,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
     }
 
     @Test
-    fun `HarBorgerFrikortMengde returns AppRec on SOAP fault`() = ebmsSendInTestApp(
+    fun `HarBorgerFrikortMengde returns AppRec on SOAP client fault`() = ebmsSendInTestApp(
         eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
     ) { eventRegistrationService ->
         mockWebServer!!.enqueue(
@@ -60,7 +60,7 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                     <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                         <soap:Body>
                             <soap:Fault>
-                                <faultcode>soap:Server</faultcode>
+                                <faultcode>soap:Client</faultcode>
                                 <faultstring>Frikort service failed</faultstring>
                             </soap:Fault>
                         </soap:Body>
@@ -97,6 +97,44 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
                 }
             )
         }
+    }
+
+    @Test
+    fun `HarBorgerFrikortMengde returns Apprec on SOAP server fault`() = ebmsSendInTestApp(
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { eventRegistrationService ->
+        mockWebServer!!.enqueue(
+            MockResponse()
+                .setResponseCode(500)
+                .setHeader(HttpHeaders.ContentType, "text/xml")
+                .setBody(
+                    """
+                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                        <soap:Body>
+                            <soap:Fault>
+                                <faultcode>soap:Server</faultcode>
+                                <faultstring>Frikort service failed</faultstring>
+                            </soap:Fault>
+                        </soap:Body>
+                    </soap:Envelope>
+                    """.trimIndent()
+                )
+        )
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        mockWebServer!!.takeRequest()
+
+        assertEquals(HttpStatusCode.InternalServerError, httpResponse.status)
+        verify(exactly = 1) { eventRegistrationService.registerErrorOnHandoverToFagsystem(any(), any()) }
     }
 
     @Test

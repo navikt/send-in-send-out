@@ -31,6 +31,7 @@ import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.apprecMarshaller
 import no.nav.emottak.util.createNegativeApprec
 import no.nav.emottak.util.extractReferenceParameter
+import no.nav.emottak.util.isRequestSoapFault
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.common.parseOrGenerateUuid
@@ -172,28 +173,32 @@ object FagmeldingService {
         }
     }.recover {
         when (it) {
-            is SoapFault, is SOAPFaultException -> Either.catch {
-                // TODO skille mellom faults som skal gi negativ apprec og faults som skal kaste feil
-                log.warn("HarBorgerFrikortMengde request failed, sending negative apprec", it)
-                SendInResponse(
-                    messageId = Uuid.random().toString(),
-                    refToMessageId = sendInRequest.messageId,
-                    conversationId = sendInRequest.conversationId,
-                    cpaId = sendInRequest.cpaId,
-                    addressing = sendInRequest.addressing.replyTo(
-                        sendInRequest.addressing.service,
-                        "Avvisning"
-                    ),
-                    payload = apprecMarshaller.marshalToByteArray(
-                        createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it)
-                    ).also {
-                        if (log.isDebugEnabled) {
-                            log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
-                        }
-                    },
-                    requestId = Uuid.random().toString()
-                )
-            }.bind()
+            is SoapFault, is SOAPFaultException -> {
+                if (!it.isRequestSoapFault()) { // TODO finne ut om HarBorgerFrikortMengde bruker denne distinksjonen
+                    raise(it)
+                }
+                Either.catch {
+                    log.warn("HarBorgerFrikortMengde request failed, sending negative apprec", it)
+                    SendInResponse(
+                        messageId = Uuid.random().toString(),
+                        refToMessageId = sendInRequest.messageId,
+                        conversationId = sendInRequest.conversationId,
+                        cpaId = sendInRequest.cpaId,
+                        addressing = sendInRequest.addressing.replyTo(
+                            sendInRequest.addressing.service,
+                            "Avvisning"
+                        ),
+                        payload = apprecMarshaller.marshalToByteArray(
+                            createNegativeApprec(sendInRequest.asEIFellesFormatWithFrikort().msgHead, it)
+                        ).also {
+                            if (log.isDebugEnabled) {
+                                log.debug("HarBorgerFrikortMengde response payload: ${String(it, Charsets.UTF_8)}")
+                            }
+                        },
+                        requestId = Uuid.random().toString()
+                    )
+                }.bind()
+            }
             else -> raise(it)
         }
     }.bind()
