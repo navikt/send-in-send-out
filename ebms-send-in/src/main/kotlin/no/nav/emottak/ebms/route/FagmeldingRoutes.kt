@@ -23,6 +23,7 @@ import no.nav.emottak.log
 import no.nav.emottak.sykmelding.SyfoMeldingService
 import no.nav.emottak.trekkopplysning.TrekkopplysningService
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.isServerSoapFault
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 
@@ -52,7 +53,7 @@ fun Route.fagmeldingRoutes(
                         log.error("Payload ${sendInRequest.payloadId} sync processing failed", error)
                         eventRegistrationService.registerErrorOnHandoverToFagsystem(sendInRequest, error)
                         call.respond(
-                            HttpStatusCode.BadRequest,
+                            error.toSyncHttpStatusCode(),
                             error.localizedMessage ?: error.javaClass.simpleName
                         )
                     },
@@ -99,6 +100,9 @@ internal fun Throwable.toAsyncHttpStatusCode() = when (this) {
     is UnsupportedAsyncServiceException -> HttpStatusCode.BadRequest
     else -> HttpStatusCode.InternalServerError
 }
+
+internal fun Throwable.toSyncHttpStatusCode() =
+    if (isServerSoapFault()) HttpStatusCode.InternalServerError else HttpStatusCode.BadRequest
 
 private suspend fun RoutingCall.receiveSendInRequestOrRespondError(): SendInRequest? {
     return this.receiveEither<SendInRequest>().getOrElse { error ->

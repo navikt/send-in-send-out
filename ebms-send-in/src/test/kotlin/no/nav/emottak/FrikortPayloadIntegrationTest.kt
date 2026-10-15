@@ -11,6 +11,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.mockk.mockk
+import io.mockk.verify
+import no.kith.xmlstds.apprec._2004_11_21.AppRec
 import no.kith.xmlstds.msghead._2006_05_24.MsgHead
 import no.kith.xmlstds.nav.egenandelmengde._2016_06_10.EgenandelMengdeSvarV2
 import no.nav.emottak.config.Configurator
@@ -18,7 +20,9 @@ import no.nav.emottak.frikort.FRIKORT_RECEIVE_TIMEOUT_MILLIS
 import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortEndpoint
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.apprecMarshaller
 import no.nav.emottak.utils.common.model.SendInResponse
+import okhttp3.mockwebserver.MockResponse
 import org.apache.cxf.frontend.ClientProxy
 import org.apache.cxf.transport.http.HTTPConduit
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -41,6 +45,124 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
         val conduit = ClientProxy.getClient(frikortEndpoint).conduit as HTTPConduit
 
         assertEquals(FRIKORT_RECEIVE_TIMEOUT_MILLIS, conduit.client.receiveTimeout)
+    }
+
+    @Test
+    fun `HarBorgerFrikortMengde returns AppRec on SOAP client fault`() = ebmsSendInTestApp(
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { eventRegistrationService ->
+        mockWebServer!!.enqueue(
+            MockResponse()
+                .setResponseCode(500)
+                .setHeader(HttpHeaders.ContentType, "text/xml")
+                .setBody(
+                    """
+                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                        <soap:Body>
+                            <soap:Fault>
+                                <faultcode>soap:Client</faultcode>
+                                <faultstring>Frikort service failed</faultstring>
+                            </soap:Fault>
+                        </soap:Body>
+                    </soap:Envelope>
+                    """.trimIndent()
+                )
+        )
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        mockWebServer!!.takeRequest()
+
+        assertEquals(HttpStatusCode.OK, httpResponse.status)
+        val response = httpResponse.body<SendInResponse>()
+        assertEquals(sendInRequest.messageId, response.refToMessageId)
+        assertEquals(sendInRequest.conversationId, response.conversationId)
+        assertEquals(sendInRequest.cpaId, response.cpaId)
+        assertNotEquals(sendInRequest.messageId, response.messageId)
+        assertEquals(sendInRequest.addressing.replyTo("HarBorgerFrikortMengde", "Avvisning"), response.addressing)
+        assertNotNull(apprecMarshaller.unmarshal(String(response.payload), AppRec::class.java))
+        verify(exactly = 0) { eventRegistrationService.registerErrorOnHandoverToFagsystem(sendInRequest, any()) }
+        verify(exactly = 1) {
+            eventRegistrationService.registerEventMessageDetails(
+                match {
+                    it.copy(payload = response.payload) == response && it.payload.contentEquals(response.payload)
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `HarBorgerFrikortMengde returns Apprec on SOAP server fault`() = ebmsSendInTestApp(
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { eventRegistrationService ->
+        mockWebServer!!.enqueue(
+            MockResponse()
+                .setResponseCode(500)
+                .setHeader(HttpHeaders.ContentType, "text/xml")
+                .setBody(
+                    """
+                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                        <soap:Body>
+                            <soap:Fault>
+                                <faultcode>soap:Server</faultcode>
+                                <faultstring>Frikort service failed</faultstring>
+                            </soap:Fault>
+                        </soap:Body>
+                    </soap:Envelope>
+                    """.trimIndent()
+                )
+        )
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        mockWebServer!!.takeRequest()
+
+        assertEquals(HttpStatusCode.InternalServerError, httpResponse.status)
+        verify(exactly = 1) { eventRegistrationService.registerErrorOnHandoverToFagsystem(any(), any()) }
+    }
+
+    @Test
+    fun `HarBorgerFrikortMengde does not return AppRec for non SOAP failures`() = ebmsSendInTestApp(
+        eventRegistrationService = mockk<EventRegistrationService>(relaxed = true)
+    ) { eventRegistrationService ->
+        mockWebServer!!.enqueue(
+            MockResponse()
+                .setResponseCode(503)
+                .setHeader(HttpHeaders.ContentType, "text/plain")
+                .setBody("Service unavailable")
+        )
+        val httpClient = createClient {
+            install(ContentNegotiation) {
+                json()
+            }
+        }
+        val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val httpResponse = httpClient.post("/fagmelding/synkron") {
+            header(HttpHeaders.Authorization, "Bearer ${getToken().serialize()}")
+            setBody(sendInRequest)
+            contentType(ContentType.Application.Json)
+        }
+        mockWebServer!!.takeRequest()
+
+        assertEquals(HttpStatusCode.BadRequest, httpResponse.status)
+        verify(exactly = 1) { eventRegistrationService.registerErrorOnHandoverToFagsystem(any(), any()) }
+        verify(exactly = 0) { eventRegistrationService.registerEventMessageDetails(any()) }
     }
 
     @Test
