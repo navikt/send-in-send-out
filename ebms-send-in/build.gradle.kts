@@ -57,7 +57,8 @@ tasks {
         archiveFileName.set("app.jar")
     }
     register<Wrapper>("wrapper") {
-        gradleVersion = "8.14"
+        description = "Gradle wrapper version"
+        gradleVersion = "9.8.2"
     }
     test {
         useJUnitPlatform()
