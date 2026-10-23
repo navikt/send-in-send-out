@@ -51,7 +51,7 @@ spec:
       memory: "768Mi"
     requests:
       cpu: "100m"
-      memory: "512Mi"
+      memory: "768Mi"
   ingresses:
     - https://ebms-send-in.intern.nav.no
   vault:
