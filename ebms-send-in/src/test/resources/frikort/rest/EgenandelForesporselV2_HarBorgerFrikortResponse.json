@@ -91,7 +91,7 @@
     },
     "mottakenhetBlokk": {
       "ebAction": "Svar",
-      "ebService": "HarBorgerEgenandelFritak",
+      "ebService": "HarBorgerFrikort",
       "ebRole": "Frikortregister",
       "ebXMLSamtaleId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
       "ediLoggId": "5b895fd9-32d5-40d8-b08d-c185a3042a83",
