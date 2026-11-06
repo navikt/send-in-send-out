@@ -12,6 +12,7 @@ import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedS
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
+import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
@@ -115,13 +116,13 @@ object FagmeldingService {
             SupportedAsyncServiceType.Sykmelding ->
                 timed(meterRegistry, "Sykmelding") {
                     log.info("Sykmelding is processed asynchronously")
-                    sendSykmelding(sendInRequest, syfoMeldingService)
+                    sendSykmelding(sendInRequest, syfoMeldingService, eventRegistrationService)
                     eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, syfoMeldingService.queue)
                 }
             SupportedAsyncServiceType.Legemelding ->
                 timed(meterRegistry, "Legemelding") {
                     log.info("Legemelding is processed asynchronously")
-                    sendLegemelding(sendInRequest, legeMeldingService)
+                    sendLegemelding(sendInRequest, legeMeldingService, eventRegistrationService)
                     eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, legeMeldingService.queue)
                 }
             SupportedAsyncServiceType.Unsupported ->
@@ -294,18 +295,29 @@ object FagmeldingService {
 
     private fun Raise<Throwable>.sendSykmelding(
         sendInRequest: SendInRequest,
-        syfoMeldingService: SyfoMeldingService
+        syfoMeldingService: SyfoMeldingService,
+        eventRegistrationService: EventRegistrationService
     ) = Either.catch {
+        val fellesformat = sendInRequest.asEIFellesFormat_Sykmelding()
+        eventRegistrationService.registerReferenceParameter(
+            sendInRequest,
+            fellesformat.extractReferenceParameter()
+        )
         syfoMeldingService.sykmelding(
-            fellesformat = sendInRequest.asEIFellesFormat_Sykmelding(),
+            fellesformat = fellesformat,
             payload = sendInRequest.payload
         )
     }.bind()
 
     private fun Raise<Throwable>.sendLegemelding(
         sendInRequest: SendInRequest,
-        legeMeldingService: LegeMeldingService
+        legeMeldingService: LegeMeldingService,
+        eventRegistrationService: EventRegistrationService
     ) = Either.catch {
+        eventRegistrationService.registerReferenceParameter(
+            sendInRequest,
+            sendInRequest.asEIFellesFormat_Legemelding().extractReferenceParameter()
+        )
         legeMeldingService.legemelding(
             fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload(),
             payload = sendInRequest.payload
