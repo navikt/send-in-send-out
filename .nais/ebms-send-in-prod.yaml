@@ -43,7 +43,7 @@ spec:
   replicas:
     scalingStrategy:
       cpu:
-        thresholdPercentage: 30
+        thresholdPercentage: 50
     min: 3
     max: 10
   resources:
