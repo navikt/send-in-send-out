@@ -14,10 +14,8 @@ import no.nav.emottak.ebms.service.FagmeldingResponseService
 import no.nav.emottak.fellesformat.unmarshal
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.utils.common.model.SendInResponse
-import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
-import no.nav.emottak.utils.kafka.model.EventType
 import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -105,17 +103,14 @@ suspend fun processMessage(
         "messageId" to fellesformat.mottakenhetBlokk.ediLoggId,
         "conversationId" to fellesformat.mottakenhetBlokk.ebXMLSamtaleId,
         "cpaId" to fellesformat.mottakenhetBlokk.partnerReferanse,
-        "requestId" to fellesformat.mottakenhetBlokk.ediLoggId
+        "requestId" to fellesformat.mottakenhetBlokk.ediLoggId,
+        "service" to fellesformat.mottakenhetBlokk.ebService,
+        "action" to fellesformat.mottakenhetBlokk.ebAction
     )
 
     return withContext(MDCContext(mdcData)) {
         val sendInResponse = FagmeldingResponseService.getResponse(fellesformat)
-        eventRegistrationService.registerEvent(
-            EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
-            requestId = sendInResponse.requestId.parseOrGenerateUuid(),
-            messageId = "",
-            conversationId = sendInResponse.conversationId
-        )
+        eventRegistrationService.registerMessageReceivedFromFagsystem(sendInResponse)
         eventRegistrationService.registerEventMessageDetails(sendInResponse)
 
         val json = Json.encodeToString<SendInResponse>(sendInResponse).toByteArray()

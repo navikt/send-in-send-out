@@ -19,7 +19,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
 import no.helsedir.frikort.frikorttjenester.model.FrikortsporringRequest
 import no.helsedir.frikort.frikorttjenester.model.FrikortsporringResponse
 import no.nav.emottak.config.AppScope
@@ -27,6 +26,7 @@ import no.nav.emottak.config.AzureAuth
 import no.nav.emottak.config.Configurator.config
 import no.nav.emottak.util.LogLevel
 import no.nav.emottak.util.asJson
+import no.nav.emottak.utils.serialization.LENIENT_JSON_PARSER
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.lang.RuntimeException
@@ -36,10 +36,6 @@ import java.net.URI
 import kotlin.also
 
 val log: Logger = LoggerFactory.getLogger("no.nav.emottak.frikort.rest.FrikortHttpClient")
-
-val LENIENT_JSON_PARSER = Json {
-    isLenient = true
-}
 
 val frikortHttpClient = httpClientAuthenticatedForFrikortTjenester()
 

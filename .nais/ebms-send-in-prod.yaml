@@ -5,6 +5,9 @@ metadata:
   namespace: "team-emottak"
   labels:
     "team": "team-emottak"
+  annotations:
+    haproxy.org/timeout-server: "120s"
+    haproxy.org/timeout-client: "120s"
 spec:
   azure:
     application:
@@ -40,7 +43,7 @@ spec:
   replicas:
     scalingStrategy:
       cpu:
-        thresholdPercentage: 30
+        thresholdPercentage: 50
     min: 3
     max: 10
   resources:
@@ -48,7 +51,7 @@ spec:
       memory: "768Mi"
     requests:
       cpu: "100m"
-      memory: "512Mi"
+      memory: "768Mi"
   ingresses:
     - https://ebms-send-in.intern.nav.no
   vault:
@@ -69,7 +72,7 @@ spec:
     - configmap: ebms-send-in
   env:
     - name: FRIKORT_URL
-      value: https://wasapp.adeo.no/nav-frikort/tjenestereksterne
+      value: https://frikorttjenester.intern.nav.no/api/ekstern/frikortmengdesporring
     - name: SRVTOKT_SECRET_PATH
       value: /secret/srvtokt
     - name: SERVICEUSERMQ_SECRET_PATH

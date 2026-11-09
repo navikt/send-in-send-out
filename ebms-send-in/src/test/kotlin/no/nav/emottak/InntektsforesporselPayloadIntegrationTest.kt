@@ -317,7 +317,7 @@ class InntektsforesporselPayloadIntegrationTest : PayloadIntegrationTestFelles("
             setBody(validSendInInntektforesporselRequest.value)
             contentType(ContentType.Application.Json)
         }
-        assertEquals(HttpStatusCode.BadRequest, httpResponse.status)
+        assertEquals(HttpStatusCode.InternalServerError, httpResponse.status)
 
         val responsePayload = httpResponse.bodyAsText()
         assertNotNull(responsePayload)

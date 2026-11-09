@@ -3,14 +3,14 @@ package no.nav.emottak.ebms.kafka
 import io.github.nomisRev.kafka.receiver.AutoOffsetReset
 import io.github.nomisRev.kafka.receiver.KafkaReceiver
 import io.github.nomisRev.kafka.receiver.ReceiverSettings
-import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import no.nav.emottak.config.Config
+import no.nav.emottak.ebms.route.mdcData
 import no.nav.emottak.ebms.service.FagmeldingService
 import no.nav.emottak.legemelding.LegeMeldingService
 import no.nav.emottak.sykmelding.SyfoMeldingService
@@ -21,6 +21,7 @@ import no.nav.emottak.utils.common.parseOrGenerateUuid
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
 import no.nav.emottak.utils.kafka.model.EventType
+import no.nav.emottak.utils.serialization.LENIENT_JSON_PARSER
 import no.nav.emottak.utils.serialization.toEventDataJson
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -106,16 +107,12 @@ private suspend fun processMessage(
     legeMeldingService: LegeMeldingService
 ) {
     log.info("EbmsInPayload received asynchronously, processing message")
-    val sendInRequest = Json.decodeFromString<SendInRequest>(payload.decodeToString())
+    val sendInRequest = LENIENT_JSON_PARSER.decodeFromString<SendInRequest>(payload.decodeToString())
     log.debug("Inner Payload contents: ${sendInRequest.payload.decodeToString()}")
 
     val mdcData = mapOf(
-        "record_key" to recordKey,
-        "messageId" to sendInRequest.messageId,
-        "conversationId" to sendInRequest.conversationId,
-        "cpaId" to sendInRequest.cpaId,
-        "requestId" to sendInRequest.requestId
-    )
+        "record_key" to recordKey
+    ) + sendInRequest.mdcData()
 
     return withContext(MDCContext(mdcData)) {
         FagmeldingService.processRequestAsynchronously(

@@ -1,6 +1,5 @@
 package no.nav.emottak
 
-import kotlinx.datetime.Instant
 import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
 import no.nav.emottak.fellesformat.asEIFellesFormat_TrekkopplysningWithoutPayload
@@ -18,6 +17,7 @@ import java.util.TimeZone
 import javax.xml.datatype.DatatypeFactory
 import javax.xml.datatype.XMLGregorianCalendar
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
 class TrekkopplysningRequestTest {
