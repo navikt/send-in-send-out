@@ -30,7 +30,7 @@ interface EventRegistrationService {
     fun registerEventMessageDetails(sendInResponse: SendInResponse)
     fun registerErrorOnHandoverToFagsystem(sendInRequest: SendInRequest, error: Throwable)
     fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpointId: String)
-    fun registerReferenceParameter(sendInRequest: SendInRequest, referenceParameter: String)
+    fun registerReferenceParameter(sendInRequest: SendInRequest, referenceParameter: String, msgId: String = "Unknown")
     fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse)
 
     companion object {
@@ -137,13 +137,17 @@ class EventRegistrationServiceImpl(
 
     override fun registerReferenceParameter(
         sendInRequest: SendInRequest,
-        referenceParameter: String
+        referenceParameter: String,
+        msgId: String
     ) {
         registerEvent(
             EventType.REFERENCE_RETRIEVED,
             requestId = sendInRequest.requestId.parseOrGenerateUuid(),
             messageId = sendInRequest.messageId,
-            eventData = encodeToJsonString(EventDataType.REFERENCE_PARAMETER.value to referenceParameter),
+            eventData = encodeToJsonString(
+                EventDataType.REFERENCE_PARAMETER.value to referenceParameter,
+                EventDataType.MESSAGE_ID.value to msgId
+            ),
             conversationId = sendInRequest.conversationId
         )
     }
@@ -207,7 +211,8 @@ class EventRegistrationServiceFake : EventRegistrationService {
 
     override fun registerReferenceParameter(
         sendInRequest: SendInRequest,
-        referenceParameter: String
+        referenceParameter: String,
+        msgId: String
     ) {
         log.info(
             "Registering reference parameter for requestId: {}, messageId: {}, conversationId: {} and referenceParameter: {}",
