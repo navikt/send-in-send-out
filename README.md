@@ -25,6 +25,8 @@ Asynkrone tjenester kan mottas enten via `POST /fagmelding/asynkron` eller ved a
 
 Alle behandlede meldinger hendelseslogges til Kafka via `EventRegistrationService`.
 
+Begge Kafka-lytterne starter konsumeringen på nytt etter ett sekund dersom en offset-commit feiler med `RebalanceInProgressException`, uten å stoppe applikasjonen. Meldinger med offsets som ikke ble committet kan bli levert på nytt. Andre feil fra Kafka-lytterne propageres som før, og kansellering ved nedstenging avbryter også eventuell venting før nytt forsøk.
+
 ## Utgående meldinger via Kafka
 
 I tillegg til svaret som returneres synkront på `POST /fagmelding/synkron`, kan svar fra fagsystemet komme asynkront tilbake som en Fellesformat-XML-melding på et Kafka-topic. Denne flyten håndteres slik:
