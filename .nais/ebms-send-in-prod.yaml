@@ -44,8 +44,8 @@ spec:
     scalingStrategy:
       cpu:
         thresholdPercentage: 50
-    min: 4
-    max: 5
+    min: 3
+    max: 6
   resources:
     limits:
       memory: "1024Mi"
