@@ -44,14 +44,14 @@ spec:
     scalingStrategy:
       cpu:
         thresholdPercentage: 50
-    min: 3
-    max: 10
+    min: 4
+    max: 5
   resources:
     limits:
-      memory: "768Mi"
+      memory: "1024Mi"
     requests:
       cpu: "100m"
-      memory: "768Mi"
+      memory: "1024Mi"
   ingresses:
     - https://ebms-send-in.intern.nav.no
   vault:
