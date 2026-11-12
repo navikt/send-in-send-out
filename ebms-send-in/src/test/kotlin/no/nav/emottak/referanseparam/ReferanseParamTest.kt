@@ -16,7 +16,7 @@ class ReferanseParamTest {
         val sendInRequest = validSendInHarBorgerFrikortRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         val refParam = fellesFormat.extractReferenceParameter()
-        assertEquals("123456", refParam)
+        assertEquals("1234", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
     }
 
@@ -34,7 +34,7 @@ class ReferanseParamTest {
         val sendInRequest = validSendInHarBorgerEgenandelFritakRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         val refParam = fellesFormat.extractReferenceParameter()
-        assertEquals("123456", refParam)
+        assertEquals("1234", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
     }
 
@@ -43,7 +43,7 @@ class ReferanseParamTest {
         val sendInRequest = validSendInInntektforesporselRequest.value
         val fellesFormat = sendInRequest.asEIFellesFormat()
         val refParam = fellesFormat.extractReferenceParameter()
-        assertEquals("******", refParam)
+        assertEquals("****", refParam)
         assertEquals(fellesFormat.mottakenhetBlokk.ebService, sendInRequest.addressing.service)
     }
 }
