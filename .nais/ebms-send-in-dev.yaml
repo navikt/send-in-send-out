@@ -45,13 +45,13 @@ spec:
       cpu:
         thresholdPercentage: 50
     min: 1
-    max: 4
+    max: 2
   resources:
     limits:
       memory: "512Mi"
     requests:
       cpu: "100m"
-      memory: "256Mi"
+      memory: "512Mi"
   ingresses:
     - "https://ebms-send-in.intern.dev.nav.no"
   vault:

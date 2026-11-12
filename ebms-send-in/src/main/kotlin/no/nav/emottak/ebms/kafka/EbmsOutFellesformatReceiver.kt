@@ -3,6 +3,7 @@ package no.nav.emottak.ebms.kafka
 import io.github.nomisRev.kafka.receiver.AutoOffsetReset
 import io.github.nomisRev.kafka.receiver.KafkaReceiver
 import io.github.nomisRev.kafka.receiver.ReceiverSettings
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -61,6 +62,7 @@ private suspend fun startEbmsOutFellesformatReceiver(
 
     KafkaReceiver(receiverSettings)
         .receive(topic)
+        .retryOnRebalance(topic)
         .collect { record ->
             val recordKey = record.key()
             log.info(
@@ -80,6 +82,7 @@ private suspend fun startEbmsOutFellesformatReceiver(
                         record.partition()
                     )
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     log.error("Error processing EbmsOutFellesformat message with offset {}, the message WILL BE IGNORED", record.offset(), e)
                 }
                 record.offset.acknowledge()

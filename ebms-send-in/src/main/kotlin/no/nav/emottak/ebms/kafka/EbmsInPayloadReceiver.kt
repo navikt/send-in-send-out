@@ -4,6 +4,7 @@ import io.github.nomisRev.kafka.receiver.AutoOffsetReset
 import io.github.nomisRev.kafka.receiver.KafkaReceiver
 import io.github.nomisRev.kafka.receiver.ReceiverSettings
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,6 +76,7 @@ private suspend fun startEbmsInPayloadReceiver(
 
     KafkaReceiver(receiverSettings)
         .receive(topic)
+        .retryOnRebalance(topic)
         .collect { record ->
             val recordKey = record.key()
             log.info(
@@ -89,6 +91,7 @@ private suspend fun startEbmsInPayloadReceiver(
                 runCatching {
                     processMessage(recordKey, record.value(), eventRegistrationService, prometheusMeterRegistry, trekkopplysningService, syfoMeldingService, legeMeldingService)
                 }.onFailure {
+                    if (it is CancellationException) throw it
                     log.error("Error processing EbmsInPayload message", it)
                 }
                 record.offset.acknowledge()
