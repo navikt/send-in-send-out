@@ -113,7 +113,7 @@ abstract class PayloadIntegrationTestFelles(
                 conversationId = capture(capturedConversationId)
             )
         } returns Unit
-        every { mockEventService.registerReferenceParameter(any(), any()) } answers {
+        every { mockEventService.registerReferenceParameter(any(), any(), any()) } answers {
             val sendInRequest = firstArg<SendInRequest>()
             mockEventService.registerEvent(
                 EventType.REFERENCE_RETRIEVED,
