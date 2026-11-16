@@ -30,6 +30,7 @@ import no.nav.emottak.utbetaling.UtbetalingClient
 import no.nav.emottak.utbetaling.UtbetalingXmlMarshaller
 import no.nav.emottak.util.EventRegistrationService
 import no.nav.emottak.util.apprecMarshaller
+import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.SendInRequest
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.kafka.model.EventType
@@ -39,6 +40,7 @@ import no.nav.emottak.validSendInHarBorgerFrikortMengdeRequest
 import no.nav.emottak.validSendInHarBorgerFrikortRequest
 import no.nav.emottak.validSendInInntektforesporselRequest
 import no.nav.tjeneste.ekstern.frikort.v1.types.FrikortsporringMengdeResponse
+import no.trygdeetaten.xml.eiff._1.EIFellesformat
 import org.apache.cxf.binding.soap.SoapFault
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -309,9 +311,84 @@ class FagmeldingServiceTest {
         assertEquals("1234", referenceParameter.captured)
         coVerifyOrder {
             eventRegistrationService.registerReferenceParameter(sendInRequest, "1234")
-            legeMeldingService.legemelding(any(), sendInRequest.payload)
+            legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
             eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "PALE_QUEUE")
         }
+    }
+
+    @Test
+    fun `Legemelding refparam parsing failure does not prevent MQ forwarding`() {
+        val sendInRequest = legemeldingRequest().copy(payload = "<MsgHead".toByteArray())
+        val legeMeldingService = mockk<LegeMeldingService>()
+        every { legeMeldingService.queue } returns "PALE_QUEUE"
+        every { legeMeldingService.legemelding(any(), any()) } returns Unit
+
+        val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
+
+        assertTrue(result.isRight())
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any()) }
+        coVerify(exactly = 1) {
+            legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
+        }
+        coVerify(exactly = 1) {
+            eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "PALE_QUEUE")
+        }
+    }
+
+    @Test
+    fun `Legemelding refparam extraction failure does not prevent MQ forwarding`() {
+        val sendInRequest = legemeldingRequest()
+        val legeMeldingService = mockk<LegeMeldingService>()
+        every { legeMeldingService.queue } returns "PALE_QUEUE"
+        every { legeMeldingService.legemelding(any(), any()) } returns Unit
+        mockkStatic("no.nav.emottak.util.ReferenceParamUtilKt")
+        every { any<EIFellesformat>().extractReferenceParameter() } throws IllegalStateException("Extraction failed")
+
+        val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
+
+        assertTrue(result.isRight())
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any()) }
+        coVerify(exactly = 1) {
+            legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
+        }
+        coVerify(exactly = 1) {
+            eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "PALE_QUEUE")
+        }
+    }
+
+    @Test
+    fun `Legemelding refparam registration failure does not prevent MQ forwarding`() {
+        val sendInRequest = legemeldingRequest()
+        val legeMeldingService = mockk<LegeMeldingService>()
+        every { legeMeldingService.queue } returns "PALE_QUEUE"
+        every { legeMeldingService.legemelding(any(), any()) } returns Unit
+        every {
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234")
+        } throws IllegalStateException("Reference event unavailable")
+
+        val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
+
+        assertTrue(result.isRight())
+        coVerifyOrder {
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234")
+            legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
+            eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "PALE_QUEUE")
+        }
+    }
+
+    @Test
+    fun `Legemelding MQ failure still returns Left after refparam parsing failure`() {
+        val sendInRequest = legemeldingRequest().copy(payload = "<MsgHead".toByteArray())
+        val legeMeldingService = mockk<LegeMeldingService>()
+        every { legeMeldingService.legemelding(any(), any()) } throws RuntimeException("MQ unavailable")
+
+        val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
+
+        assertEquals("MQ unavailable", result.leftOrNull()?.message)
+        coVerify(exactly = 1) {
+            legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
+        }
+        coVerify(exactly = 0) { eventRegistrationService.registerMessageSentToFagsystem(any(), any()) }
     }
 
     @Test

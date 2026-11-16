@@ -12,6 +12,7 @@ import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedS
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
+import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning
@@ -313,13 +314,16 @@ object FagmeldingService {
         legeMeldingService: LegeMeldingService,
         eventRegistrationService: EventRegistrationService
     ) = Either.catch {
-        val fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload()
-        eventRegistrationService.registerReferenceParameter(
-            sendInRequest,
-            fellesformat.extractReferenceParameter()
-        )
+        Either.catch {
+            eventRegistrationService.registerReferenceParameter(
+                sendInRequest,
+                sendInRequest.asEIFellesFormat_Legemelding().extractReferenceParameter()
+            )
+        }.onLeft {
+            log.warn("Failed to extract or register reference parameter for Legemelding; continuing message processing", it)
+        }
         legeMeldingService.legemelding(
-            fellesformat = fellesformat,
+            fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload(),
             payload = sendInRequest.payload
         )
     }.bind()
