@@ -12,7 +12,6 @@ import no.nav.emottak.ebms.utils.SupportedSyncServiceType.Companion.toSupportedS
 import no.nav.emottak.ebms.utils.timed
 import no.nav.emottak.fellesformat.asEIFellesFormat
 import no.nav.emottak.fellesformat.asEIFellesFormatWithFrikort
-import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_Trekkopplysning

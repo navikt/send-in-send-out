@@ -58,10 +58,10 @@ fun EIFellesformat.extractReferenceParameter(): String {
 }
 
 private fun MsgHead?.getPatientFnr(): String? =
-    this?.msgInfo?.patient?.ident?.firstOrNull { it.typeId.v == "FNR" }?.id
+    this?.msgInfo?.patient?.ident?.firstOrNull { it.typeId?.v == "FNR" }?.id
 
 private fun MsgHead?.getPatientReportFnr(): String? =
-    this?.patientReport?.firstOrNull()?.patient?.ident?.firstOrNull { it.typeId.v == "FNR" }?.id
+    this?.patientReport?.firstOrNull()?.patient?.ident?.firstOrNull { it.typeId?.v == "FNR" }?.id
 
 fun String?.extractBirthDay(): String {
     if (this == null || this.length != FNUMBER) {
