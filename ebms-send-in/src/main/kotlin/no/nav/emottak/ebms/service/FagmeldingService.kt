@@ -314,12 +314,13 @@ object FagmeldingService {
         legeMeldingService: LegeMeldingService,
         eventRegistrationService: EventRegistrationService
     ) = Either.catch {
+        val fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload()
         eventRegistrationService.registerReferenceParameter(
             sendInRequest,
-            sendInRequest.asEIFellesFormat_Legemelding().extractReferenceParameter()
+            fellesformat.extractReferenceParameter()
         )
         legeMeldingService.legemelding(
-            fellesformat = sendInRequest.asEIFellesFormat_LegemeldingWithoutPayload(),
+            fellesformat = fellesformat,
             payload = sendInRequest.payload
         )
     }.bind()
