@@ -142,7 +142,8 @@ object FagmeldingService {
         with(sendInRequest.asEIFellesFormat()) {
             eventRegistrationService.registerReferenceParameter(
                 sendInRequest,
-                this.extractReferenceParameter()
+                this.extractReferenceParameter(),
+                this.msgHead?.msgInfo?.msgId ?: "Unknown"
             )
             frikortsporringMengde(this).also {
                 eventRegistrationService.registerEvent(
