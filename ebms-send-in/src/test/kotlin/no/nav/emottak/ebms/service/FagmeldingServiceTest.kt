@@ -18,6 +18,8 @@ import no.nav.emottak.LegemeldingRequestTest
 import no.nav.emottak.SykmeldingRequestTest
 import no.nav.emottak.TrekkopplysningRequestTest
 import no.nav.emottak.fellesformat.asEIFellesFormat
+import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
+import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.frikort.egenandelMengdeForesporselXmlMarshaller
 import no.nav.emottak.frikort.frikortsporringMengde
 import no.nav.emottak.frikort.rest.postHarBorgerEgenandelfritak
@@ -104,12 +106,13 @@ class FagmeldingServiceTest {
     @Test
     fun `HarBorgerFrikortMengde is sent via SOAP and registers reference, sent, details and received events in order`() = runBlocking {
         val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val payloadMessageId = sendInRequest.asEIFellesFormat().msgHead.msgInfo.msgId
         mockkStatic("no.nav.emottak.frikort.FrikortClientKt")
         every { frikortsporringMengde(any()) } answers {
             FrikortsporringMengdeResponse().apply { eiFellesformat = firstArg() }
         }
         val referenceParameter = slot<String>()
-        every { eventRegistrationService.registerReferenceParameter(sendInRequest, capture(referenceParameter)) } returns Unit
+        every { eventRegistrationService.registerReferenceParameter(sendInRequest, capture(referenceParameter), payloadMessageId) } returns Unit
 
         val response = FagmeldingService.processRequestSynchronously(sendInRequest, meterRegistry, eventRegistrationService)
             .getOrNull()
@@ -124,7 +127,7 @@ class FagmeldingServiceTest {
         coVerify(exactly = 1) { frikortsporringMengde(any()) }
         assertTrue(referenceParameter.isCaptured)
         coVerifyOrder {
-            eventRegistrationService.registerReferenceParameter(sendInRequest, referenceParameter.captured)
+            eventRegistrationService.registerReferenceParameter(sendInRequest, referenceParameter.captured, payloadMessageId)
             eventRegistrationService.registerEvent(
                 EventType.MESSAGE_SENT_TO_FAGSYSTEM,
                 Uuid.parse(sendInRequest.requestId),
@@ -139,6 +142,7 @@ class FagmeldingServiceTest {
     @Test
     fun `HarBorgerFrikortMengde SOAP client fault returns negative AppRec and registers details and received events`() = runBlocking {
         val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val payloadMessageId = sendInRequest.asEIFellesFormat().msgHead.msgInfo.msgId
         mockkStatic("no.nav.emottak.frikort.FrikortClientKt")
         every { frikortsporringMengde(any()) } throws SoapFault("Client error", QName(SOAP_ENV_NS, "Client"))
 
@@ -149,7 +153,7 @@ class FagmeldingServiceTest {
         assertResponseCorrelatesWith(sendInRequest, response!!)
         assertEquals(sendInRequest.addressing.replyTo("HarBorgerFrikortMengde", "Avvisning"), response.addressing)
         assertNotNull(apprecMarshaller.unmarshal(String(response.payload), AppRec::class.java))
-        coVerify(exactly = 1) { eventRegistrationService.registerReferenceParameter(sendInRequest, any()) }
+        coVerify(exactly = 1) { eventRegistrationService.registerReferenceParameter(sendInRequest, any(), payloadMessageId) }
         coVerify(exactly = 0) {
             eventRegistrationService.registerEvent(EventType.MESSAGE_SENT_TO_FAGSYSTEM, any(), any(), any(), any())
         }
@@ -170,6 +174,7 @@ class FagmeldingServiceTest {
     @Test
     fun `HarBorgerFrikortMengde SOAP server fault returns Left and registers no sent or received events`() = runBlocking {
         val sendInRequest = validSendInHarBorgerFrikortMengdeRequest.value
+        val payloadMessageId = sendInRequest.asEIFellesFormat().msgHead.msgInfo.msgId
         mockkStatic("no.nav.emottak.frikort.FrikortClientKt")
         val fault = SoapFault("Server error", QName(SOAP_ENV_NS, "Server"))
         every { frikortsporringMengde(any()) } throws fault
@@ -177,7 +182,7 @@ class FagmeldingServiceTest {
         val result = FagmeldingService.processRequestSynchronously(sendInRequest, meterRegistry, eventRegistrationService)
 
         assertEquals(fault, result.leftOrNull())
-        coVerify(exactly = 1) { eventRegistrationService.registerReferenceParameter(sendInRequest, any()) }
+        coVerify(exactly = 1) { eventRegistrationService.registerReferenceParameter(sendInRequest, any(), payloadMessageId) }
         coVerify(exactly = 0) { eventRegistrationService.registerEvent(any(), any(), any(), any(), any()) }
         coVerify(exactly = 0) { eventRegistrationService.registerEventMessageDetails(any()) }
     }
@@ -256,7 +261,7 @@ class FagmeldingServiceTest {
             trekkopplysningService.trekkopplysning(any(), sendInRequest.payload)
             eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "TREKK_QUEUE")
         }
-        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any()) }
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any(), any()) }
     }
 
     @Test
@@ -279,18 +284,19 @@ class FagmeldingServiceTest {
             "Registrering",
             SykmeldingRequestTest().payloadFromExpectedXmlFile.toByteArray()
         )
+        val payloadMessageId = sendInRequest.asEIFellesFormat_Sykmelding().msgHead.msgInfo.msgId
         val syfoMeldingService = mockk<SyfoMeldingService>()
         every { syfoMeldingService.queue } returns "SYFO_QUEUE"
         every { syfoMeldingService.sykmelding(any(), any()) } returns Unit
         val referenceParameter = slot<String>()
-        every { eventRegistrationService.registerReferenceParameter(sendInRequest, capture(referenceParameter)) } returns Unit
+        every { eventRegistrationService.registerReferenceParameter(sendInRequest, capture(referenceParameter), payloadMessageId) } returns Unit
 
         val result = processAsync(sendInRequest, syfoMeldingService = syfoMeldingService)
 
         assertTrue(result.isRight())
         assertEquals("0770", referenceParameter.captured)
         coVerifyOrder {
-            eventRegistrationService.registerReferenceParameter(sendInRequest, "0770")
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "0770", payloadMessageId)
             syfoMeldingService.sykmelding(any(), sendInRequest.payload)
             eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "SYFO_QUEUE")
         }
@@ -299,18 +305,19 @@ class FagmeldingServiceTest {
     @Test
     fun `Legemelding is sent to MQ and registers reference parameter and MESSAGE_SENT_TO_FAGSYSTEM`() {
         val sendInRequest = legemeldingRequest()
+        val payloadMessageId = sendInRequest.asEIFellesFormat_Legemelding().msgHead.msgInfo.msgId
         val legeMeldingService = mockk<LegeMeldingService>()
         every { legeMeldingService.queue } returns "PALE_QUEUE"
         every { legeMeldingService.legemelding(any(), any()) } returns Unit
         val referenceParameter = slot<String>()
-        every { eventRegistrationService.registerReferenceParameter(sendInRequest, capture(referenceParameter)) } returns Unit
+        every { eventRegistrationService.registerReferenceParameter(sendInRequest, capture(referenceParameter), payloadMessageId) } returns Unit
 
         val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
 
         assertTrue(result.isRight())
         assertEquals("1234", referenceParameter.captured)
         coVerifyOrder {
-            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234")
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234", payloadMessageId)
             legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
             eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "PALE_QUEUE")
         }
@@ -326,7 +333,7 @@ class FagmeldingServiceTest {
         val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
 
         assertTrue(result.isRight())
-        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any()) }
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any(), any()) }
         coVerify(exactly = 1) {
             legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
         }
@@ -347,7 +354,7 @@ class FagmeldingServiceTest {
         val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
 
         assertTrue(result.isRight())
-        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any()) }
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any(), any()) }
         coVerify(exactly = 1) {
             legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
         }
@@ -359,18 +366,19 @@ class FagmeldingServiceTest {
     @Test
     fun `Legemelding refparam registration failure does not prevent MQ forwarding`() {
         val sendInRequest = legemeldingRequest()
+        val payloadMessageId = sendInRequest.asEIFellesFormat_Legemelding().msgHead.msgInfo.msgId
         val legeMeldingService = mockk<LegeMeldingService>()
         every { legeMeldingService.queue } returns "PALE_QUEUE"
         every { legeMeldingService.legemelding(any(), any()) } returns Unit
         every {
-            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234")
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234", payloadMessageId)
         } throws IllegalStateException("Reference event unavailable")
 
         val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
 
         assertTrue(result.isRight())
         coVerifyOrder {
-            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234")
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "1234", payloadMessageId)
             legeMeldingService.legemelding(match { it.msgHead == null }, sendInRequest.payload)
             eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "PALE_QUEUE")
         }
@@ -394,6 +402,7 @@ class FagmeldingServiceTest {
     @Test
     fun `Legemelding MQ failure returns Left and does not register MESSAGE_SENT_TO_FAGSYSTEM`() {
         val sendInRequest = legemeldingRequest()
+        val payloadMessageId = sendInRequest.asEIFellesFormat_Legemelding().msgHead.msgInfo.msgId
         val legeMeldingService = mockk<LegeMeldingService>()
         every { legeMeldingService.queue } returns "PALE_QUEUE"
         every { legeMeldingService.legemelding(any(), any()) } throws RuntimeException("MQ unavailable")
@@ -401,7 +410,7 @@ class FagmeldingServiceTest {
         val result = processAsync(sendInRequest, legeMeldingService = legeMeldingService)
 
         assertEquals("MQ unavailable", result.leftOrNull()?.message)
-        coVerify(exactly = 1) { eventRegistrationService.registerReferenceParameter(sendInRequest, "1234") }
+        coVerify(exactly = 1) { eventRegistrationService.registerReferenceParameter(sendInRequest, "1234", payloadMessageId) }
         coVerify(exactly = 0) { eventRegistrationService.registerMessageSentToFagsystem(any(), any()) }
     }
 
@@ -485,7 +494,7 @@ class FagmeldingServiceTest {
     private fun verifyNoEventsRegistered() {
         coVerify(exactly = 0) { eventRegistrationService.registerEvent(any(), any(), any(), any(), any()) }
         coVerify(exactly = 0) { eventRegistrationService.registerEventMessageDetails(any()) }
-        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any()) }
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any(), any()) }
         coVerify(exactly = 0) { eventRegistrationService.registerMessageSentToFagsystem(any(), any()) }
     }
 
