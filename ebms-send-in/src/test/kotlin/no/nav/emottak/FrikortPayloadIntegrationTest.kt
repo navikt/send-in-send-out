@@ -280,5 +280,15 @@ class FrikortPayloadIntegrationTest : PayloadIntegrationTestFelles("FRIKORT_URL"
             contentType(ContentType.Application.Json)
         }
         validateEventMockingResponse(mockEventRegistrationService, httpResponse, capturedConversationId, 3)
+        val requestMsgHead = egenandelMengdeForesporselXmlMarshaller.unmarshal(String(sendInRequest.payload), MsgHead::class.java)
+        verify(exactly = 1) {
+            mockEventRegistrationService.registerReferenceParameter(
+                match {
+                    it.copy(payload = sendInRequest.payload) == sendInRequest && it.payload.contentEquals(sendInRequest.payload)
+                },
+                "2",
+                requestMsgHead.msgInfo.msgId
+            )
+        }
     }
 }
