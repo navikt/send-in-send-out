@@ -31,7 +31,7 @@ interface EventRegistrationService {
     fun registerErrorOnHandoverToFagsystem(sendInRequest: SendInRequest, error: Throwable)
     fun registerMessageSentToFagsystem(sendInRequest: SendInRequest, endpointId: String)
     fun registerReferenceParameter(sendInRequest: SendInRequest, referenceParameter: String, msgId: String = "Unknown")
-    fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse)
+    fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse, eventData: String = "{}")
 
     companion object {
         fun serializePartyId(partyIDs: List<PartyId>): String {
@@ -152,11 +152,11 @@ class EventRegistrationServiceImpl(
         )
     }
 
-    override fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse) = registerEvent(
+    override fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse, eventData: String) = registerEvent(
         EventType.MESSAGE_RECEIVED_FROM_FAGSYSTEM,
         requestId = sendInResponse.requestId.parseOrGenerateUuid(),
         messageId = sendInResponse.messageId,
-        eventData = "{}",
+        eventData = eventData,
         conversationId = sendInResponse.conversationId
     )
 }
@@ -223,12 +223,13 @@ class EventRegistrationServiceFake : EventRegistrationService {
         )
     }
 
-    override fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse) {
+    override fun registerMessageReceivedFromFagsystem(sendInResponse: SendInResponse, eventData: String) {
         log.info(
-            "Registering message received from fagsystem for requestId: {}, messageId: {}, conversationId: {}",
+            "Registering message received from fagsystem for requestId: {}, messageId: {}, conversationId: {} and eventData: {}",
             sendInResponse.requestId,
             sendInResponse.messageId,
-            sendInResponse.conversationId
+            sendInResponse.conversationId,
+            eventData
         )
     }
 }
