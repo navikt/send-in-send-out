@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<EI_fellesformat xmlns="http://www.trygdeetaten.no/xml/eiff/1/"
+                 xmlns:ns2="http://www.kith.no/xmlstds/apprec/2004-11-21">
+    <MottakenhetBlokk ediLoggId="2609232357byle36079.1" ebRole="Nav" ebService="Legemelding" ebAction="Svarmelding"/>
+    <ns2:AppRec>
+        <ns2:MsgType V="APPREC"/>
+        <ns2:MIGversion>1.0 2004-11-21</ns2:MIGversion>
+        <ns2:GenDate>2026-09-23T23:57:17.270903003</ns2:GenDate>
+        <ns2:Id>2609232357byle36079.1</ns2:Id>
+        <ns2:Sender>
+            <ns2:HCP>
+                <ns2:Inst>
+                    <ns2:Name>NAV IKT</ns2:Name>
+                    <ns2:Id>79768</ns2:Id>
+                    <ns2:TypeId V="HER" DN="HER-id"/>
+                    <ns2:AdditionalId>
+                        <ns2:Id>990983291</ns2:Id>
+                        <ns2:Type V="ENH" DN="Organisasjonsnummeret i Enhetsregister"/>
+                    </ns2:AdditionalId>
+                </ns2:Inst>
+            </ns2:HCP>
+        </ns2:Sender>
+        <ns2:Receiver>
+            <ns2:HCP>
+                <ns2:Inst>
+                    <ns2:Name>Bylegene</ns2:Name>
+                    <ns2:Id>654321</ns2:Id>
+                    <ns2:TypeId V="HER" DN="HER-id"/>
+                    <ns2:AdditionalId>
+                        <ns2:Id>987654321</ns2:Id>
+                        <ns2:Type V="ENH" DN="Organisasjonsnummeret i Enhetsregister"/>
+                    </ns2:AdditionalId>
+                    <ns2:HCPerson>
+                        <ns2:Name>XXXX XXXX</ns2:Name>
+                        <ns2:Id>123456</ns2:Id>
+                        <ns2:TypeId V="HER" DN="HER-id"/>
+                        <ns2:AdditionalId>
+                            <ns2:Id>123456789</ns2:Id>
+                            <ns2:Type V="HPR" DN="HPR-nummer"/>
+                        </ns2:AdditionalId>
+                    </ns2:HCPerson>
+                </ns2:Inst>
+            </ns2:HCP>
+        </ns2:Receiver>
+        <ns2:Status V="1" DN="OK"/>
+        <ns2:OriginalMsgId>
+            <ns2:MsgType V="LEGEERKL" DN="Legeerklæring ved arbeidsuførhet"/>
+            <ns2:IssueDate>2026-09-23T23:56:44</ns2:IssueDate>
+            <ns2:Id>7baf6409-70a6-4864-a245-ceaafc7bb348</ns2:Id>
+        </ns2:OriginalMsgId>
+    </ns2:AppRec>
+</EI_fellesformat>

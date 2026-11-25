@@ -14,6 +14,7 @@ import no.nav.emottak.config.Config
 import no.nav.emottak.ebms.service.FagmeldingResponseService
 import no.nav.emottak.fellesformat.unmarshal
 import no.nav.emottak.util.EventRegistrationService
+import no.nav.emottak.util.toEventDataJson
 import no.nav.emottak.utils.common.model.SendInResponse
 import no.nav.emottak.utils.config.Kafka
 import no.nav.emottak.utils.config.toProperties
@@ -113,7 +114,7 @@ suspend fun processMessage(
 
     return withContext(MDCContext(mdcData)) {
         val sendInResponse = FagmeldingResponseService.getResponse(fellesformat)
-        eventRegistrationService.registerMessageReceivedFromFagsystem(sendInResponse)
+        eventRegistrationService.registerMessageReceivedFromFagsystem(sendInResponse, fellesformat.toEventDataJson())
         eventRegistrationService.registerEventMessageDetails(sendInResponse)
 
         val json = Json.encodeToString<SendInResponse>(sendInResponse).toByteArray()
