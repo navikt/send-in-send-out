@@ -303,6 +303,73 @@ class FagmeldingServiceTest {
     }
 
     @Test
+    fun `Sykmelding refparam extraction failure does not prevent MQ forwarding`() {
+        val sendInRequest = mockSendInRequest(
+            "Sykmelding",
+            "Registrering",
+            SykmeldingRequestTest().payloadFromExpectedXmlFile.toByteArray()
+        )
+        val syfoMeldingService = mockk<SyfoMeldingService>()
+        every { syfoMeldingService.queue } returns "SYFO_QUEUE"
+        every { syfoMeldingService.sykmelding(any(), any()) } returns Unit
+        mockkStatic("no.nav.emottak.util.ReferenceParamUtilKt")
+        every { any<EIFellesformat>().extractReferenceParameter() } throws IllegalStateException("Extraction failed")
+
+        val result = processAsync(sendInRequest, syfoMeldingService = syfoMeldingService)
+
+        assertTrue(result.isRight())
+        coVerify(exactly = 0) { eventRegistrationService.registerReferenceParameter(any(), any(), any()) }
+        coVerify(exactly = 1) { syfoMeldingService.sykmelding(any(), sendInRequest.payload) }
+        coVerify(exactly = 1) {
+            eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "SYFO_QUEUE")
+        }
+    }
+
+    @Test
+    fun `Sykmelding refparam registration failure does not prevent MQ forwarding`() {
+        val sendInRequest = mockSendInRequest(
+            "Sykmelding",
+            "Registrering",
+            SykmeldingRequestTest().payloadFromExpectedXmlFile.toByteArray()
+        )
+        val payloadMessageId = sendInRequest.asEIFellesFormat_Sykmelding().msgHead.msgInfo.msgId
+        val syfoMeldingService = mockk<SyfoMeldingService>()
+        every { syfoMeldingService.queue } returns "SYFO_QUEUE"
+        every { syfoMeldingService.sykmelding(any(), any()) } returns Unit
+        every {
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "0770", payloadMessageId)
+        } throws IllegalStateException("Reference event unavailable")
+
+        val result = processAsync(sendInRequest, syfoMeldingService = syfoMeldingService)
+
+        assertTrue(result.isRight())
+        coVerifyOrder {
+            eventRegistrationService.registerReferenceParameter(sendInRequest, "0770", payloadMessageId)
+            syfoMeldingService.sykmelding(any(), sendInRequest.payload)
+            eventRegistrationService.registerMessageSentToFagsystem(sendInRequest, "SYFO_QUEUE")
+        }
+    }
+
+    @Test
+    fun `Sykmelding MQ failure still returns Left after refparam extraction failure`() {
+        val sendInRequest = mockSendInRequest(
+            "Sykmelding",
+            "Registrering",
+            SykmeldingRequestTest().payloadFromExpectedXmlFile.toByteArray()
+        )
+        val syfoMeldingService = mockk<SyfoMeldingService>()
+        every { syfoMeldingService.sykmelding(any(), any()) } throws RuntimeException("MQ unavailable")
+        mockkStatic("no.nav.emottak.util.ReferenceParamUtilKt")
+        every { any<EIFellesformat>().extractReferenceParameter() } throws IllegalStateException("Extraction failed")
+
+        val result = processAsync(sendInRequest, syfoMeldingService = syfoMeldingService)
+
+        assertEquals("MQ unavailable", result.leftOrNull()?.message)
+        coVerify(exactly = 1) { syfoMeldingService.sykmelding(any(), sendInRequest.payload) }
+        coVerify(exactly = 0) { eventRegistrationService.registerMessageSentToFagsystem(any(), any()) }
+    }
+
+    @Test
     fun `Legemelding is sent to MQ and registers reference parameter and MESSAGE_SENT_TO_FAGSYSTEM`() {
         val sendInRequest = legemeldingRequest()
         val payloadMessageId = sendInRequest.asEIFellesFormat_Legemelding().msgHead.msgInfo.msgId

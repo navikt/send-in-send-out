@@ -300,11 +300,15 @@ object FagmeldingService {
         eventRegistrationService: EventRegistrationService
     ) = Either.catch {
         val fellesformat = sendInRequest.asEIFellesFormat_Sykmelding()
-        eventRegistrationService.registerReferenceParameter(
-            sendInRequest,
-            fellesformat.extractReferenceParameter(),
-            fellesformat.msgHead?.msgInfo?.msgId ?: "Unknown"
-        )
+        Either.catch {
+            eventRegistrationService.registerReferenceParameter(
+                sendInRequest,
+                fellesformat.extractReferenceParameter(),
+                fellesformat.msgHead?.msgInfo?.msgId ?: "Unknown"
+            )
+        }.onLeft {
+            log.warn("Failed to extract or register reference parameter for Sykmelding; continuing message processing", it)
+        }
         syfoMeldingService.sykmelding(
             fellesformat = fellesformat,
             payload = sendInRequest.payload
