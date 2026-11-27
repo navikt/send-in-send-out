@@ -4,6 +4,7 @@ import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.fellesformat.asEIFellesFormat_Sykmelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_SykmeldingWithoutPayload
 import no.nav.emottak.sykmelding.marshalSykmelding
+import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
@@ -23,6 +24,17 @@ import kotlin.time.Instant
 class SykmeldingRequestTest {
 
     // Verify that a given Sykmelding request is converted to the expected Fellesformat XML string
+
+    @Test
+    fun `extract reference parameter from sykmelding`() {
+        val sendInRequest = mockSendInRequest(
+            service = "Sykmelding",
+            action = "Registrering",
+            payload = payloadFromExpectedXmlFile.toByteArray()
+        )
+
+        assertEquals("0770", sendInRequest.asEIFellesFormat_Sykmelding().extractReferenceParameter())
+    }
 
     @Test
     fun verifyRequestAsXml_unmarshal_marshal() {

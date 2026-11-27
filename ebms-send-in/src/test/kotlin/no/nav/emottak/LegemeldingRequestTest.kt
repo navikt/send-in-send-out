@@ -4,6 +4,7 @@ import no.nav.emottak.fellesformat.FellesformatXmlBuilder
 import no.nav.emottak.fellesformat.asEIFellesFormat_Legemelding
 import no.nav.emottak.fellesformat.asEIFellesFormat_LegemeldingWithoutPayload
 import no.nav.emottak.legemelding.marshalLegemelding
+import no.nav.emottak.util.extractReferenceParameter
 import no.nav.emottak.utils.common.model.Addressing
 import no.nav.emottak.utils.common.model.EbmsProcessing
 import no.nav.emottak.utils.common.model.Party
@@ -23,6 +24,17 @@ import kotlin.time.Instant
 class LegemeldingRequestTest {
 
     // Verify that a given Legemelding request is converted to the expected Fellesformat XML string
+
+    @Test
+    fun `extract reference parameter from legemelding`() {
+        val sendInRequest = mockSendInRequest(
+            service = "Legemelding",
+            action = "Legeerklaring",
+            payload = payloadFromExpectedXmlFile.toByteArray()
+        )
+
+        assertEquals("1234", sendInRequest.asEIFellesFormat_Legemelding().extractReferenceParameter())
+    }
 
     @Test
     fun verifyRequestAsXml_unmarshal_marshal() {
